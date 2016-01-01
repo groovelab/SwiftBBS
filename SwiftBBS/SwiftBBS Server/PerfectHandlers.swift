@@ -15,6 +15,7 @@ public func PerfectServerModuleInit() {
     //  URL Routing
     Routing.Routes["GET", ["/", "index"] ] = { _ in return IndexHandler() }
     Routing.Routes["GET", ["session"] ] = { _ in return SessionHandler() }
+    Routing.Routes["GET", ["template"] ] = { _ in return TemplateHandler() }
     
     print("\(Routing.Routes.description)")
 }
@@ -44,5 +45,42 @@ class SessionHandler: RequestHandler {
         
         response.appendBodyString("Session handler: count is \(count)")
         response.requestCompletedCallback()
+    }
+}
+
+//  use Mustache
+class TemplateHandler: RequestHandler {
+    func handleRequest(request: WebRequest, response: WebResponse) {
+        
+        var values: MustacheEvaluationContext.MapType = MustacheEvaluationContext.MapType()
+        values["value1"] = "sdfsdf"
+
+        do {
+            let responsBody = try render("template.mustache", values: values)
+            response.appendBodyString(responsBody)
+        } catch (let e) {
+            print(e)
+        }
+        
+        response.requestCompletedCallback()
+    }
+    
+    func render(templatePath: String, values: MustacheEvaluationContext.MapType) throws -> String {
+        let context = MustacheEvaluationContext(map: values)
+        
+        let fullPath = "Templates/" + templatePath
+        let file = File(fullPath)
+        
+        try file.openRead()
+        defer { file.close() }
+        let bytes = try file.readSomeBytes(file.size())
+            
+        let parser = MustacheParser()
+        let str = UTF8Encoding.encode(bytes)
+        let template = try parser.parse(str)
+            
+        let collector = MustacheEvaluationOutputCollector()
+        template.evaluate(context, collector: collector)
+        return collector.asString()
     }
 }

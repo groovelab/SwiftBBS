@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0A84901E1C36CB2500149828 /* PerfectLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A84901D1C36CB2500149828 /* PerfectLib.framework */; };
 		0A8490211C36FCB900149828 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8490201C36FCB900149828 /* Config.swift */; };
+		0A84902E1C370BEE00149828 /* template.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A84902B1C370AEF00149828 /* template.mustache */; };
 		0A98F58A1C36B4D800E94B9D /* SwiftBBS Server.h in Headers */ = {isa = PBXBuildFile; fileRef = 0A98F5891C36B4D800E94B9D /* SwiftBBS Server.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0A98F5911C36B4D800E94B9D /* SwiftBBS Server.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A98F5861C36B4D800E94B9D /* SwiftBBS Server.framework */; };
 		0A98F5961C36B4D800E94B9D /* SwiftBBS_ServerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A98F5951C36B4D800E94B9D /* SwiftBBS_ServerTests.swift */; };
@@ -25,9 +26,23 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		0A84902D1C370B5E00149828 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Templates;
+			dstSubfolderSpec = 16;
+			files = (
+				0A84902E1C370BEE00149828 /* template.mustache in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		0A84901D1C36CB2500149828 /* PerfectLib.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PerfectLib.framework; path = "../../Library/Developer/Xcode/DerivedData/Perfect-bmsnkpplajpulvabysklkvgjzgsj/Build/Products/Debug/PerfectLib.framework"; sourceTree = "<group>"; };
 		0A8490201C36FCB900149828 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		0A84902B1C370AEF00149828 /* template.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = template.mustache; sourceTree = "<group>"; };
 		0A98F5861C36B4D800E94B9D /* SwiftBBS Server.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "SwiftBBS Server.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A98F5891C36B4D800E94B9D /* SwiftBBS Server.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SwiftBBS Server.h"; sourceTree = "<group>"; };
 		0A98F58B1C36B4D800E94B9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -65,6 +80,14 @@
 			name = Linked;
 			sourceTree = "<group>";
 		};
+		0A84902A1C370AEF00149828 /* Templates */ = {
+			isa = PBXGroup;
+			children = (
+				0A84902B1C370AEF00149828 /* template.mustache */,
+			);
+			path = Templates;
+			sourceTree = "<group>";
+		};
 		0A98F55E1C36A9FB00E94B9D = {
 			isa = PBXGroup;
 			children = (
@@ -89,6 +112,7 @@
 			children = (
 				0A8490201C36FCB900149828 /* Config.swift */,
 				0A98F59E1C36B52700E94B9D /* PerfectHandlers.swift */,
+				0A84902A1C370AEF00149828 /* Templates */,
 				0A98F5891C36B4D800E94B9D /* SwiftBBS Server.h */,
 				0A98F58B1C36B4D800E94B9D /* Info.plist */,
 			);
@@ -126,6 +150,7 @@
 				0A98F5821C36B4D800E94B9D /* Frameworks */,
 				0A98F5831C36B4D800E94B9D /* Headers */,
 				0A98F5841C36B4D800E94B9D /* Resources */,
+				0A84902D1C370B5E00149828 /* CopyFiles */,
 			);
 			buildRules = (
 			);
