@@ -37,9 +37,10 @@ class SessionHandler: RequestHandler {
         let session = response.getSession(Config.sessionName)
         print(session.getConfiguration())
         
-        var count = session.getVar("count", defaultValue: 0);
+        var count = session.getVar("count", defaultValue: 0)
+        count += 1
         print("count : " + String(count))
-        session["count"] = ++count
+        session["count"] = count
         
         response.appendBodyString("Session handler: count is \(count)")
         response.requestCompletedCallback()

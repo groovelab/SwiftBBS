@@ -2,7 +2,7 @@
 
 TARGET = SwiftBBS
 OS = $(shell uname)
-MODULE_SRC = "SwiftBBS Server/PerfectHandlers.swift"
+MODULE_SRC = "SwiftBBS Server/PerfectHandlers.swift" "SwiftBBS Server/Config.swift"
 PERFECT_ROOT = ../Perfect/PerfectLib
 SWIFTC = swift
 SWIFTC_FLAGS = -frontend -c -module-cache-path $(MODULE_CACHE_PATH) -emit-module -I /usr/local/lib -I $(PERFECT_ROOT)/linked/LibEvent \
