@@ -49,6 +49,10 @@ class SessionHandler: RequestHandler {
 }
 
 //  use Mustache
+//  
+//  need to deploy template files
+//  $ cd (PerfectServer Home Direcgtory)
+//  $ ln -s "/home/ubuntu/swift/SwiftBBS/SwiftBBS/SwiftBBS Server/Templates" ./
 class TemplateHandler: RequestHandler {
     func handleRequest(request: WebRequest, response: WebResponse) {
         
