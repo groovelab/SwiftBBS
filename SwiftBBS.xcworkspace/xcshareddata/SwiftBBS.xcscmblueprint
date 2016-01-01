@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "578798EEEB914F9EA5622395C6A098AA3438F627",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "578798EEEB914F9EA5622395C6A098AA3438F627" : 0,
+    "E2306DAE0C98D148736A05084B6FAB44F03B4909" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "C6F5D7FF-761C-404D-8737-255BD05B9929",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "578798EEEB914F9EA5622395C6A098AA3438F627" : "SwiftBBS\/",
+    "E2306DAE0C98D148736A05084B6FAB44F03B4909" : "SwiftBBS\/Perfect\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "SwiftBBS",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "SwiftBBS.xcworkspace",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/groovelab\/SwiftBBS.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "578798EEEB914F9EA5622395C6A098AA3438F627"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/PerfectlySoft\/Perfect.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "E2306DAE0C98D148736A05084B6FAB44F03B4909"
+    }
+  ]
+}
