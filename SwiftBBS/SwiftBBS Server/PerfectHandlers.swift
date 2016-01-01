@@ -13,7 +13,7 @@ public func PerfectServerModuleInit() {
     Routing.Handler.registerGlobally()
     
     //  URL Routing
-    Routing.Routes["GET", ["/", "index.html"] ] = { _ in return IndexHandler() }
+    Routing.Routes["GET", ["/", "index"] ] = { _ in return IndexHandler() }
     
     print("\(Routing.Routes.description)")
 }
