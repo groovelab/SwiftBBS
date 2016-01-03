@@ -9,21 +9,35 @@
 
 import PerfectLib
 
+let DB_PATH = PerfectServer.staticPerfectServer.homeDir() + serverSQLiteDBs + Config.dbName
+
 //  MARK: - init
 public func PerfectServerModuleInit() {
     Routing.Handler.registerGlobally()
     
     //  URL Routing
-    Routing.Routes["GET", ["/", "index"] ] = { _ in return IndexHandler() }
-    Routing.Routes["GET", ["session"] ] = { _ in return SessionHandler() }
-    Routing.Routes["GET", ["template"] ] = { _ in return TemplateHandler() }
-    Routing.Routes["POST", ["post"]] = { _ in return PostHandler() }
+    Routing.Routes["GET", ["/", "/index"] ] = { _ in return IndexHandler() }
+    Routing.Routes["GET", ["/session"] ] = { _ in return SessionHandler() }
+    Routing.Routes["GET", ["/template"] ] = { _ in return TemplateHandler() }
+    Routing.Routes["POST", ["/post"]] = { _ in return PostHandler() }
+    Routing.Routes["GET", ["/sqlite"]] = { _ in return SqliteHandler() }
+    Routing.Routes["POST", ["/sqlite"]] = { _ in return SqliteHandler() }
+    Routing.Routes["GET", ["/sqlite/add"]] = { _ in return SqliteAddHandler() }
+    Routing.Routes["POST", ["/sqlite/add"]] = { _ in return SqliteAddHandler() }
 
     print("\(Routing.Routes.description)")
+    
+    // Create our SQLite database.
+    do {
+        let sqlite = try SQLite(DB_PATH)
+        try sqlite.execute("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY AUTO INCREMENT, name TEXT)")
+    } catch {
+        print("Failure creating database at " + DB_PATH)
+    }
 }
 
 //  MARK: - extensions
-extension RequestHandler {
+extension WebResponse {
     func render(templatePath: String, values: MustacheEvaluationContext.MapType) throws -> String {
         let context = MustacheEvaluationContext(map: values)
         
@@ -43,10 +57,10 @@ extension RequestHandler {
         return collector.asString()
     }
     
-    func renderHTML(templatePath: String, values: MustacheEvaluationContext.MapType, response: WebResponse) throws {
+    func renderHTML(templatePath: String, values: MustacheEvaluationContext.MapType) throws {
         let responsBody = try render(templatePath, values: values)
-        response.appendBodyString(responsBody)
-        response.addHeader("Content-type", value: "text/html")
+        appendBodyString(responsBody)
+        addHeader("Content-type", value: "text/html")
     }
 }
 
@@ -106,7 +120,7 @@ class TemplateHandler: RequestHandler {
         values["value1"] = "sdfsdf"
 
         do {
-            try renderHTML("template.mustache", values: values, response: response)
+            try response.renderHTML("template.mustache", values: values)
         } catch (let e) {
             print(e)
         }
@@ -123,6 +137,81 @@ class PostHandler: RequestHandler {
         }
         
         response.appendBodyString("posted variables : \(request.postParams)")
+        response.requestCompletedCallback()
+    }
+}
+
+//  sqlist
+class SqliteHandler: RequestHandler {
+    func handleRequest(request: WebRequest, response: WebResponse) {
+        do {
+            var values: MustacheEvaluationContext.MapType = MustacheEvaluationContext.MapType()
+
+            let sqlite = try SQLite(DB_PATH)
+            defer { sqlite.close() }
+            
+            var sql = "SELECT * FROM user"
+            var nameForSearch: String?
+            if let name = request.postParam("name") {
+                nameForSearch = name
+                sql = "SELECT * FROM user WHERE name LIKE :1"
+            }
+            values["nameForSearch"] = nameForSearch ?? ""
+
+            var users = [[String:Any]]()
+            try sqlite.forEachRow(sql, doBindings: {
+                (stmt:SQLiteStmt) -> () in
+                    if let nameForSearch = nameForSearch {
+                        try stmt.bind(1, "%" + nameForSearch + "%")
+                    }
+                }) {
+                    (stmt:SQLiteStmt, r:Int) -> () in
+                    var id:Int?, name:String?
+                    (id, name) = (stmt.columnInt(0), stmt.columnText(1))
+                    if let id = id {
+                        users.append([
+                            "id": id,
+                            "name": name ?? ""
+                        ])
+                    }
+            }
+            
+            values["users"] = users
+            print(values)
+            try response.renderHTML("sqlite.mustache", values: values)
+        } catch (let e) {
+            print(e)
+        }
+        
+        response.requestCompletedCallback()
+    }
+}
+
+class SqliteAddHandler: RequestHandler {
+    func handleRequest(request: WebRequest, response: WebResponse) {
+        do {
+            let sqlite = try SQLite(DB_PATH)
+            defer { sqlite.close() }
+
+            //  validate
+            guard let _ = request.postParam("name") else {
+                response.setStatus(500, message: "invalidate request parameter")
+                response.requestCompletedCallback()
+                return
+            }
+
+            //  insert
+            let name = request.postParam("name") ?? ""
+            try sqlite.execute("INSERT INTO user (name) VALUES (:1)") {
+                (stmt:SQLiteStmt) -> () in
+                try stmt.bind(1, name)
+            }
+
+            response.redirectTo("/sqlite")
+        } catch (let e) {
+            print(e)
+        }
+        
         response.requestCompletedCallback()
     }
 }

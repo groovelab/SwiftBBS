@@ -10,4 +10,6 @@ import Foundation
 
 class Config {
     static let sessionName = "session"
+    static let dbName = "SwiftBBS"
+
 }
