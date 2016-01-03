@@ -20,7 +20,7 @@ public func PerfectServerModuleInit() {
     Routing.Routes["GET", ["/session"] ] = { _ in return SessionHandler() }
     Routing.Routes["GET", ["/template"] ] = { _ in return TemplateHandler() }
     Routing.Routes["POST", ["/post"]] = { _ in return PostHandler() }
-    Routing.Routes["GET", ["/sqlite"]] = { _ in return SqliteHandler() }
+    Routing.Routes["GET", ["/sqlite", "/sqlite/{json}"]] = { _ in return SqliteHandler() }
     Routing.Routes["POST", ["/sqlite"]] = { _ in return SqliteHandler() }
     Routing.Routes["GET", ["/sqlite/add"]] = { _ in return SqliteAddHandler() }
     Routing.Routes["POST", ["/sqlite/add"]] = { _ in return SqliteAddHandler() }
@@ -61,6 +61,12 @@ extension WebResponse {
         let responsBody = try render(templatePath, values: values)
         appendBodyString(responsBody)
         addHeader("Content-type", value: "text/html")
+    }
+    
+    func outputJson(values: [String:JSONValue]) throws {
+        addHeader("content-type", value: "application/json")
+        let encoded = try JSONEncode().encode(values)
+        appendBodyString(encoded)
     }
 }
 
@@ -158,7 +164,7 @@ class SqliteHandler: RequestHandler {
             }
             values["nameForSearch"] = nameForSearch ?? ""
 
-            var users = [[String:Any]]()
+            var users = [Any]()
             try sqlite.forEachRow(sql, doBindings: {
                 (stmt:SQLiteStmt) -> () in
                     if let nameForSearch = nameForSearch {
@@ -169,16 +175,19 @@ class SqliteHandler: RequestHandler {
                     var id:Int?, name:String?
                     (id, name) = (stmt.columnInt(0), stmt.columnText(1))
                     if let id = id {
-                        users.append([
-                            "id": id,
-                            "name": name ?? ""
-                        ])
+                        var user = [String:Any]()
+                        user["id"] = id
+                        user["name"] = name ?? ""
+                        users.append(user)
                     }
             }
             
-            values["users"] = users
-            print(values)
-            try response.renderHTML("sqlite.mustache", values: values)
+            if let json = request.urlVariables["json"] where json == "json" {
+                try response.outputJson(["users": users])
+            } else {
+                values["users"] = users
+                try response.renderHTML("sqlite.mustache", values: values)
+            }
         } catch (let e) {
             print(e)
         }
