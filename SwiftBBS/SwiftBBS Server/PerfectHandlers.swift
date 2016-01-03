@@ -30,7 +30,7 @@ public func PerfectServerModuleInit() {
     // Create our SQLite database.
     do {
         let sqlite = try SQLite(DB_PATH)
-        try sqlite.execute("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY, name TEXT)")
+        try sqlite.execute("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, name TEXT)")
     } catch {
         print("Failure creating database at " + DB_PATH)
     }
