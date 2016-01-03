@@ -1,3 +1,4 @@
+//            var users = [Any]()
 //
 //  PerfectHandlers.swift
 //  SwiftBBS
@@ -151,8 +152,11 @@ class PostHandler: RequestHandler {
 class SqliteHandler: RequestHandler {
     func handleRequest(request: WebRequest, response: WebResponse) {
         do {
-            var values: MustacheEvaluationContext.MapType = MustacheEvaluationContext.MapType()
-
+            var isJson = false
+            if let json = request.urlVariables["json"] where json == "json" {
+                isJson = true
+            }
+            
             let sqlite = try SQLite(DB_PATH)
             defer { sqlite.close() }
             
@@ -162,9 +166,9 @@ class SqliteHandler: RequestHandler {
                 nameForSearch = name
                 sql = "SELECT * FROM user WHERE name LIKE :1"
             }
-            values["nameForSearch"] = nameForSearch ?? ""
 
-            var users = [Any]()
+            var usersForJson = [Any]()
+            var users = [[String:Any]]()
             try sqlite.forEachRow(sql, doBindings: {
                 (stmt:SQLiteStmt) -> () in
                     if let nameForSearch = nameForSearch {
@@ -175,16 +179,22 @@ class SqliteHandler: RequestHandler {
                     var id:Int?, name:String?
                     (id, name) = (stmt.columnInt(0), stmt.columnText(1))
                     if let id = id {
-                        var user = [String:Any]()
-                        user["id"] = id
-                        user["name"] = name ?? ""
-                        users.append(user)
+                        if isJson {
+                            var user = [String:Any]()
+                            user["id"] = id
+                            user["name"] = name ?? ""
+                            usersForJson.append(user)
+                        } else {
+                            users.append(["id":id, "name":name ?? ""])
+                        }
                     }
             }
             
-            if let json = request.urlVariables["json"] where json == "json" {
-                try response.outputJson(["users": users])
+            if isJson {
+                try response.outputJson(["users": usersForJson])
             } else {
+                var values: MustacheEvaluationContext.MapType = MustacheEvaluationContext.MapType()
+                values["nameForSearch"] = nameForSearch ?? ""
                 values["users"] = users
                 try response.renderHTML("sqlite.mustache", values: values)
             }
