@@ -9,6 +9,7 @@
 
 import PerfectLib
 
+//  MARK: - init
 public func PerfectServerModuleInit() {
     Routing.Handler.registerGlobally()
     
@@ -16,10 +17,55 @@ public func PerfectServerModuleInit() {
     Routing.Routes["GET", ["/", "index"] ] = { _ in return IndexHandler() }
     Routing.Routes["GET", ["session"] ] = { _ in return SessionHandler() }
     Routing.Routes["GET", ["template"] ] = { _ in return TemplateHandler() }
-    
+    Routing.Routes["POST", ["post"]] = { _ in return PostHandler() }
+
     print("\(Routing.Routes.description)")
 }
 
+//  MARK: - extensions
+extension RequestHandler {
+    func render(templatePath: String, values: MustacheEvaluationContext.MapType) throws -> String {
+        let context = MustacheEvaluationContext(map: values)
+        
+        let fullPath = "Templates/" + templatePath
+        let file = File(fullPath)
+        
+        try file.openRead()
+        defer { file.close() }
+        let bytes = try file.readSomeBytes(file.size())
+        
+        let parser = MustacheParser()
+        let str = UTF8Encoding.encode(bytes)
+        let template = try parser.parse(str)
+        
+        let collector = MustacheEvaluationOutputCollector()
+        template.evaluate(context, collector: collector)
+        return collector.asString()
+    }
+    
+    func renderHTML(templatePath: String, values: MustacheEvaluationContext.MapType, response: WebResponse) throws {
+        let responsBody = try render(templatePath, values: values)
+        response.appendBodyString(responsBody)
+        response.addHeader("Content-type", value: "text/html")
+    }
+}
+
+extension WebRequest {
+    func postParam(targetKey: String) -> String? {
+        let keyValues = postParams.filter { (key, value) -> Bool in
+            return (targetKey == key)
+        }
+        
+        if keyValues.count == 1 {
+            let keyValue = keyValues[0]
+            return keyValue.1
+        } else {
+            return nil
+        }
+    }
+}
+
+//  MARK: - handlers
 class IndexHandler: RequestHandler {
     
     func handleRequest(request: WebRequest, response: WebResponse) {
@@ -60,31 +106,23 @@ class TemplateHandler: RequestHandler {
         values["value1"] = "sdfsdf"
 
         do {
-            let responsBody = try render("template.mustache", values: values)
-            response.appendBodyString(responsBody)
+            try renderHTML("template.mustache", values: values, response: response)
         } catch (let e) {
             print(e)
         }
-        
+
         response.requestCompletedCallback()
     }
-    
-    func render(templatePath: String, values: MustacheEvaluationContext.MapType) throws -> String {
-        let context = MustacheEvaluationContext(map: values)
+}
+
+//  post
+class PostHandler: RequestHandler {
+    func handleRequest(request: WebRequest, response: WebResponse) {
+        if let val2 = request.postParam("val2") {
+            print(val2)
+        }
         
-        let fullPath = "Templates/" + templatePath
-        let file = File(fullPath)
-        
-        try file.openRead()
-        defer { file.close() }
-        let bytes = try file.readSomeBytes(file.size())
-            
-        let parser = MustacheParser()
-        let str = UTF8Encoding.encode(bytes)
-        let template = try parser.parse(str)
-            
-        let collector = MustacheEvaluationOutputCollector()
-        template.evaluate(context, collector: collector)
-        return collector.asString()
+        response.appendBodyString("posted variables : \(request.postParams)")
+        response.requestCompletedCallback()
     }
 }
