@@ -26,12 +26,23 @@ public func PerfectServerModuleInit() {
     Routing.Routes["GET", ["/sqlite/add"]] = { _ in return SqliteAddHandler() }
     Routing.Routes["POST", ["/sqlite/add"]] = { _ in return SqliteAddHandler() }
 
+    //  user register
+    Routing.Routes["GET", ["/user", "/user/{action}"]] = { _ in return UserHandler() }
+    Routing.Routes["POST", ["/user/{action}"]] = { _ in return UserHandler() }
+
+    //  login
+    //  mypage
+    //  bbs list with search from
+    //  bbs comment list
+    //  add bbs form, edit, delete
+    //  add comment form, edit, delete
+    
     print("\(Routing.Routes.description)")
     
     // Create our SQLite database.
     do {
         let sqlite = try SQLite(DB_PATH)
-        try sqlite.execute("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, name TEXT)")
+        try sqlite.execute("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, name TEXT, password TEXT)")
     } catch {
         print("Failure creating database at " + DB_PATH)
     }
@@ -84,9 +95,118 @@ extension WebRequest {
             return nil
         }
     }
+    
+    var action: String {
+        return urlVariables["action"] ?? "index"
+    }
 }
 
-//  MARK: - handlers
+
+class UserHandler: RequestHandler {
+    func handleRequest(request: WebRequest, response: WebResponse) {
+        //  check session
+        let session = response.getSession(Config.sessionName)
+        if let _ = session["id"] {
+            response.redirectTo("/index")
+            response.requestCompletedCallback()
+            return
+        }
+
+        do {
+            switch request.action {
+            case "login" where request.requestMethod() == "POST":
+                try doLoginAction(request, response: response)
+            case "login":
+                try loginAction(request, response: response)
+            case "add" where request.requestMethod() == "POST":
+                try addAction(request, response: response)
+            default:
+                try indexAction(request, response: response)
+            }
+        } catch (let e) {
+            print(e)
+        }
+        
+        response.requestCompletedCallback()
+    }
+    
+    func indexAction(request: WebRequest, response: WebResponse) throws {
+        let values = MustacheEvaluationContext.MapType()
+        try response.renderHTML("user.mustache", values: values)
+    }
+    
+    func addAction(request: WebRequest, response: WebResponse) throws {
+        let sqlite = try SQLite(DB_PATH)
+        defer { sqlite.close() }
+            
+        //  validate
+        guard let name = request.postParam("name") else {
+            response.setStatus(500, message: "invalidate request parameter")
+            return
+        }
+        guard let password = request.postParam("password") else {
+            response.setStatus(500, message: "invalidate request parameter")
+            return
+        }
+        
+        //  TODO:unique check
+        
+        //  insert
+        try sqlite.execute("INSERT INTO user (name, password) VALUES (:1, :2)") {
+            (stmt:SQLiteStmt) -> () in
+            try stmt.bind(1, name)
+            try stmt.bind(2, password)  //  TODO:encrypto
+        }
+            
+        response.redirectTo("/user/login")
+    }
+    
+    func loginAction(request: WebRequest, response: WebResponse) throws {
+        let values = MustacheEvaluationContext.MapType()
+        try response.renderHTML("login.mustache", values: values)
+    }
+
+    func doLoginAction(request: WebRequest, response: WebResponse) throws {
+        let sqlite = try SQLite(DB_PATH)
+        defer { sqlite.close() }
+        
+        //  validate
+        guard let loginName = request.postParam("name") else {
+            response.setStatus(500, message: "invalidate request parameter")
+            return
+        }
+        guard let loginPassword = request.postParam("password") else {
+            response.setStatus(500, message: "invalidate request parameter")
+            return
+        }
+        
+        //  check exist
+        var successLogin = false
+        let sql = "SELECT id FROM user WHERE name = :1 AND password = :2"
+        try sqlite.forEachRow(sql, doBindings: {
+            (stmt:SQLiteStmt) -> () in
+            try stmt.bind(1, loginName)
+            try stmt.bind(2, loginPassword)
+        }) {
+            (stmt:SQLiteStmt, r:Int) -> () in
+            let id:Int? = stmt.columnInt(0)
+            if let id = id {
+                let session = response.getSession(Config.sessionName)
+                session["id"] = id
+                successLogin = true
+            }
+        }
+        
+        if successLogin {
+            response.redirectTo("/index")
+        } else {
+            response.redirectTo("/user/login")  //  TODO:add login failed message
+        }
+    }
+}
+
+
+//  MARK: - sample handlers
 class IndexHandler: RequestHandler {
     
     func handleRequest(request: WebRequest, response: WebResponse) {

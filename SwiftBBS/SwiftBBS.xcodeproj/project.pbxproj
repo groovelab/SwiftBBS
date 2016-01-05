@@ -12,6 +12,10 @@
 		0A84902E1C370BEE00149828 /* template.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A84902B1C370AEF00149828 /* template.mustache */; };
 		0A8490301C39907D00149828 /* sqlite.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A84902F1C39907D00149828 /* sqlite.mustache */; };
 		0A8490311C39954100149828 /* sqlite.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A84902F1C39907D00149828 /* sqlite.mustache */; };
+		0A8490361C3BE05000149828 /* user.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A8490351C3BE05000149828 /* user.mustache */; };
+		0A8490371C3BE14A00149828 /* user.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A8490351C3BE05000149828 /* user.mustache */; };
+		0A8490391C3BF07100149828 /* login.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A8490381C3BF07100149828 /* login.mustache */; };
+		0A84903A1C3BF12500149828 /* login.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A8490381C3BF07100149828 /* login.mustache */; };
 		0A98F58A1C36B4D800E94B9D /* SwiftBBS Server.h in Headers */ = {isa = PBXBuildFile; fileRef = 0A98F5891C36B4D800E94B9D /* SwiftBBS Server.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0A98F5911C36B4D800E94B9D /* SwiftBBS Server.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A98F5861C36B4D800E94B9D /* SwiftBBS Server.framework */; };
 		0A98F5961C36B4D800E94B9D /* SwiftBBS_ServerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A98F5951C36B4D800E94B9D /* SwiftBBS_ServerTests.swift */; };
@@ -35,6 +39,8 @@
 			dstPath = Templates;
 			dstSubfolderSpec = 16;
 			files = (
+				0A84903A1C3BF12500149828 /* login.mustache in CopyFiles */,
+				0A8490371C3BE14A00149828 /* user.mustache in CopyFiles */,
 				0A8490311C39954100149828 /* sqlite.mustache in CopyFiles */,
 				0A84902E1C370BEE00149828 /* template.mustache in CopyFiles */,
 			);
@@ -47,6 +53,8 @@
 		0A8490201C36FCB900149828 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		0A84902B1C370AEF00149828 /* template.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = template.mustache; sourceTree = "<group>"; };
 		0A84902F1C39907D00149828 /* sqlite.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sqlite.mustache; sourceTree = "<group>"; };
+		0A8490351C3BE05000149828 /* user.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user.mustache; sourceTree = "<group>"; };
+		0A8490381C3BF07100149828 /* login.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = login.mustache; sourceTree = "<group>"; };
 		0A98F5861C36B4D800E94B9D /* SwiftBBS Server.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "SwiftBBS Server.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A98F5891C36B4D800E94B9D /* SwiftBBS Server.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SwiftBBS Server.h"; sourceTree = "<group>"; };
 		0A98F58B1C36B4D800E94B9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -87,8 +95,10 @@
 		0A84902A1C370AEF00149828 /* Templates */ = {
 			isa = PBXGroup;
 			children = (
+				0A8490351C3BE05000149828 /* user.mustache */,
 				0A84902B1C370AEF00149828 /* template.mustache */,
 				0A84902F1C39907D00149828 /* sqlite.mustache */,
+				0A8490381C3BF07100149828 /* login.mustache */,
 			);
 			path = Templates;
 			sourceTree = "<group>";
@@ -224,7 +234,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A8490361C3BE05000149828 /* user.mustache in Resources */,
 				0A8490301C39907D00149828 /* sqlite.mustache in Resources */,
+				0A8490391C3BF07100149828 /* login.mustache in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
