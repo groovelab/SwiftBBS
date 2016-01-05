@@ -30,7 +30,10 @@ public func PerfectServerModuleInit() {
     Routing.Routes["GET", ["/user", "/user/{action}"]] = { _ in return UserHandler() }
     Routing.Routes["POST", ["/user/{action}"]] = { _ in return UserHandler() }
 
-    //  login
+    //  bbs
+    Routing.Routes["GET", ["/bbs", "/bbs/{action}", "/bbs/{action}/{id}"]] = { _ in return BbsHandler() }
+    Routing.Routes["POST", ["/bbs/{action}"]] = { _ in return BbsHandler() }
+
     //  mypage
     //  bbs list with search from
     //  bbs comment list
@@ -42,7 +45,9 @@ public func PerfectServerModuleInit() {
     // Create our SQLite database.
     do {
         let sqlite = try SQLite(DB_PATH)
-        try sqlite.execute("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, name TEXT, password TEXT)")
+        try sqlite.execute("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, name TEXT, password TEXT created_at TEXT)")
+        try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs (id INTEGER PRIMARY KEY, title TEXT, comment TEXT, user_id INTEGER, created_at TEXT)")    //  TODO:created datetime datetime('now')
+        try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs_post (id INTEGER PRIMARY KEY, bbs_id INTEGER, comment TEXT, user_id INTEGER, created_at TEXT)")   //  TODO:create index
     } catch {
         print("Failure creating database at " + DB_PATH)
     }
@@ -101,7 +106,7 @@ extension WebRequest {
     }
 }
 
-
+//  MARK: - handlers
 class UserHandler: RequestHandler {
     func handleRequest(request: WebRequest, response: WebResponse) {
         //  check session
@@ -205,10 +210,154 @@ class UserHandler: RequestHandler {
     }
 }
 
+class BbsHandler: RequestHandler {
+    func handleRequest(request: WebRequest, response: WebResponse) {
+        do {
+            switch request.action {
+            case "add" where request.requestMethod() == "POST":
+                try addAction(request, response: response)
+            case "addpost" where request.requestMethod() == "POST":
+                try addpostAction(request, response: response)
+            case "list":
+                try listAction(request, response: response)
+            default:
+                try indexAction(request, response: response)
+            }
+        } catch (let e) {
+            print(e)
+        }
+        
+        response.requestCompletedCallback()
+    }
+    
+    func indexAction(request: WebRequest, response: WebResponse) throws {
+        let sqlite = try SQLite(DB_PATH)
+        defer { sqlite.close() }
+        
+        var sql = "SELECT id, title FROM bbs"
+        var keywordForSearch: String?
+        if let keyword = request.postParam("keyword") {
+            keywordForSearch = keyword
+            sql = "SELECT id, title FROM bbs WHERE title LIKE :1 OR comment LIKE :1"
+        }
+        
+        var bbsList = [[String:Any]]()
+        try sqlite.forEachRow(sql, doBindings: {
+            (stmt:SQLiteStmt) -> () in
+            if let keywordForSearch = keywordForSearch {
+                try stmt.bind(1, "%" + keywordForSearch + "%")
+            }
+        }) {
+            (stmt:SQLiteStmt, r:Int) -> () in
+            var id:Int?, title:String?
+            (id, title) = (stmt.columnInt(0), stmt.columnText(1))
+            if let id = id {
+                bbsList.append(["id":id, "title":title ?? ""])
+            }
+        }
+        
+        var values: MustacheEvaluationContext.MapType = MustacheEvaluationContext.MapType()
+        values["keywordForSearch"] = keywordForSearch ?? ""
+        values["bbsList"] = bbsList
+        try response.renderHTML("bbs.mustache", values: values)
+    }
+    
+    func addAction(request: WebRequest, response: WebResponse) throws {
+        let sqlite = try SQLite(DB_PATH)
+        defer { sqlite.close() }
+        
+        //  validate
+        guard let title = request.postParam("title") else {
+            response.setStatus(500, message: "invalidate request parameter")
+            return
+        }
+        guard let comment = request.postParam("comment") else {
+            response.setStatus(500, message: "invalidate request parameter")
+            return
+        }
+        
+        //  insert
+        try sqlite.execute("INSERT INTO bbs (title, comment) VALUES (:1, :2)") {    //  TODO:user_id, created_at
+            (stmt:SQLiteStmt) -> () in
+            try stmt.bind(1, title)
+            try stmt.bind(2, comment)
+        }
+        
+        response.redirectTo("/bbs")
+    }
+    
+    func listAction(request: WebRequest, response: WebResponse) throws {
+        guard let bbsId = request.urlVariables["id"] else {
+            response.setStatus(500, message: "invalidate request parameter")
+            return
+        }
+        
+        let sqlite = try SQLite(DB_PATH)
+        defer { sqlite.close() }
+
+        //  bbs
+        var bbs = [String:Any]()
+        let sql = "SELECT id, title, comment FROM bbs WHERE id = :1"
+        try sqlite.forEachRow(sql, doBindings: {
+            (stmt:SQLiteStmt) -> () in
+            try stmt.bind(1, bbsId)
+        }) {
+            (stmt:SQLiteStmt, r:Int) -> () in
+            var id:Int?, title:String?, comment:String?
+            (id, title, comment) = (stmt.columnInt(0), stmt.columnText(1), stmt.columnText(2))
+            if let id = id {
+                bbs = ["id":id, "title":title ?? "", "comment":comment ?? ""]
+            }
+        }
+        
+        //  bbs post
+        var postList = [[String:Any]]()
+        let sql2 = "SELECT id, comment FROM bbs_post WHERE bbs_id = :1"
+        try sqlite.forEachRow(sql2, doBindings: {
+            (stmt:SQLiteStmt) -> () in
+            try stmt.bind(1, bbsId)
+        }) {
+            (stmt:SQLiteStmt, r:Int) -> () in
+            var id:Int?, comment:String?
+            (id, comment) = (stmt.columnInt(0), stmt.columnText(1))
+            if let id = id {
+                postList.append(["id":id, "comment":comment ?? ""])
+            }
+        }
+        
+        var values: MustacheEvaluationContext.MapType = MustacheEvaluationContext.MapType()
+        values["bbs"] = bbs
+        values["postList"] = postList
+        try response.renderHTML("bbs_list.mustache", values: values)
+    }
+    
+    func addpostAction(request: WebRequest, response: WebResponse) throws {
+        let sqlite = try SQLite(DB_PATH)
+        defer { sqlite.close() }
+        
+        //  validate
+        guard let bbsId = request.postParam("bbs_id") else {
+            response.setStatus(500, message: "invalidate request parameter")
+            return
+        }
+        guard let comment = request.postParam("comment") else {
+            response.setStatus(500, message: "invalidate request parameter")
+            return
+        }
+        
+        //  insert
+        try sqlite.execute("INSERT INTO bbs_post (bbs_id, comment) VALUES (:1, :2)") {    //  TODO:user_id, created_at
+            (stmt:SQLiteStmt) -> () in
+            try stmt.bind(1, bbsId)
+            try stmt.bind(2, comment)
+        }
+        
+        response.redirectTo("/bbs/list/" + bbsId)
+    }
+}
 
 //  MARK: - sample handlers
 class IndexHandler: RequestHandler {
-    
     func handleRequest(request: WebRequest, response: WebResponse) {
         //  session
         let session = response.getSession(Config.sessionName)

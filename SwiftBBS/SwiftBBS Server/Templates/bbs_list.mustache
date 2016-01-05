@@ -1,0 +1,34 @@
+<html>
+<head>
+<title>bbs list | SwiftBBS</title>
+</head>
+<body>
+
+<h1>bbs list</h1>
+
+<h2>bbs</h2>
+{{#bbs}}
+<p>title : {{title}}</p>
+<p>comment : {{comment}}</p>
+{{/bbs}}
+
+<h2>post list</h2>
+<ul>
+{{#postList}}
+<li>{{comment}}</li>
+{{/postList}}
+</ul>
+
+<hr>
+
+<h2>post form</h2>
+<form action="/bbs/addpost" method="post">
+<p>comment : <textarea name="comment" rows="5" cols="30"></textarea></p>
+{{#bbs}}
+<input type="hidden" name="bbs_id" value="{{id}}">
+{{/bbs}}
+<input type="submit" value="add">
+</form>
+
+</body>
+</html>
