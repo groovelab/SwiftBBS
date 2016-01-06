@@ -45,8 +45,8 @@ public func PerfectServerModuleInit() {
     // Create our SQLite database.
     do {
         let sqlite = try SQLite(DB_PATH)
-        try sqlite.execute("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, name TEXT, password TEXT created_at TEXT)")
-        try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs (id INTEGER PRIMARY KEY, title TEXT, comment TEXT, user_id INTEGER, created_at TEXT)")    //  TODO:created datetime datetime('now')
+        try sqlite.execute("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, name TEXT, password TEXT, created_at TEXT)")
+        try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs (id INTEGER PRIMARY KEY, title TEXT, comment TEXT, user_id INTEGER, created_at TEXT)")
         try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs_post (id INTEGER PRIMARY KEY, bbs_id INTEGER, comment TEXT, user_id INTEGER, created_at TEXT)")   //  TODO:create index
     } catch {
         print("Failure creating database at " + DB_PATH)
@@ -85,6 +85,14 @@ extension WebResponse {
         let encoded = try JSONEncode().encode(values)
         appendBodyString(encoded)
     }
+    
+    func userIdInSession() -> Int? {
+        let session = getSession(Config.sessionName)
+        if let id = session["id"] as? Int {
+            return id
+        }
+        return nil
+    }
 }
 
 extension WebRequest {
@@ -110,9 +118,8 @@ extension WebRequest {
 class UserHandler: RequestHandler {
     func handleRequest(request: WebRequest, response: WebResponse) {
         //  check session
-        let session = response.getSession(Config.sessionName)
-        if let _ = session["id"] {
-            response.redirectTo("/index")
+        if let _ = response.userIdInSession() {
+            response.redirectTo("/bbs")
             response.requestCompletedCallback()
             return
         }
@@ -157,7 +164,7 @@ class UserHandler: RequestHandler {
         //  TODO:unique check
         
         //  insert
-        try sqlite.execute("INSERT INTO user (name, password) VALUES (:1, :2)") {
+        try sqlite.execute("INSERT INTO user (name, password, created_at) VALUES (:1, :2, datetime('now'))") {
             (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, name)
             try stmt.bind(2, password)  //  TODO:encrypto
@@ -203,7 +210,7 @@ class UserHandler: RequestHandler {
         }
         
         if successLogin {
-            response.redirectTo("/index")
+            response.redirectTo("/bbs")
         } else {
             response.redirectTo("/user/login")  //  TODO:add login failed message
         }
@@ -263,6 +270,12 @@ class BbsHandler: RequestHandler {
     }
     
     func addAction(request: WebRequest, response: WebResponse) throws {
+        //  check session
+        guard let userId = response.userIdInSession() else {
+            response.redirectTo("/bbs")
+            return
+        }
+
         let sqlite = try SQLite(DB_PATH)
         defer { sqlite.close() }
         
@@ -277,10 +290,11 @@ class BbsHandler: RequestHandler {
         }
         
         //  insert
-        try sqlite.execute("INSERT INTO bbs (title, comment) VALUES (:1, :2)") {    //  TODO:user_id, created_at
+        try sqlite.execute("INSERT INTO bbs (title, comment, user_id, created_at) VALUES (:1, :2, :3, datetime('now'))") {
             (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, title)
             try stmt.bind(2, comment)
+            try stmt.bind(3, userId)
         }
         
         response.redirectTo("/bbs")
@@ -332,6 +346,12 @@ class BbsHandler: RequestHandler {
     }
     
     func addpostAction(request: WebRequest, response: WebResponse) throws {
+        //  check session
+        guard let userId = response.userIdInSession() else {
+            response.redirectTo("/user/login")
+            return
+        }
+
         let sqlite = try SQLite(DB_PATH)
         defer { sqlite.close() }
         
@@ -346,10 +366,11 @@ class BbsHandler: RequestHandler {
         }
         
         //  insert
-        try sqlite.execute("INSERT INTO bbs_post (bbs_id, comment) VALUES (:1, :2)") {    //  TODO:user_id, created_at
+        try sqlite.execute("INSERT INTO bbs_post (bbs_id, comment, user_id, created_at) VALUES (:1, :2, :3, datetime('now'))") {
             (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, bbsId)
             try stmt.bind(2, comment)
+            try stmt.bind(3, userId)
         }
         
         response.redirectTo("/bbs/list/" + bbsId)
