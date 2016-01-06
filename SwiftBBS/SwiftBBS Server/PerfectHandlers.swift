@@ -46,6 +46,7 @@ public func PerfectServerModuleInit() {
     do {
         let sqlite = try SQLite(DB_PATH)
         try sqlite.execute("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, name TEXT, password TEXT, created_at TEXT)")
+        try sqlite.execute("CREATE UNIQUE INDEX user_name ON user (name)")
         try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs (id INTEGER PRIMARY KEY, title TEXT, comment TEXT, user_id INTEGER, created_at TEXT)")
         try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs_post (id INTEGER PRIMARY KEY, bbs_id INTEGER, comment TEXT, user_id INTEGER, created_at TEXT)")
         try sqlite.execute("CREATE INDEX bbs_post_bbs_id ON bbs_post (bbs_id);")
@@ -164,15 +165,18 @@ class UserHandler: RequestHandler {
             return
         }
         
-        //  TODO:unique check
-        
         //  insert
         try sqlite.execute("INSERT INTO user (name, password, created_at) VALUES (:1, :2, datetime('now'))") {
             (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, name)
             try stmt.bind(2, password)  //  TODO:encrypto
         }
-            
+        
+        if sqlite.errCode() > 0 {
+            response.setStatus(500, message: String(sqlite.errCode()) + " : " + sqlite.errMsg())
+            return
+        }
+        
         response.redirectTo("/user/login")
     }
     
@@ -300,6 +304,11 @@ class BbsHandler: RequestHandler {
             try stmt.bind(3, userId)
         }
         
+        if sqlite.errCode() > 0 {
+            response.setStatus(500, message: String(sqlite.errCode()) + " : " + sqlite.errMsg())
+            return
+        }
+
         response.redirectTo("/bbs")
     }
     
@@ -376,6 +385,11 @@ class BbsHandler: RequestHandler {
             try stmt.bind(3, userId)
         }
         
+        if sqlite.errCode() > 0 {
+            response.setStatus(500, message: String(sqlite.errCode()) + " : " + sqlite.errMsg())
+            return
+        }
+
         response.redirectTo("/bbs/list/" + bbsId)
     }
 }
