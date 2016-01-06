@@ -47,7 +47,8 @@ public func PerfectServerModuleInit() {
         let sqlite = try SQLite(DB_PATH)
         try sqlite.execute("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, name TEXT, password TEXT, created_at TEXT)")
         try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs (id INTEGER PRIMARY KEY, title TEXT, comment TEXT, user_id INTEGER, created_at TEXT)")
-        try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs_post (id INTEGER PRIMARY KEY, bbs_id INTEGER, comment TEXT, user_id INTEGER, created_at TEXT)")   //  TODO:create index
+        try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs_post (id INTEGER PRIMARY KEY, bbs_id INTEGER, comment TEXT, user_id INTEGER, created_at TEXT)")
+        try sqlite.execute("CREATE INDEX bbs_post_bbs_id ON bbs_post (bbs_id);")
     } catch {
         print("Failure creating database at " + DB_PATH)
     }
@@ -88,10 +89,12 @@ extension WebResponse {
     
     func userIdInSession() -> Int? {
         let session = getSession(Config.sessionName)
-        if let id = session["id"] as? Int {
-            return id
+        guard let id = session["id"] as? Int else {
+            return nil
         }
-        return nil
+        
+        //  TODO:check user table if exists
+        return id
     }
 }
 
