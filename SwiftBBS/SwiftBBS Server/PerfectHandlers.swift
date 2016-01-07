@@ -244,11 +244,11 @@ class BbsHandler: RequestHandler {
         let sqlite = try SQLite(DB_PATH)
         defer { sqlite.close() }
         
-        var sql = "SELECT id, title, user_id, created_at FROM bbs"//  TODO:add user info
+        var sql = "SELECT b.id, b.title, b.created_at, u.name FROM bbs AS b INNER JOIN user as u ON u.id = b.user_id"
         var keywordForSearch: String?
         if let keyword = request.postParam("keyword") {
             keywordForSearch = keyword
-            sql = "SELECT id, title, user_id, created_at FROM bbs WHERE title LIKE :1 OR comment LIKE :1"
+            sql = "SELECT b.id, b.title, b.created_at, u.name FROM bbs AS b INNER JOIN user as u ON u.id = b.user_id WHERE b.title LIKE :1 OR b.comment LIKE :1"
         }
         
         var bbsList = [[String:Any]]()
@@ -259,10 +259,10 @@ class BbsHandler: RequestHandler {
             }
         }) {
             (stmt:SQLiteStmt, r:Int) -> () in
-            var id:Int?, title:String?, userId:Int?, createdAt:String?
-            (id, title, userId, createdAt) = (stmt.columnInt(0), stmt.columnText(1), stmt.columnInt(2), stmt.columnText(3))
+            var id:Int?, title:String?, createdAt:String?, name:String?
+            (id, title, createdAt, name) = (stmt.columnInt(0), stmt.columnText(1), stmt.columnText(2), stmt.columnText(3))
             if let id = id {
-                bbsList.append(["id": id, "title": title ?? "", "userId": userId ?? 0, "createdAt": createdAt ?? ""])
+                bbsList.append(["id": id, "title": title ?? "", "createdAt": createdAt ?? "", "name": name ?? 0, ])
             }
         }
         
@@ -322,31 +322,31 @@ class BbsHandler: RequestHandler {
 
         //  bbs
         var bbs = [String:Any]()
-        let sql = "SELECT id, title, comment FROM bbs WHERE id = :1"//  TODO:add user info
+        let sql = "SELECT b.id, b.title, b.comment, b.created_at, u.name FROM bbs as b INNER JOIN user AS u ON u.id = b.user_id WHERE b.id = :1"
         try sqlite.forEachRow(sql, doBindings: {
             (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, bbsId)
         }) {
             (stmt:SQLiteStmt, r:Int) -> () in
-            var id:Int?, title:String?, comment:String?
-            (id, title, comment) = (stmt.columnInt(0), stmt.columnText(1), stmt.columnText(2))
+            var id:Int?, title:String?, comment:String?, createdAt:String?, name:String?
+            (id, title, comment, createdAt, name) = (stmt.columnInt(0), stmt.columnText(1), stmt.columnText(2), stmt.columnText(3), stmt.columnText(4))
             if let id = id {
-                bbs = ["id":id, "title":title ?? "", "comment":comment ?? ""]
+                bbs = ["id": id, "title": title ?? "", "comment": comment ?? "", "createdAt": createdAt ?? "", "name": name ?? ""]
             }
         }
         
         //  bbs post
         var postList = [[String:Any]]()
-        let sql2 = "SELECT id, comment, user_id, created_at FROM bbs_post WHERE bbs_id = :1 ORDER BY id" //  TODO:add user info
+        let sql2 = "SELECT b.id, b.comment, b.created_at, u.name FROM bbs_post AS b INNER JOIN user AS u ON u.id = b.user_id WHERE b.bbs_id = :1 ORDER BY b.id"
         try sqlite.forEachRow(sql2, doBindings: {
             (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, bbsId)
         }) {
             (stmt:SQLiteStmt, r:Int) -> () in
-            var id:Int?, comment:String?, userId:Int?, createdAt:String?
-            (id, comment, userId, createdAt) = (stmt.columnInt(0), stmt.columnText(1), stmt.columnInt(2), stmt.columnText(3))
+            var id:Int?, comment:String?, createdAt:String?, name:String?
+            (id, comment, createdAt, name) = (stmt.columnInt(0), stmt.columnText(1), stmt.columnText(2), stmt.columnText(3))
             if let id = id {
-                postList.append(["id": id, "comment": comment ?? "", "userId": userId ?? 0, "createdAt": createdAt ?? ""])
+                postList.append(["id": id, "comment": comment ?? "", "createdAt": createdAt ?? "", "name": name ?? ""])
             }
         }
         
