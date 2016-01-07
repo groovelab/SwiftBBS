@@ -20,8 +20,6 @@
 		0A84903D1C3BFD7400149828 /* bbs_list.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A84903B1C3BFC9D00149828 /* bbs_list.mustache */; };
 		0A84903F1C3C059D00149828 /* bbs.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A84903E1C3C059D00149828 /* bbs.mustache */; };
 		0A8490401C3C069500149828 /* bbs.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A84903E1C3C059D00149828 /* bbs.mustache */; };
-		0A8490451C3D543900149828 /* perfect_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 0A8490441C3D543900149828 /* perfect_icon.png */; };
-		0A8490471C3D549700149828 /* perfect_icon.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A8490441C3D543900149828 /* perfect_icon.png */; };
 		0A98F58A1C36B4D800E94B9D /* SwiftBBS Server.h in Headers */ = {isa = PBXBuildFile; fileRef = 0A98F5891C36B4D800E94B9D /* SwiftBBS Server.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0A98F5911C36B4D800E94B9D /* SwiftBBS Server.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A98F5861C36B4D800E94B9D /* SwiftBBS Server.framework */; };
 		0A98F5961C36B4D800E94B9D /* SwiftBBS_ServerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A98F5951C36B4D800E94B9D /* SwiftBBS_ServerTests.swift */; };
@@ -30,6 +28,8 @@
 		0AE911E81C3EA4D200F6BA79 /* common_header.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0AE911E61C3E9DF300F6BA79 /* common_header.mustache */; };
 		0AE911EA1C3EA59900F6BA79 /* common_footer.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0AE911E91C3EA59900F6BA79 /* common_footer.mustache */; };
 		0AE911EB1C3EA5C200F6BA79 /* common_footer.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0AE911E91C3EA59900F6BA79 /* common_footer.mustache */; };
+		0AE911F01C3ED29400F6BA79 /* perfect_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 0AE911EF1C3ED29400F6BA79 /* perfect_icon.png */; };
+		0AE911F11C3ED2AF00F6BA79 /* perfect_icon.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0AE911EF1C3ED29400F6BA79 /* perfect_icon.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,10 +63,10 @@
 		0A8490461C3D547D00149828 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = webroot;
+			dstPath = webroot/assets/img;
 			dstSubfolderSpec = 16;
 			files = (
-				0A8490471C3D549700149828 /* perfect_icon.png in CopyFiles */,
+				0AE911F11C3ED2AF00F6BA79 /* perfect_icon.png in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,7 +81,6 @@
 		0A8490381C3BF07100149828 /* login.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = login.mustache; sourceTree = "<group>"; };
 		0A84903B1C3BFC9D00149828 /* bbs_list.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bbs_list.mustache; sourceTree = "<group>"; };
 		0A84903E1C3C059D00149828 /* bbs.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bbs.mustache; sourceTree = "<group>"; };
-		0A8490441C3D543900149828 /* perfect_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = perfect_icon.png; sourceTree = "<group>"; };
 		0A98F5861C36B4D800E94B9D /* SwiftBBS Server.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "SwiftBBS Server.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A98F5891C36B4D800E94B9D /* SwiftBBS Server.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SwiftBBS Server.h"; sourceTree = "<group>"; };
 		0A98F58B1C36B4D800E94B9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -91,6 +90,7 @@
 		0A98F59E1C36B52700E94B9D /* PerfectHandlers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PerfectHandlers.swift; sourceTree = "<group>"; };
 		0AE911E61C3E9DF300F6BA79 /* common_header.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = common_header.mustache; sourceTree = "<group>"; };
 		0AE911E91C3EA59900F6BA79 /* common_footer.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = common_footer.mustache; sourceTree = "<group>"; };
+		0AE911EF1C3ED29400F6BA79 /* perfect_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = perfect_icon.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,7 +139,7 @@
 		0A8490431C3D53A700149828 /* webroot */ = {
 			isa = PBXGroup;
 			children = (
-				0A8490441C3D543900149828 /* perfect_icon.png */,
+				0AE911ED1C3ED29400F6BA79 /* assets */,
 			);
 			path = webroot;
 			sourceTree = "<group>";
@@ -183,6 +183,22 @@
 				0A98F5971C36B4D800E94B9D /* Info.plist */,
 			);
 			path = "SwiftBBS ServerTests";
+			sourceTree = "<group>";
+		};
+		0AE911ED1C3ED29400F6BA79 /* assets */ = {
+			isa = PBXGroup;
+			children = (
+				0AE911EE1C3ED29400F6BA79 /* img */,
+			);
+			path = assets;
+			sourceTree = "<group>";
+		};
+		0AE911EE1C3ED29400F6BA79 /* img */ = {
+			isa = PBXGroup;
+			children = (
+				0AE911EF1C3ED29400F6BA79 /* perfect_icon.png */,
+			);
+			path = img;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -281,7 +297,7 @@
 				0A8490301C39907D00149828 /* sqlite.mustache in Resources */,
 				0A8490391C3BF07100149828 /* login.mustache in Resources */,
 				0A84903C1C3BFC9D00149828 /* bbs_list.mustache in Resources */,
-				0A8490451C3D543900149828 /* perfect_icon.png in Resources */,
+				0AE911F01C3ED29400F6BA79 /* perfect_icon.png in Resources */,
 				0AE911EA1C3EA59900F6BA79 /* common_footer.mustache in Resources */,
 				0A84903F1C3C059D00149828 /* bbs.mustache in Resources */,
 				0AE911E71C3E9DF300F6BA79 /* common_header.mustache in Resources */,
