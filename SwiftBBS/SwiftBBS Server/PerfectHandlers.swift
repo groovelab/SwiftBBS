@@ -54,11 +54,9 @@ public func PerfectServerModuleInit() {
 //  MARK: - extensions
 extension WebResponse {
     func render(templatePath: String, values: MustacheEvaluationContext.MapType) throws -> String {
-        let context = MustacheEvaluationContext(map: values)
-        
         let fullPath = "Templates/" + templatePath
         let file = File(fullPath)
-        
+
         try file.openRead()
         defer { file.close() }
         let bytes = try file.readSomeBytes(file.size())
@@ -67,6 +65,8 @@ extension WebResponse {
         let str = UTF8Encoding.encode(bytes)
         let template = try parser.parse(str)
         
+        let context = MustacheEvaluationContext(map: values)
+        context.filePath = file.path()
         let collector = MustacheEvaluationOutputCollector()
         template.evaluate(context, collector: collector)
         return collector.asString()
@@ -244,11 +244,11 @@ class BbsHandler: RequestHandler {
         let sqlite = try SQLite(DB_PATH)
         defer { sqlite.close() }
         
-        var sql = "SELECT id, title FROM bbs"//  TODO:add user info
+        var sql = "SELECT id, title, user_id, created_at FROM bbs"//  TODO:add user info
         var keywordForSearch: String?
         if let keyword = request.postParam("keyword") {
             keywordForSearch = keyword
-            sql = "SELECT id, title FROM bbs WHERE title LIKE :1 OR comment LIKE :1"
+            sql = "SELECT id, title, user_id, created_at FROM bbs WHERE title LIKE :1 OR comment LIKE :1"
         }
         
         var bbsList = [[String:Any]]()
@@ -259,10 +259,10 @@ class BbsHandler: RequestHandler {
             }
         }) {
             (stmt:SQLiteStmt, r:Int) -> () in
-            var id:Int?, title:String?
-            (id, title) = (stmt.columnInt(0), stmt.columnText(1))
+            var id:Int?, title:String?, userId:Int?, createdAt:String?
+            (id, title, userId, createdAt) = (stmt.columnInt(0), stmt.columnText(1), stmt.columnInt(2), stmt.columnText(3))
             if let id = id {
-                bbsList.append(["id":id, "title":title ?? ""])
+                bbsList.append(["id": id, "title": title ?? "", "userId": userId ?? 0, "createdAt": createdAt ?? ""])
             }
         }
         

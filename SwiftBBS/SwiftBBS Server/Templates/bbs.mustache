@@ -1,26 +1,50 @@
-<html>
-<head>
-<title>bbs | SwiftBBS</title>
-</head>
-<body>
+{{> common_header}}
 
-<h1>bbs</h1>
+<div class="container theme-showcase" role="main">
 
-<h2>bbs add form</h2>
-<form action="/bbs/add" method="post">
-<p>title : <input type="text" name="title"></p>
-<p>comment : <textarea name="comment" rows="5" cols="30"></textarea></p>
-<input type="submit" value="add">
-</form>
+    <div class="page-header">
+        <h1>bbs list</h1>
+    </div>
 
-<hr>
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>bbs title</th>
+                        <th>user</th>
+                        <th>posted date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {{#bbsList}}
+                    <tr>
+                        <td><a href="/bbs/list/{{id}}">{{title}}</a></td>
+                        <td>{{userId}}</td>
+                        <td>{{createdAt}}</td>
+                    </tr>
+                {{/bbsList}}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-<h2>bbs list</h2>
-<ul>
-{{#bbsList}}
-<li><a href="/bbs/list/{{id}}">{{title}}</a></li>
-{{/bbsList}}
-</ul>
+    <div class="page-header">
+        <h1>create bbs form</h1>
+    </div>
 
-</body>
-</html>
+    <form action="/bbs/add" method="post">
+        <div class="form-group">
+            <label for="title">title</label>
+            <input type="text" class="form-control" id="title" name="title" placeholder="">
+        </div>
+        <div class="form-group">
+            <label for="comment">comment</label>
+            <textarea name="comment" id="comment" class="form-control" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-default">create bbs</button>
+    </form>
+
+</div>
+
+{{> common_footer}}

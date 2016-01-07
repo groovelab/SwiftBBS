@@ -26,6 +26,10 @@
 		0A98F5911C36B4D800E94B9D /* SwiftBBS Server.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A98F5861C36B4D800E94B9D /* SwiftBBS Server.framework */; };
 		0A98F5961C36B4D800E94B9D /* SwiftBBS_ServerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A98F5951C36B4D800E94B9D /* SwiftBBS_ServerTests.swift */; };
 		0A98F59F1C36B52700E94B9D /* PerfectHandlers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A98F59E1C36B52700E94B9D /* PerfectHandlers.swift */; };
+		0AE911E71C3E9DF300F6BA79 /* common_header.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0AE911E61C3E9DF300F6BA79 /* common_header.mustache */; };
+		0AE911E81C3EA4D200F6BA79 /* common_header.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0AE911E61C3E9DF300F6BA79 /* common_header.mustache */; };
+		0AE911EA1C3EA59900F6BA79 /* common_footer.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0AE911E91C3EA59900F6BA79 /* common_footer.mustache */; };
+		0AE911EB1C3EA5C200F6BA79 /* common_footer.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0AE911E91C3EA59900F6BA79 /* common_footer.mustache */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +49,8 @@
 			dstPath = Templates;
 			dstSubfolderSpec = 16;
 			files = (
+				0AE911EB1C3EA5C200F6BA79 /* common_footer.mustache in CopyFiles */,
+				0AE911E81C3EA4D200F6BA79 /* common_header.mustache in CopyFiles */,
 				0A8490401C3C069500149828 /* bbs.mustache in CopyFiles */,
 				0A84903D1C3BFD7400149828 /* bbs_list.mustache in CopyFiles */,
 				0A84903A1C3BF12500149828 /* login.mustache in CopyFiles */,
@@ -83,6 +89,8 @@
 		0A98F5951C36B4D800E94B9D /* SwiftBBS_ServerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftBBS_ServerTests.swift; sourceTree = "<group>"; };
 		0A98F5971C36B4D800E94B9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0A98F59E1C36B52700E94B9D /* PerfectHandlers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PerfectHandlers.swift; sourceTree = "<group>"; };
+		0AE911E61C3E9DF300F6BA79 /* common_header.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = common_header.mustache; sourceTree = "<group>"; };
+		0AE911E91C3EA59900F6BA79 /* common_footer.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = common_footer.mustache; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,12 +124,14 @@
 		0A84902A1C370AEF00149828 /* Templates */ = {
 			isa = PBXGroup;
 			children = (
-				0A8490351C3BE05000149828 /* user.mustache */,
 				0A84902B1C370AEF00149828 /* template.mustache */,
 				0A84902F1C39907D00149828 /* sqlite.mustache */,
+				0AE911E61C3E9DF300F6BA79 /* common_header.mustache */,
+				0AE911E91C3EA59900F6BA79 /* common_footer.mustache */,
+				0A8490351C3BE05000149828 /* user.mustache */,
 				0A8490381C3BF07100149828 /* login.mustache */,
-				0A84903B1C3BFC9D00149828 /* bbs_list.mustache */,
 				0A84903E1C3C059D00149828 /* bbs.mustache */,
+				0A84903B1C3BFC9D00149828 /* bbs_list.mustache */,
 			);
 			path = Templates;
 			sourceTree = "<group>";
@@ -272,7 +282,9 @@
 				0A8490391C3BF07100149828 /* login.mustache in Resources */,
 				0A84903C1C3BFC9D00149828 /* bbs_list.mustache in Resources */,
 				0A8490451C3D543900149828 /* perfect_icon.png in Resources */,
+				0AE911EA1C3EA59900F6BA79 /* common_footer.mustache in Resources */,
 				0A84903F1C3C059D00149828 /* bbs.mustache in Resources */,
+				0AE911E71C3E9DF300F6BA79 /* common_header.mustache in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
