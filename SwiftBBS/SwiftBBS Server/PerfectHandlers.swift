@@ -35,10 +35,6 @@ public func PerfectServerModuleInit() {
     Routing.Routes["POST", ["/bbs/{action}"]] = { _ in return BbsHandler() }
 
     //  mypage
-    //  bbs list with search from
-    //  bbs comment list
-    //  add bbs form, edit, delete
-    //  add comment form, edit, delete
     
     print("\(Routing.Routes.description)")
     
@@ -248,7 +244,7 @@ class BbsHandler: RequestHandler {
         let sqlite = try SQLite(DB_PATH)
         defer { sqlite.close() }
         
-        var sql = "SELECT id, title FROM bbs"
+        var sql = "SELECT id, title FROM bbs"//  TODO:add user info
         var keywordForSearch: String?
         if let keyword = request.postParam("keyword") {
             keywordForSearch = keyword
@@ -273,6 +269,9 @@ class BbsHandler: RequestHandler {
         var values: MustacheEvaluationContext.MapType = MustacheEvaluationContext.MapType()
         values["keywordForSearch"] = keywordForSearch ?? ""
         values["bbsList"] = bbsList
+        
+        //  TODO: show user info if logged
+        
         try response.renderHTML("bbs.mustache", values: values)
     }
     
@@ -323,7 +322,7 @@ class BbsHandler: RequestHandler {
 
         //  bbs
         var bbs = [String:Any]()
-        let sql = "SELECT id, title, comment FROM bbs WHERE id = :1"
+        let sql = "SELECT id, title, comment FROM bbs WHERE id = :1"//  TODO:add user info
         try sqlite.forEachRow(sql, doBindings: {
             (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, bbsId)
@@ -338,22 +337,25 @@ class BbsHandler: RequestHandler {
         
         //  bbs post
         var postList = [[String:Any]]()
-        let sql2 = "SELECT id, comment FROM bbs_post WHERE bbs_id = :1"
+        let sql2 = "SELECT id, comment, user_id, created_at FROM bbs_post WHERE bbs_id = :1 ORDER BY id" //  TODO:add user info
         try sqlite.forEachRow(sql2, doBindings: {
             (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, bbsId)
         }) {
             (stmt:SQLiteStmt, r:Int) -> () in
-            var id:Int?, comment:String?
-            (id, comment) = (stmt.columnInt(0), stmt.columnText(1))
+            var id:Int?, comment:String?, userId:Int?, createdAt:String?
+            (id, comment, userId, createdAt) = (stmt.columnInt(0), stmt.columnText(1), stmt.columnInt(2), stmt.columnText(3))
             if let id = id {
-                postList.append(["id":id, "comment":comment ?? ""])
+                postList.append(["id": id, "comment": comment ?? "", "userId": userId ?? 0, "createdAt": createdAt ?? ""])
             }
         }
         
         var values: MustacheEvaluationContext.MapType = MustacheEvaluationContext.MapType()
         values["bbs"] = bbs
         values["postList"] = postList
+        
+        //  TODO: show user info if logged
+
         try response.renderHTML("bbs_list.mustache", values: values)
     }
     

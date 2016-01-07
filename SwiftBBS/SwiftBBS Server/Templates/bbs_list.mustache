@@ -1,34 +1,125 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 <title>bbs list | SwiftBBS</title>
+
+<!-- Bootstrap -->
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+<style>
+body {
+padding-top: 70px;
+padding-bottom: 30px;
+}
+
+.theme-dropdown .dropdown-menu {
+position: static;
+display: block;
+margin-bottom: 20px;
+}
+
+.theme-showcase > p > .btn {
+margin: 5px 0;
+}
+
+.theme-showcase .navbar .container {
+width: auto;
+}
+</style>
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<![endif]-->
 </head>
 <body>
 
-<h1>bbs list</h1>
-
-<h2>bbs</h2>
-{{#bbs}}
-<p>title : {{title}}</p>
-<p>comment : {{comment}}</p>
-{{/bbs}}
-
-<h2>post list</h2>
-<ul>
-{{#postList}}
-<li>{{comment}}</li>
-{{/postList}}
+<!-- Fixed navbar -->
+<nav class="navbar navbar-inverse navbar-fixed-top">
+<div class="container">
+<div class="navbar-header">
+<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+<span class="sr-only">Toggle navigation</span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+</button>
+<a class="navbar-brand" href="#">Swift BBS</a>
+</div>
+<div id="navbar" class="navbar-collapse collapse">
+<ul class="nav navbar-nav">
+<li class="active"><a href="/">Home</a></li>
+<li><a href="/mypage">MyPage</a></li>
 </ul>
+</div><!--/.nav-collapse -->
+</div>
+</nav>
 
-<hr>
+<div class="container theme-showcase" role="main">
+    <div class="jumbotron">
+    {{#bbs}}
+        <h1><img src="/perfect_icon.png" width="60" height="60" alt="perfect lib" class="img-thumbnail"> {{title}}</h1>
+        <p>{{comment}}</p>
+    {{/bbs}}
+    </div>
 
-<h2>post form</h2>
-<form action="/bbs/addpost" method="post">
-<p>comment : <textarea name="comment" rows="5" cols="30"></textarea></p>
-{{#bbs}}
-<input type="hidden" name="bbs_id" value="{{id}}">
-{{/bbs}}
-<input type="submit" value="add">
-</form>
+    <div class="page-header">
+        <h1>comment list</h1>
+    </div>
 
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>comment</th>
+                        <th>user</th>
+                        <th>posted date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {{#postList}}
+                    <tr>
+                        <td>{{comment}}</td>
+                        <td>{{userId}}</td>
+                        <td>{{createdAt}}</td>
+                    </tr>
+                {{/postList}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="page-header">
+        <h1>comment form</h1>
+    </div>
+
+    <form action="/bbs/addpost" method="post">
+        <div class="form-group">
+            <label for="comment">comment</label>
+            <textarea name="comment" id="comment" class="form-control" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-default">post comment</button>
+
+        {{#bbs}}
+            <input type="hidden" name="bbs_id" value="{{id}}">
+        {{/bbs}}
+    </form>
+
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 </body>
 </html>
