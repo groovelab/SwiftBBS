@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A337BE51C413F3C00CEA758 /* BbsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A337BE41C413F3C00CEA758 /* BbsRepository.swift */; };
+		0A337BE71C41405500CEA758 /* BbsCommentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A337BE61C41405500CEA758 /* BbsCommentRepository.swift */; };
 		0A84901E1C36CB2500149828 /* PerfectLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A84901D1C36CB2500149828 /* PerfectLib.framework */; };
 		0A8490211C36FCB900149828 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8490201C36FCB900149828 /* Config.swift */; };
 		0A84902E1C370BEE00149828 /* template.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A84902B1C370AEF00149828 /* template.mustache */; };
@@ -76,6 +78,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0A337BE41C413F3C00CEA758 /* BbsRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BbsRepository.swift; sourceTree = "<group>"; };
+		0A337BE61C41405500CEA758 /* BbsCommentRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BbsCommentRepository.swift; sourceTree = "<group>"; };
 		0A84901D1C36CB2500149828 /* PerfectLib.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PerfectLib.framework; path = "../../Library/Developer/Xcode/DerivedData/Perfect-bmsnkpplajpulvabysklkvgjzgsj/Build/Products/Debug/PerfectLib.framework"; sourceTree = "<group>"; };
 		0A8490201C36FCB900149828 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		0A84902B1C370AEF00149828 /* template.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = template.mustache; sourceTree = "<group>"; };
@@ -117,6 +121,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0A337BE31C413EF900CEA758 /* Repository */ = {
+			isa = PBXGroup;
+			children = (
+				0A337BE41C413F3C00CEA758 /* BbsRepository.swift */,
+				0A337BE61C41405500CEA758 /* BbsCommentRepository.swift */,
+			);
+			name = Repository;
+			sourceTree = "<group>";
+		};
 		0A84901F1C36CB3400149828 /* Linked */ = {
 			isa = PBXGroup;
 			children = (
@@ -173,6 +186,7 @@
 			children = (
 				0A8490201C36FCB900149828 /* Config.swift */,
 				0A98F59E1C36B52700E94B9D /* PerfectHandlers.swift */,
+				0A337BE31C413EF900CEA758 /* Repository */,
 				0A84902A1C370AEF00149828 /* Templates */,
 				0A8490431C3D53A700149828 /* webroot */,
 				0A98F5891C36B4D800E94B9D /* SwiftBBS Server.h */,
@@ -325,7 +339,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A98F59F1C36B52700E94B9D /* PerfectHandlers.swift in Sources */,
+				0A337BE51C413F3C00CEA758 /* BbsRepository.swift in Sources */,
 				0A8490211C36FCB900149828 /* Config.swift in Sources */,
+				0A337BE71C41405500CEA758 /* BbsCommentRepository.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
