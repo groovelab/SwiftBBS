@@ -30,24 +30,24 @@ struct UserEntity {
 class UserRepository : Repository {
     func insert(var entity: UserEntity) throws -> UserEntity {
         let sql = "INSERT INTO user (name, password, created_at) VALUES (:1, :2, datetime('now'))"
-        try sqlite.execute(sql) { (stmt:SQLiteStmt) -> () in
+        try db.execute(sql) { (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, entity.name)
             try stmt.bind(2, entity.password)   //  TODO:encrypt
         }
         
-        let errCode = sqlite.errCode()
+        let errCode = db.errCode()
         if errCode > 0 {
             throw RepositoryError.Insert(errCode)
         }
         
-        entity.id = sqlite.lastInsertRowID()
+        entity.id = db.lastInsertRowID()
         return entity
     }
     
     func findById(id: Int) throws -> UserEntity? {
         let sql = "SELECT id, name, created_at FROM user WHERE id = :1"
         var columns = [Any]()
-        try sqlite.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
+        try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, id)
         }) { (stmt:SQLiteStmt, r:Int) -> () in
             columns.append(stmt.columnInt(0))
@@ -55,7 +55,7 @@ class UserRepository : Repository {
             columns.append(stmt.columnText(2))
         }
         
-        let errCode = sqlite.errCode()
+        let errCode = db.errCode()
         if errCode > 0 {
             throw RepositoryError.Select(errCode)
         }
@@ -75,7 +75,7 @@ class UserRepository : Repository {
     func findByName(name: String, password: String) throws -> UserEntity? {
         let sql = "SELECT id, name, created_at FROM user WHERE name = :1 AND password = :2"
         var columns = [Any]()
-        try sqlite.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
+        try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, name)
             try stmt.bind(2, password)
         }) { (stmt:SQLiteStmt, r:Int) -> () in
@@ -84,7 +84,7 @@ class UserRepository : Repository {
             columns.append(stmt.columnText(2))
         }
 
-        let errCode = sqlite.errCode()
+        let errCode = db.errCode()
         if errCode > 0 {
             throw RepositoryError.Select(errCode)
         }

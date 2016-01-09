@@ -42,18 +42,18 @@ struct BbsCommentWithUserEntity {
 class BbsCommentRepository : Repository{
     func insert(var entity: BbsCommentEntity) throws -> BbsCommentEntity {
         let sql = "INSERT INTO bbs_comment (bbs_id, comment, user_id, created_at) VALUES (:1, :2, :3, datetime('now'))"
-        try sqlite.execute(sql) { (stmt:SQLiteStmt) -> () in
+        try db.execute(sql) { (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, entity.bbsId)
             try stmt.bind(2, entity.comment)
             try stmt.bind(3, entity.userId)
         }
         
-        let errCode = sqlite.errCode()
+        let errCode = db.errCode()
         if errCode > 0 {
             throw RepositoryError.Insert(errCode)
         }
         
-        entity.id = sqlite.lastInsertRowID()
+        entity.id = db.lastInsertRowID()
         return entity
     }
     
@@ -62,7 +62,7 @@ class BbsCommentRepository : Repository{
             + "INNER JOIN user AS u ON u.id = b.user_id WHERE b.bbs_id = :1 "
             + "ORDER BY b.id"
         var entities = [BbsCommentWithUserEntity]()
-        try sqlite.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
+        try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, bbsId)
         }) { (stmt:SQLiteStmt, r:Int) -> () in
             entities.append(

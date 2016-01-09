@@ -9,8 +9,6 @@
 
 import PerfectLib
 
-let DB_PATH = PerfectServer.staticPerfectServer.homeDir() + serverSQLiteDBs + Config.dbName
-
 //  MARK: - init
 public func PerfectServerModuleInit() {
     Routing.Handler.registerGlobally()
@@ -39,16 +37,18 @@ public func PerfectServerModuleInit() {
     
     // Create our SQLite database.
     do {
-        let sqlite = try SQLite(DB_PATH)    //  TODO:use MySQL
+        let sqlite = try SQLite(Config.dbPath)    //  TODO:use MySQL
         try sqlite.execute("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, name TEXT, password TEXT, created_at TEXT)")
         try sqlite.execute("CREATE UNIQUE INDEX IF NOT EXISTS user_name ON user (name)")
         try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs (id INTEGER PRIMARY KEY, title TEXT, comment TEXT, user_id INTEGER, created_at TEXT)")
         try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs_comment (id INTEGER PRIMARY KEY, bbs_id INTEGER, comment TEXT, user_id INTEGER, created_at TEXT)")
         try sqlite.execute("CREATE INDEX IF NOT EXISTS bbs_comment_bbs_id ON bbs_comment (bbs_id);")
     } catch (let e){
-        print("Failure creating database at " + DB_PATH)
+        print("Failure creating database at " + Config.dbPath)
         print(e)
     }
+
+    DatabaseManager.path = Config.dbPath
 }
 
 //  MARK: - extensions
@@ -134,7 +134,6 @@ class BaseRequestHandler: RequestHandler {
             return nil
         }
         
-        //  TODO:set user data in session
         return userId
     }
 
@@ -152,9 +151,10 @@ class BaseRequestHandler: RequestHandler {
         self.response = response
         
         defer {
+            DatabaseManager.close()
             response.requestCompletedCallback()
         }
-        
+
         do {
             switch try checkActionAcl() {
             case .NeedLogin:
@@ -327,9 +327,6 @@ class BbsHandler: BaseRequestHandler {
     }
     
     private func listAction() throws {
-        let sqlite = try SQLite(DB_PATH)
-        defer { sqlite.close() }
-        
         let keyword = request.postParam("keyword")
         let bbsEntities = try bbsReposity.selectByKeyword(keyword)
         
@@ -339,7 +336,7 @@ class BbsHandler: BaseRequestHandler {
             bbsEntity.toDictionary()
         })
         
-        //  show user info if logged
+        //  show user info if logged    //  TODO:common method
         if let loginUser = try getUser(userIdInSession()) {
             values["loginUser"] = loginUser.toDictionary()
         }
@@ -375,9 +372,6 @@ class BbsHandler: BaseRequestHandler {
             return
         }
         
-        let sqlite = try SQLite(DB_PATH)
-        defer { sqlite.close() }
-
         var values: MustacheEvaluationContext.MapType = MustacheEvaluationContext.MapType()
 
         //  bbs
@@ -402,9 +396,6 @@ class BbsHandler: BaseRequestHandler {
     }
     
     private func addcommentAction() throws {
-        let sqlite = try SQLite(DB_PATH)
-        defer { sqlite.close() }
-        
         //  validate
         guard let bbsIdString = request.postParam("bbs_id"), let bbsId = Int(bbsIdString) else {
             response.setStatus(500, message: "invalidate request parameter")
@@ -493,7 +484,7 @@ class SqliteHandler: RequestHandler {
                 isJson = true
             }
             
-            let sqlite = try SQLite(DB_PATH)
+            let sqlite = try SQLite(Config.dbPath)
             defer { sqlite.close() }
             
             var sql = "SELECT * FROM user"
@@ -545,7 +536,7 @@ class SqliteHandler: RequestHandler {
 class SqliteAddHandler: RequestHandler {
     func handleRequest(request: WebRequest, response: WebResponse) {
         do {
-            let sqlite = try SQLite(DB_PATH)
+            let sqlite = try SQLite(Config.dbPath)
             defer { sqlite.close() }
 
             //  validate

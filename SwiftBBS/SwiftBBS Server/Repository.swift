@@ -17,9 +17,5 @@ enum RepositoryError : ErrorType {
 }
 
 class Repository {
-    let sqlite = try! SQLite(DB_PATH)   //  TODO:use lazy?
-    
-    deinit {
-        sqlite.close()
-    }
+    let db = DatabaseManager.db
 }

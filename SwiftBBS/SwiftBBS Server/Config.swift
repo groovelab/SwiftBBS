@@ -6,10 +6,10 @@
 //
 //
 
-import Foundation
+import PerfectLib
 
 class Config {
     static let sessionName = "session"
     static let dbName = "SwiftBBS"
-
+    static let dbPath = PerfectServer.staticPerfectServer.homeDir() + serverSQLiteDBs + dbName
 }

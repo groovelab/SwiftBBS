@@ -42,25 +42,25 @@ struct BbsWithUserEntity {
 class BbsRepository : Repository {
     func insert(var entity: BbsEntity) throws -> BbsEntity {
         let sql = "INSERT INTO bbs (title, comment, user_id, created_at) VALUES (:1, :2, :3, datetime('now'))"
-        try sqlite.execute(sql) { (stmt:SQLiteStmt) -> () in
+        try db.execute(sql) { (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, entity.title)
             try stmt.bind(2, entity.comment)
             try stmt.bind(3, entity.userId)
         }
         
-        let errCode = sqlite.errCode()
+        let errCode = db.errCode()
         if errCode > 0 {
             throw RepositoryError.Insert(errCode)
         }
         
-        entity.id = sqlite.lastInsertRowID()
+        entity.id = db.lastInsertRowID()
         return entity
     }
     
     func findById(id: Int) throws -> BbsWithUserEntity? {
         let sql = "SELECT b.id, b.title, b.comment, b.user_id, u.name, b.created_at FROM bbs as b INNER JOIN user AS u ON u.id = b.user_id WHERE b.id = :1"
         var columns = [Any]()
-        try sqlite.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
+        try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, id)
         }) { (stmt:SQLiteStmt, r:Int) -> () in
             columns.append(stmt.columnInt(0))
@@ -71,7 +71,7 @@ class BbsRepository : Repository {
             columns.append(stmt.columnText(5))
         }
         
-        let errCode = sqlite.errCode()
+        let errCode = db.errCode()
         if errCode > 0 {
             throw RepositoryError.Select(errCode)
         }
@@ -97,7 +97,7 @@ class BbsRepository : Repository {
             + "ORDER BY b.id"
         
         var entities = [BbsWithUserEntity]()
-        try sqlite.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
+        try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
             if let keyword = keyword {
                 try stmt.bind(1, "%" + keyword + "%")
             }
