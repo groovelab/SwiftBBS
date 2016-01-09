@@ -42,12 +42,13 @@ public func PerfectServerModuleInit() {
     do {
         let sqlite = try SQLite(DB_PATH)    //  TODO:use MySQL
         try sqlite.execute("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, name TEXT, password TEXT, created_at TEXT)")
-        try sqlite.execute("CREATE UNIQUE INDEX user_name ON user (name)")
+        try sqlite.execute("CREATE UNIQUE INDEX IF NOT EXISTS user_name ON user (name)")
         try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs (id INTEGER PRIMARY KEY, title TEXT, comment TEXT, user_id INTEGER, created_at TEXT)")
-        try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs_post (id INTEGER PRIMARY KEY, bbs_id INTEGER, comment TEXT, user_id INTEGER, created_at TEXT)")
-        try sqlite.execute("CREATE INDEX bbs_post_bbs_id ON bbs_post (bbs_id);")
-    } catch {
+        try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs_comment (id INTEGER PRIMARY KEY, bbs_id INTEGER, comment TEXT, user_id INTEGER, created_at TEXT)")
+        try sqlite.execute("CREATE INDEX IF NOT EXISTS bbs_comment_bbs_id ON bbs_comment (bbs_id);")
+    } catch (let e){
         print("Failure creating database at " + DB_PATH)
+        print(e)
     }
 }
 
@@ -345,6 +346,7 @@ class UserHandler: BaseRequestHandler {
 }
 
 class BbsHandler: BaseRequestHandler {
+    
     override init() {
         super.init()
         
@@ -463,7 +465,7 @@ class BbsHandler: BaseRequestHandler {
         
         //  bbs post
         var postList = [[String:Any]]()
-        let sql2 = "SELECT b.id, b.comment, b.created_at, u.name FROM bbs_post AS b INNER JOIN user AS u ON u.id = b.user_id WHERE b.bbs_id = :1 ORDER BY b.id"
+        let sql2 = "SELECT b.id, b.comment, b.created_at, u.name FROM bbs_comment AS b INNER JOIN user AS u ON u.id = b.user_id WHERE b.bbs_id = :1 ORDER BY b.id"
         try sqlite.forEachRow(sql2, doBindings: {
             (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, bbsId)
@@ -503,7 +505,7 @@ class BbsHandler: BaseRequestHandler {
         }
         
         //  insert
-        try sqlite.execute("INSERT INTO bbs_post (bbs_id, comment, user_id, created_at) VALUES (:1, :2, :3, datetime('now'))") {
+        try sqlite.execute("INSERT INTO bbs_comment (bbs_id, comment, user_id, created_at) VALUES (:1, :2, :3, datetime('now'))") {
             (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, bbsId)
             try stmt.bind(2, comment)
@@ -518,6 +520,11 @@ class BbsHandler: BaseRequestHandler {
         response.redirectTo("/bbs/detail/" + bbsId)
     }
 }
+
+//struct bbsEntiry {
+//    <#properties and methods#>
+//}
+
 
 //  MARK: - sample handlers
 class IndexHandler: RequestHandler {
