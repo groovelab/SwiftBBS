@@ -251,7 +251,7 @@ class UserHandler: BaseRequestHandler {
     //  MARK: actions
     private func mypageAction() throws {
         var values = MustacheEvaluationContext.MapType()
-        values["user"] = try getUser(userIdInSession())
+        values["loginUser"] = try getUser(userIdInSession())
         try response.renderHTML("user_mypage.mustache", values: values)
     }
         
