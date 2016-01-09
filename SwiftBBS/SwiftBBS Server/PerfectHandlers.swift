@@ -17,6 +17,8 @@ public func PerfectServerModuleInit() {
     Routing.Handler.registerGlobally()
     
     //  URL Routing
+    //  sample
+    //  TODO:move to sample
     Routing.Routes["GET", ["/", "/index"] ] = { _ in return IndexHandler() }
     Routing.Routes["GET", ["/session"] ] = { _ in return SessionHandler() }
     Routing.Routes["GET", ["/template"] ] = { _ in return TemplateHandler() }
@@ -26,7 +28,7 @@ public func PerfectServerModuleInit() {
     Routing.Routes["GET", ["/sqlite/add"]] = { _ in return SqliteAddHandler() }
     Routing.Routes["POST", ["/sqlite/add"]] = { _ in return SqliteAddHandler() }
 
-    //  user register
+    //  user
     Routing.Routes["GET", ["/user", "/user/{action}"]] = { _ in return UserHandler() }
     Routing.Routes["POST", ["/user/{action}"]] = { _ in return UserHandler() }
 
@@ -34,13 +36,11 @@ public func PerfectServerModuleInit() {
     Routing.Routes["GET", ["/bbs", "/bbs/{action}", "/bbs/{action}/{id}"]] = { _ in return BbsHandler() }
     Routing.Routes["POST", ["/bbs/{action}"]] = { _ in return BbsHandler() }
 
-    //  mypage
-    
     print("\(Routing.Routes.description)")
     
     // Create our SQLite database.
     do {
-        let sqlite = try SQLite(DB_PATH)
+        let sqlite = try SQLite(DB_PATH)    //  TODO:use MySQL
         try sqlite.execute("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, name TEXT, password TEXT, created_at TEXT)")
         try sqlite.execute("CREATE UNIQUE INDEX user_name ON user (name)")
         try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs (id INTEGER PRIMARY KEY, title TEXT, comment TEXT, user_id INTEGER, created_at TEXT)")
@@ -83,16 +83,6 @@ extension WebResponse {
         let encoded = try JSONEncode().encode(values)
         appendBodyString(encoded)
     }
-    
-    func userIdInSession() -> Int? {
-        let session = getSession(Config.sessionName)
-        guard let id = session["id"] as? Int else {
-            return nil
-        }
-        
-        //  TODO:check user table if exists
-        return id
-    }
 }
 
 extension WebRequest {
@@ -101,6 +91,7 @@ extension WebRequest {
             return (targetKey == key)
         }
         
+        //  TODO:consider array param like <input type="text" name="key[]">
         if keyValues.count == 1 {
             let keyValue = keyValues[0]
             return keyValue.1
@@ -114,44 +105,167 @@ extension WebRequest {
     }
 }
 
-//  MARK: - handlers
-class UserHandler: RequestHandler {
-    func handleRequest(request: WebRequest, response: WebResponse) {
-        //  check session
-        if let _ = response.userIdInSession() {
-            response.redirectTo("/bbs")
-            response.requestCompletedCallback()
-            return
-        }
+class BaseRequestHandler: RequestHandler {
+    var request: WebRequest!
+    var response: WebResponse!
 
+    //  action acl
+    enum ActionAcl {
+        case NeedLogin
+        case NoNeedLogin
+        case None
+    }
+
+    var needLoginActions: [String] = []
+    var noNeedLoginActions: [String] = []
+    var redirectUrlIfLogin: String?
+    var redirectUrlIfNotLogin: String?
+
+    func userIdInSession() throws -> Int? {
+        let session = response.getSession(Config.sessionName)    //  TODO:configuration session
+        guard let userId = session["id"] as? Int else {
+            return nil
+        }
+        
+        //  check user table if exists
+        guard let _ = try getUser(userId) else {
+            return nil
+        }
+        
+        //  TODO:set user data in session
+        return userId
+    }
+
+    func getUser(userId: Int?) throws -> [String: Any]? {
+        guard let userId = userId else {
+            return nil
+        }
+        
+        let sqlite = try SQLite(DB_PATH)
+        defer { sqlite.close() }
+        
+        var loginUser = [String: Any]()
+        
+        let sql = "SELECT id, name FROM user WHERE id = :1"
+        try sqlite.forEachRow(sql, doBindings: {
+            (stmt:SQLiteStmt) -> () in
+            try stmt.bind(1, userId)
+            }) {
+                (stmt:SQLiteStmt, r:Int) -> () in
+                var id: Int?, name: String?
+                (id, name) = (stmt.columnInt(0), stmt.columnText(1))
+                if let id = id {
+                    loginUser = ["id": id, "name": name ?? ""]
+                }
+        }
+        
+        if loginUser.count == 0 {
+            return nil
+        }
+        return loginUser
+    }
+
+    func handleRequest(request: WebRequest, response: WebResponse) {
+        //  initialize
+        self.request = request
+        self.response = response
+        
+        defer {
+            response.requestCompletedCallback()
+        }
+        
         do {
-            switch request.action {
-            case "login" where request.requestMethod() == "POST":
-                try doLoginAction(request, response: response)
-            case "login":
-                try loginAction(request, response: response)
-            case "add" where request.requestMethod() == "POST":
-                try addAction(request, response: response)
-            default:
-                try indexAction(request, response: response)
+            switch try checkActionAcl() {
+            case .NeedLogin:
+                if let redirectUrl = redirectUrlIfNotLogin {
+                    response.redirectTo(redirectUrl)
+                    return
+                }
+            case .NoNeedLogin:
+                if let redirectUrl = redirectUrlIfLogin {
+                    response.redirectTo(redirectUrl)
+                    return
+                }
+            case .None:
+                break
             }
+
+            try dispatchAction(request.action)
         } catch (let e) {
             print(e)
         }
+    }
+    
+    func dispatchAction(action: String) throws {
+        //  need implement in subclass
+    }
+    
+    private func checkActionAcl() throws -> ActionAcl {
+        if let _ = try userIdInSession() {
+            //  already login
+            if noNeedLoginActions.contains(request.action) {
+                return .NoNeedLogin
+            }
+        } else {
+            //  not yet login
+            if needLoginActions.contains(request.action) {
+                return .NeedLogin
+            }
+        }
         
-        response.requestCompletedCallback()
+        return .None
+    }
+}
+
+//  MARK: - handlers
+class UserHandler: BaseRequestHandler {
+    
+    override init() {
+        super.init()
+        
+        //  define action acl
+        needLoginActions = ["index", "mypage", "logout"]
+        redirectUrlIfNotLogin = "/user/login"
+
+        noNeedLoginActions = ["login", "add"]
+        redirectUrlIfLogin = "/bbs"
     }
     
-    func indexAction(request: WebRequest, response: WebResponse) throws {
+    override func dispatchAction(action: String) throws {
+        switch request.action {
+        case "login" where request.requestMethod() == "POST":
+            try doLoginAction()
+        case "login":
+            try loginAction()
+        case "logout":
+            try logoutAction()
+        case "register" where request.requestMethod() == "POST":
+            try addAction()
+        case "register":
+            try registerAction()
+        default:
+            try mypageAction()
+        }
+    }
+    
+    //  MARK: actions
+    private func mypageAction() throws {
+        var values = MustacheEvaluationContext.MapType()
+        values["user"] = try getUser(userIdInSession())
+        try response.renderHTML("user_mypage.mustache", values: values)
+    }
+        
+    private func registerAction() throws {
         let values = MustacheEvaluationContext.MapType()
-        try response.renderHTML("user.mustache", values: values)
+        try response.renderHTML("user_register.mustache", values: values)
     }
-    
-    func addAction(request: WebRequest, response: WebResponse) throws {
+        
+    private func addAction() throws {
+        //  TODO:refactor like DI
         let sqlite = try SQLite(DB_PATH)
         defer { sqlite.close() }
             
-        //  validate
+        //  validate TODO:create validaotr
         guard let name = request.postParam("name") else {
             response.setStatus(500, message: "invalidate request parameter")
             return
@@ -161,7 +275,7 @@ class UserHandler: RequestHandler {
             return
         }
         
-        //  insert
+        //  insert TODO:create User model class
         try sqlite.execute("INSERT INTO user (name, password, created_at) VALUES (:1, :2, datetime('now'))") {
             (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, name)
@@ -173,15 +287,17 @@ class UserHandler: RequestHandler {
             return
         }
         
-        response.redirectTo("/user/login")
+        //  TODO:do login
+        
+        response.redirectTo("/user/login")  //  TODO:add success message
     }
     
-    func loginAction(request: WebRequest, response: WebResponse) throws {
+    private func loginAction() throws {
         let values = MustacheEvaluationContext.MapType()
-        try response.renderHTML("login.mustache", values: values)
+        try response.renderHTML("user_login.mustache", values: values)
     }
 
-    func doLoginAction(request: WebRequest, response: WebResponse) throws {
+    private func doLoginAction() throws {
         let sqlite = try SQLite(DB_PATH)
         defer { sqlite.close() }
         
@@ -206,41 +322,54 @@ class UserHandler: RequestHandler {
             (stmt:SQLiteStmt, r:Int) -> () in
             let id:Int? = stmt.columnInt(0)
             if let id = id {
-                let session = response.getSession(Config.sessionName)
+                let session = self.response.getSession(Config.sessionName)
                 session["id"] = id
                 successLogin = true
             }
         }
         
         if successLogin {
-            response.redirectTo("/bbs")
+            response.redirectTo("/bbs") //  TODO:add login success message
         } else {
             response.redirectTo("/user/login")  //  TODO:add login failed message
         }
     }
+    
+    private func logoutAction() throws {
+        let session = self.response.getSession(Config.sessionName)
+        session.getLoadResult()
+        session["id"] = nil
+        
+        response.redirectTo("/user/login")
+    }
 }
 
-class BbsHandler: RequestHandler {
-    func handleRequest(request: WebRequest, response: WebResponse) {
-        do {
-            switch request.action {
-            case "add" where request.requestMethod() == "POST":
-                try addAction(request, response: response)
-            case "addpost" where request.requestMethod() == "POST":
-                try addpostAction(request, response: response)
-            case "list":
-                try listAction(request, response: response)
-            default:
-                try indexAction(request, response: response)
-            }
-        } catch (let e) {
-            print(e)
-        }
+class BbsHandler: BaseRequestHandler {
+    override init() {
+        super.init()
         
-        response.requestCompletedCallback()
+        //  define action acl
+        needLoginActions = ["add", "addpost"]
+        redirectUrlIfNotLogin = "/user/login"
+
+//        noNeedLoginActions = []
+//        redirectUrlIfLogin = "/"
     }
     
-    func indexAction(request: WebRequest, response: WebResponse) throws {
+    override func dispatchAction(action: String) throws {
+        switch request.action {
+        case "add" where request.requestMethod() == "POST":
+            try addAction()
+        case "addpost" where request.requestMethod() == "POST":
+            try addpostAction()
+        case "list":
+            try listAction()
+        default:
+            try indexAction()
+        }
+    }
+    
+    func indexAction() throws {
         let sqlite = try SQLite(DB_PATH)
         defer { sqlite.close() }
         
@@ -262,7 +391,7 @@ class BbsHandler: RequestHandler {
             var id:Int?, title:String?, createdAt:String?, name:String?
             (id, title, createdAt, name) = (stmt.columnInt(0), stmt.columnText(1), stmt.columnText(2), stmt.columnText(3))
             if let id = id {
-                bbsList.append(["id": id, "title": title ?? "", "createdAt": createdAt ?? "", "name": name ?? 0, ])
+                bbsList.append(["id": id, "title": title ?? "", "createdAt": createdAt ?? "", "name": name ?? 0])   //  TODO:add bbs.comment
             }
         }
         
@@ -270,18 +399,15 @@ class BbsHandler: RequestHandler {
         values["keywordForSearch"] = keywordForSearch ?? ""
         values["bbsList"] = bbsList
         
-        //  TODO: show user info if logged
+        //  show user info if logged
+        if let loginUser = try getUser(userIdInSession()) {
+            values["loginUser"] = loginUser
+        }
         
         try response.renderHTML("bbs.mustache", values: values)
     }
     
-    func addAction(request: WebRequest, response: WebResponse) throws {
-        //  check session
-        guard let userId = response.userIdInSession() else {
-            response.redirectTo("/bbs")
-            return
-        }
-
+    func addAction() throws {
         let sqlite = try SQLite(DB_PATH)
         defer { sqlite.close() }
         
@@ -300,7 +426,7 @@ class BbsHandler: RequestHandler {
             (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, title)
             try stmt.bind(2, comment)
-            try stmt.bind(3, userId)
+            try stmt.bind(3, self.userIdInSession()!)
         }
         
         if sqlite.errCode() > 0 {
@@ -311,7 +437,7 @@ class BbsHandler: RequestHandler {
         response.redirectTo("/bbs")
     }
     
-    func listAction(request: WebRequest, response: WebResponse) throws {
+    func listAction() throws {
         guard let bbsId = request.urlVariables["id"] else {
             response.setStatus(500, message: "invalidate request parameter")
             return
@@ -354,18 +480,15 @@ class BbsHandler: RequestHandler {
         values["bbs"] = bbs
         values["postList"] = postList
         
-        //  TODO: show user info if logged
+        //  show user info if logged
+        if let loginUser = try getUser(userIdInSession()) {
+            values["loginUser"] = loginUser
+        }
 
         try response.renderHTML("bbs_list.mustache", values: values)
     }
     
-    func addpostAction(request: WebRequest, response: WebResponse) throws {
-        //  check session
-        guard let userId = response.userIdInSession() else {
-            response.redirectTo("/user/login")
-            return
-        }
-
+    func addpostAction() throws {
         let sqlite = try SQLite(DB_PATH)
         defer { sqlite.close() }
         
@@ -384,7 +507,7 @@ class BbsHandler: RequestHandler {
             (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, bbsId)
             try stmt.bind(2, comment)
-            try stmt.bind(3, userId)
+            try stmt.bind(3, self.userIdInSession()!)
         }
         
         if sqlite.errCode() > 0 {

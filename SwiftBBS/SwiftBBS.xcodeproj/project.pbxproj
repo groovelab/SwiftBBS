@@ -12,10 +12,10 @@
 		0A84902E1C370BEE00149828 /* template.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A84902B1C370AEF00149828 /* template.mustache */; };
 		0A8490301C39907D00149828 /* sqlite.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A84902F1C39907D00149828 /* sqlite.mustache */; };
 		0A8490311C39954100149828 /* sqlite.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A84902F1C39907D00149828 /* sqlite.mustache */; };
-		0A8490361C3BE05000149828 /* user.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A8490351C3BE05000149828 /* user.mustache */; };
-		0A8490371C3BE14A00149828 /* user.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A8490351C3BE05000149828 /* user.mustache */; };
-		0A8490391C3BF07100149828 /* login.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A8490381C3BF07100149828 /* login.mustache */; };
-		0A84903A1C3BF12500149828 /* login.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A8490381C3BF07100149828 /* login.mustache */; };
+		0A8490361C3BE05000149828 /* user_register.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A8490351C3BE05000149828 /* user_register.mustache */; };
+		0A8490371C3BE14A00149828 /* user_register.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A8490351C3BE05000149828 /* user_register.mustache */; };
+		0A8490391C3BF07100149828 /* user_login.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A8490381C3BF07100149828 /* user_login.mustache */; };
+		0A84903A1C3BF12500149828 /* user_login.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A8490381C3BF07100149828 /* user_login.mustache */; };
 		0A84903C1C3BFC9D00149828 /* bbs_list.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A84903B1C3BFC9D00149828 /* bbs_list.mustache */; };
 		0A84903D1C3BFD7400149828 /* bbs_list.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A84903B1C3BFC9D00149828 /* bbs_list.mustache */; };
 		0A84903F1C3C059D00149828 /* bbs.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A84903E1C3C059D00149828 /* bbs.mustache */; };
@@ -30,6 +30,8 @@
 		0AE911EB1C3EA5C200F6BA79 /* common_footer.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0AE911E91C3EA59900F6BA79 /* common_footer.mustache */; };
 		0AE911F01C3ED29400F6BA79 /* perfect_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 0AE911EF1C3ED29400F6BA79 /* perfect_icon.png */; };
 		0AE911F11C3ED2AF00F6BA79 /* perfect_icon.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0AE911EF1C3ED29400F6BA79 /* perfect_icon.png */; };
+		0AE911F31C40EEB700F6BA79 /* user_mypage.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0AE911F21C40EEB700F6BA79 /* user_mypage.mustache */; };
+		0AE911F41C40F04D00F6BA79 /* user_mypage.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0AE911F21C40EEB700F6BA79 /* user_mypage.mustache */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,12 +51,13 @@
 			dstPath = Templates;
 			dstSubfolderSpec = 16;
 			files = (
+				0AE911F41C40F04D00F6BA79 /* user_mypage.mustache in CopyFiles */,
 				0AE911EB1C3EA5C200F6BA79 /* common_footer.mustache in CopyFiles */,
 				0AE911E81C3EA4D200F6BA79 /* common_header.mustache in CopyFiles */,
 				0A8490401C3C069500149828 /* bbs.mustache in CopyFiles */,
 				0A84903D1C3BFD7400149828 /* bbs_list.mustache in CopyFiles */,
-				0A84903A1C3BF12500149828 /* login.mustache in CopyFiles */,
-				0A8490371C3BE14A00149828 /* user.mustache in CopyFiles */,
+				0A84903A1C3BF12500149828 /* user_login.mustache in CopyFiles */,
+				0A8490371C3BE14A00149828 /* user_register.mustache in CopyFiles */,
 				0A8490311C39954100149828 /* sqlite.mustache in CopyFiles */,
 				0A84902E1C370BEE00149828 /* template.mustache in CopyFiles */,
 			);
@@ -77,8 +80,8 @@
 		0A8490201C36FCB900149828 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		0A84902B1C370AEF00149828 /* template.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = template.mustache; sourceTree = "<group>"; };
 		0A84902F1C39907D00149828 /* sqlite.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sqlite.mustache; sourceTree = "<group>"; };
-		0A8490351C3BE05000149828 /* user.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user.mustache; sourceTree = "<group>"; };
-		0A8490381C3BF07100149828 /* login.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = login.mustache; sourceTree = "<group>"; };
+		0A8490351C3BE05000149828 /* user_register.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user_register.mustache; sourceTree = "<group>"; };
+		0A8490381C3BF07100149828 /* user_login.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user_login.mustache; sourceTree = "<group>"; };
 		0A84903B1C3BFC9D00149828 /* bbs_list.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bbs_list.mustache; sourceTree = "<group>"; };
 		0A84903E1C3C059D00149828 /* bbs.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bbs.mustache; sourceTree = "<group>"; };
 		0A98F5861C36B4D800E94B9D /* SwiftBBS Server.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "SwiftBBS Server.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -91,6 +94,7 @@
 		0AE911E61C3E9DF300F6BA79 /* common_header.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = common_header.mustache; sourceTree = "<group>"; };
 		0AE911E91C3EA59900F6BA79 /* common_footer.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = common_footer.mustache; sourceTree = "<group>"; };
 		0AE911EF1C3ED29400F6BA79 /* perfect_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = perfect_icon.png; sourceTree = "<group>"; };
+		0AE911F21C40EEB700F6BA79 /* user_mypage.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user_mypage.mustache; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,8 +132,9 @@
 				0A84902F1C39907D00149828 /* sqlite.mustache */,
 				0AE911E61C3E9DF300F6BA79 /* common_header.mustache */,
 				0AE911E91C3EA59900F6BA79 /* common_footer.mustache */,
-				0A8490351C3BE05000149828 /* user.mustache */,
-				0A8490381C3BF07100149828 /* login.mustache */,
+				0A8490351C3BE05000149828 /* user_register.mustache */,
+				0AE911F21C40EEB700F6BA79 /* user_mypage.mustache */,
+				0A8490381C3BF07100149828 /* user_login.mustache */,
 				0A84903E1C3C059D00149828 /* bbs.mustache */,
 				0A84903B1C3BFC9D00149828 /* bbs_list.mustache */,
 			);
@@ -293,14 +298,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0A8490361C3BE05000149828 /* user.mustache in Resources */,
+				0A8490361C3BE05000149828 /* user_register.mustache in Resources */,
 				0A8490301C39907D00149828 /* sqlite.mustache in Resources */,
-				0A8490391C3BF07100149828 /* login.mustache in Resources */,
+				0A8490391C3BF07100149828 /* user_login.mustache in Resources */,
 				0A84903C1C3BFC9D00149828 /* bbs_list.mustache in Resources */,
 				0AE911F01C3ED29400F6BA79 /* perfect_icon.png in Resources */,
 				0AE911EA1C3EA59900F6BA79 /* common_footer.mustache in Resources */,
 				0A84903F1C3C059D00149828 /* bbs.mustache in Resources */,
 				0AE911E71C3E9DF300F6BA79 /* common_header.mustache in Resources */,
+				0AE911F31C40EEB700F6BA79 /* user_mypage.mustache in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
