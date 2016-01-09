@@ -349,7 +349,7 @@ class BbsHandler: BaseRequestHandler {
         super.init()
         
         //  define action acl
-        needLoginActions = ["add", "addpost"]
+        needLoginActions = ["add", "addcomment"]
         redirectUrlIfNotLogin = "/user/login"
 
 //        noNeedLoginActions = []
@@ -360,16 +360,16 @@ class BbsHandler: BaseRequestHandler {
         switch request.action {
         case "add" where request.requestMethod() == "POST":
             try addAction()
-        case "addpost" where request.requestMethod() == "POST":
-            try addpostAction()
-        case "list":
-            try listAction()
+        case "addcomment" where request.requestMethod() == "POST":
+            try addcommentAction()
+        case "detail":
+            try detailAction()
         default:
-            try indexAction()
+            try listAction()
         }
     }
     
-    func indexAction() throws {
+    func listAction() throws {
         let sqlite = try SQLite(DB_PATH)
         defer { sqlite.close() }
         
@@ -404,7 +404,7 @@ class BbsHandler: BaseRequestHandler {
             values["loginUser"] = loginUser
         }
         
-        try response.renderHTML("bbs.mustache", values: values)
+        try response.renderHTML("bbs_list.mustache", values: values)
     }
     
     func addAction() throws {
@@ -437,7 +437,7 @@ class BbsHandler: BaseRequestHandler {
         response.redirectTo("/bbs")
     }
     
-    func listAction() throws {
+    func detailAction() throws {
         guard let bbsId = request.urlVariables["id"] else {
             response.setStatus(500, message: "invalidate request parameter")
             return
@@ -485,10 +485,10 @@ class BbsHandler: BaseRequestHandler {
             values["loginUser"] = loginUser
         }
 
-        try response.renderHTML("bbs_list.mustache", values: values)
+        try response.renderHTML("bbs_detail.mustache", values: values)
     }
     
-    func addpostAction() throws {
+    func addcommentAction() throws {
         let sqlite = try SQLite(DB_PATH)
         defer { sqlite.close() }
         
@@ -515,7 +515,7 @@ class BbsHandler: BaseRequestHandler {
             return
         }
 
-        response.redirectTo("/bbs/list/" + bbsId)
+        response.redirectTo("/bbs/detail/" + bbsId)
     }
 }
 

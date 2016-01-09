@@ -1,16 +1,9 @@
 {{> common_header}}
 
 <div class="container theme-showcase" role="main">
-    <div class="jumbotron">
-    {{#bbs}}
-        <h1><img src="/assets/img/perfect_icon.png" width="60" height="60" alt="perfect lib" class="img-thumbnail"> {{title}}</h1>
-        <p>{{comment}}</p>
-        <p>created by {{name}} at {{createdAt}}</p>
-    {{/bbs}}
-    </div>
 
     <div class="page-header">
-        <h1>comment list</h1>
+        <h1>bbs list</h1>
     </div>
 
     <div class="row">
@@ -18,38 +11,38 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>comment</th>
+                        <th>bbs title</th>
                         <th>user</th>
                         <th>posted date</th>
                     </tr>
                 </thead>
                 <tbody>
-                {{#postList}}
+                {{#bbsList}}
                     <tr>
-                        <td>{{comment}}</td>
+                        <td><a href="/bbs/detail/{{id}}">{{title}}</a></td>
                         <td>{{name}}</td>
                         <td>{{createdAt}}</td>
                     </tr>
-                {{/postList}}
+                {{/bbsList}}
                 </tbody>
             </table>
         </div>
     </div>
 
     <div class="page-header">
-        <h1>post comment form</h1>
+        <h1>create bbs form</h1>
     </div>
 
-    <form action="/bbs/addpost" method="post">
+    <form action="/bbs/add" method="post">
+        <div class="form-group">
+            <label for="title">title</label>
+            <input type="text" class="form-control" id="title" name="title" placeholder="">
+        </div>
         <div class="form-group">
             <label for="comment">comment</label>
             <textarea name="comment" id="comment" class="form-control" rows="3"></textarea>
         </div>
-        <button type="submit" class="btn btn-default">post comment</button>
-
-        {{#bbs}}
-            <input type="hidden" name="bbs_id" value="{{id}}">
-        {{/bbs}}
+        <button type="submit" class="btn btn-default">create bbs</button>
     </form>
 
 </div>
