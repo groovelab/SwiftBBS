@@ -28,11 +28,11 @@ public func PerfectServerModuleInit() {
     Routing.Routes["GET", ["/sqlite/add"]] = { _ in return SqliteAddHandler() }
     Routing.Routes["POST", ["/sqlite/add"]] = { _ in return SqliteAddHandler() }
 
-    //  user
+    //  user TODO:update, delete handler
     Routing.Routes["GET", ["/user", "/user/{action}"]] = { _ in return UserHandler() }
     Routing.Routes["POST", ["/user/{action}"]] = { _ in return UserHandler() }
 
-    //  bbs
+    //  bbs TODO:update, delete handler
     Routing.Routes["GET", ["/bbs", "/bbs/{action}", "/bbs/{action}/{id}"]] = { _ in return BbsHandler() }
     Routing.Routes["POST", ["/bbs/{action}"]] = { _ in return BbsHandler() }
 
@@ -345,8 +345,212 @@ class UserHandler: BaseRequestHandler {
     }
 }
 
+struct BbsEntity {
+    var id: Int?
+    var title: String
+    var comment: String
+    var userId: Int
+    var createdAt: String?
+}
+
+struct BbsWithUserEntity {
+    var id: Int
+    var title: String
+    var comment: String
+    var userId: Int
+    var userName: String
+    var createdAt: String
+    
+    func toDictionary() -> [String: Any] {
+        return [
+            "id": id,
+            "title": title,
+            "comment" : comment,
+            "userId" : userId,
+            "userName" : userName,
+            "createdAt" : createdAt,
+        ]
+    }
+}
+
+enum RepositoryError : ErrorType {
+    case Select(Int)
+    case Insert(Int)
+    case Update(Int)
+    case Delete(Int)
+}
+
+class BbsRepository {
+    func insert(var entity: BbsEntity) throws -> BbsEntity {
+        let sqlite = try SQLite(DB_PATH)    //  TODO:refactor
+        defer { sqlite.close() }
+
+        try sqlite.execute("INSERT INTO bbs (title, comment, user_id, created_at) VALUES (:1, :2, :3, datetime('now'))") {
+            (stmt:SQLiteStmt) -> () in
+            try stmt.bind(1, entity.title)
+            try stmt.bind(2, entity.comment)
+            try stmt.bind(3, entity.userId)
+        }
+        
+        let errCode = sqlite.errCode()
+        if errCode > 0 {
+            throw RepositoryError.Insert(errCode)
+        }
+        
+        entity.id = sqlite.lastInsertRowID()
+        return entity
+    }
+    
+    func findById(id: Int) throws -> BbsWithUserEntity? {
+        let sqlite = try SQLite(DB_PATH)    //  TODO:refactor
+        defer { sqlite.close() }
+
+        var columns = [Any]()
+        let sql = "SELECT b.id, b.title, b.comment, b.user_id, u.name, b.created_at FROM bbs as b INNER JOIN user AS u ON u.id = b.user_id WHERE b.id = :1"
+        try sqlite.forEachRow(sql, doBindings: {
+            (stmt:SQLiteStmt) -> () in
+            try stmt.bind(1, id)
+            }) {
+                (stmt:SQLiteStmt, r:Int) -> () in
+                columns.append(stmt.columnInt(0))
+                columns.append(stmt.columnText(1))
+                columns.append(stmt.columnText(2))
+                columns.append(stmt.columnInt(3))
+                columns.append(stmt.columnText(4))
+                columns.append(stmt.columnText(5))
+        }
+
+        let errCode = sqlite.errCode()
+        if errCode > 0 {
+            throw RepositoryError.Select(errCode)
+        }
+
+        guard columns.count > 0 else {
+            return nil
+        }
+        
+        return BbsWithUserEntity(
+            id: columns[0] as! Int,
+            title: columns[1] as! String,
+            comment: columns[2] as! String,
+            userId: columns[3] as! Int,
+            userName: columns[4] as! String,
+            createdAt: columns[5] as! String
+        )
+    }
+    
+    func selectByKeyword(keyword: String?) throws -> [BbsWithUserEntity] {
+        let sqlite = try SQLite(DB_PATH)    //  TODO:refactor
+        defer { sqlite.close() }
+
+        let whereString = (keyword != nil) ? "WHERE b.title LIKE :1 OR b.comment LIKE :1" : ""
+        let sql = "SELECT b.id, b.title, b.comment, b.user_id, u.name, b.created_at FROM bbs AS b "
+            + "INNER JOIN user as u ON u.id = b.user_id "
+            + "\(whereString) ORDER BY b.id"
+
+        var entities = [BbsWithUserEntity]()
+        try sqlite.forEachRow(sql, doBindings: {
+            (stmt:SQLiteStmt) -> () in
+            if let keyword = keyword {
+                try stmt.bind(1, "%" + keyword + "%")
+            }
+            }) {
+                (stmt:SQLiteStmt, r:Int) -> () in
+                entities.append(BbsWithUserEntity(
+                    id: stmt.columnInt(0),
+                    title: stmt.columnText(1),
+                    comment: stmt.columnText(2),
+                    userId: stmt.columnInt(3),
+                    userName: stmt.columnText(4),
+                    createdAt: stmt.columnText(5)
+                ))
+        }
+        
+        return entities
+    }
+}
+
+struct BbsCommentEntity {
+    var id: Int?
+    var bbsId: Int
+    var comment: String
+    var userId: Int
+    var createdAt: String?
+}
+
+struct BbsCommentWithUserEntity {
+    var id: Int
+    var bbsId: Int
+    var comment: String
+    var userId: Int
+    var userName: String
+    var createdAt: String
+    
+    func toDictionary() -> [String: Any] {
+        return [
+            "id": id,
+            "bbsId": bbsId,
+            "comment" : comment,
+            "userId" : userId,
+            "userName" : userName,
+            "createdAt" : createdAt,
+        ]
+    }
+}
+
+class BbsCommentRepository {
+    func insert(var entity: BbsCommentEntity) throws -> BbsCommentEntity {
+        let sqlite = try SQLite(DB_PATH)    //  TODO:refactor
+        defer { sqlite.close() }
+        
+        try sqlite.execute("INSERT INTO bbs_comment (bbs_id, comment, user_id, created_at) VALUES (:1, :2, :3, datetime('now'))") {
+            (stmt:SQLiteStmt) -> () in
+            try stmt.bind(1, entity.bbsId)
+            try stmt.bind(2, entity.comment)
+            try stmt.bind(3, entity.userId)
+        }
+        
+        let errCode = sqlite.errCode()
+        if errCode > 0 {
+            throw RepositoryError.Insert(errCode)
+        }
+        
+        entity.id = sqlite.lastInsertRowID()
+        return entity
+    }
+
+    func selectByBbsId(bbsId: Int) throws -> [BbsCommentWithUserEntity] {
+        let sqlite = try SQLite(DB_PATH)    //  TODO:refactor
+        defer { sqlite.close() }
+        
+        let sql = "SELECT b.id, b.bbs_id, b.comment, b.user_id, u.name, b.created_at FROM bbs_comment AS b "
+            + "INNER JOIN user AS u ON u.id = b.user_id WHERE b.bbs_id = :1 "
+            + "ORDER BY b.id"
+        var entities = [BbsCommentWithUserEntity]()
+        try sqlite.forEachRow(sql, doBindings: {
+            (stmt:SQLiteStmt) -> () in
+            try stmt.bind(1, bbsId)
+            }) {
+                (stmt:SQLiteStmt, r:Int) -> () in
+                entities.append(BbsCommentWithUserEntity(
+                    id: stmt.columnInt(0),
+                    bbsId: stmt.columnInt(1),
+                    comment: stmt.columnText(2),
+                    userId: stmt.columnInt(3),
+                    userName: stmt.columnText(4),
+                    createdAt: stmt.columnText(5)
+                ))
+        }
+        
+        return entities
+    }
+}
+
 class BbsHandler: BaseRequestHandler {
     
+    lazy var bbsReposity = BbsRepository()
+    lazy var bbsCommentReposity = BbsCommentRepository()
+
     override init() {
         super.init()
         
@@ -371,35 +575,18 @@ class BbsHandler: BaseRequestHandler {
         }
     }
     
-    func listAction() throws {
+    private func listAction() throws {
         let sqlite = try SQLite(DB_PATH)
         defer { sqlite.close() }
         
-        var sql = "SELECT b.id, b.title, b.created_at, u.name FROM bbs AS b INNER JOIN user as u ON u.id = b.user_id"
-        var keywordForSearch: String?
-        if let keyword = request.postParam("keyword") {
-            keywordForSearch = keyword
-            sql = "SELECT b.id, b.title, b.created_at, u.name FROM bbs AS b INNER JOIN user as u ON u.id = b.user_id WHERE b.title LIKE :1 OR b.comment LIKE :1"
-        }
-        
-        var bbsList = [[String:Any]]()
-        try sqlite.forEachRow(sql, doBindings: {
-            (stmt:SQLiteStmt) -> () in
-            if let keywordForSearch = keywordForSearch {
-                try stmt.bind(1, "%" + keywordForSearch + "%")
-            }
-        }) {
-            (stmt:SQLiteStmt, r:Int) -> () in
-            var id:Int?, title:String?, createdAt:String?, name:String?
-            (id, title, createdAt, name) = (stmt.columnInt(0), stmt.columnText(1), stmt.columnText(2), stmt.columnText(3))
-            if let id = id {
-                bbsList.append(["id": id, "title": title ?? "", "createdAt": createdAt ?? "", "name": name ?? 0])   //  TODO:add bbs.comment
-            }
-        }
+        let keyword = request.postParam("keyword")
+        let bbsEntities = try bbsReposity.selectByKeyword(keyword)
         
         var values: MustacheEvaluationContext.MapType = MustacheEvaluationContext.MapType()
-        values["keywordForSearch"] = keywordForSearch ?? ""
-        values["bbsList"] = bbsList
+        values["keyword"] = keyword ?? ""
+        values["bbsList"] = bbsEntities.map({ (bbsEntity) -> [String: Any] in
+            bbsEntity.toDictionary()
+        })
         
         //  show user info if logged
         if let loginUser = try getUser(userIdInSession()) {
@@ -409,10 +596,7 @@ class BbsHandler: BaseRequestHandler {
         try response.renderHTML("bbs_list.mustache", values: values)
     }
     
-    func addAction() throws {
-        let sqlite = try SQLite(DB_PATH)
-        defer { sqlite.close() }
-        
+    private func addAction() throws {
         //  validate
         guard let title = request.postParam("title") else {
             response.setStatus(500, message: "invalidate request parameter")
@@ -424,23 +608,18 @@ class BbsHandler: BaseRequestHandler {
         }
         
         //  insert
-        try sqlite.execute("INSERT INTO bbs (title, comment, user_id, created_at) VALUES (:1, :2, :3, datetime('now'))") {
-            (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, title)
-            try stmt.bind(2, comment)
-            try stmt.bind(3, self.userIdInSession()!)
-        }
+        let entity = BbsEntity(id: nil, title: title, comment: comment, userId: try self.userIdInSession()!, createdAt: nil)
+        let storedEntity = try bbsReposity.insert(entity)
         
-        if sqlite.errCode() > 0 {
-            response.setStatus(500, message: String(sqlite.errCode()) + " : " + sqlite.errMsg())
-            return
+        if let bbsId = storedEntity.id {
+            response.redirectTo("/bbs/detail/\(bbsId)")
+        } else {
+            response.redirectTo("/bbs")
         }
-
-        response.redirectTo("/bbs")
     }
     
-    func detailAction() throws {
-        guard let bbsId = request.urlVariables["id"] else {
+    private func detailAction() throws {
+        guard let bbsIdString = request.urlVariables["id"], let bbsId = Int(bbsIdString) else {
             response.setStatus(500, message: "invalidate request parameter")
             return
         }
@@ -448,39 +627,20 @@ class BbsHandler: BaseRequestHandler {
         let sqlite = try SQLite(DB_PATH)
         defer { sqlite.close() }
 
+        var values: MustacheEvaluationContext.MapType = MustacheEvaluationContext.MapType()
+
         //  bbs
-        var bbs = [String:Any]()
-        let sql = "SELECT b.id, b.title, b.comment, b.created_at, u.name FROM bbs as b INNER JOIN user AS u ON u.id = b.user_id WHERE b.id = :1"
-        try sqlite.forEachRow(sql, doBindings: {
-            (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, bbsId)
-        }) {
-            (stmt:SQLiteStmt, r:Int) -> () in
-            var id:Int?, title:String?, comment:String?, createdAt:String?, name:String?
-            (id, title, comment, createdAt, name) = (stmt.columnInt(0), stmt.columnText(1), stmt.columnText(2), stmt.columnText(3), stmt.columnText(4))
-            if let id = id {
-                bbs = ["id": id, "title": title ?? "", "comment": comment ?? "", "createdAt": createdAt ?? "", "name": name ?? ""]
-            }
+        guard let bbsEntity = try bbsReposity.findById(bbsId) else {
+            response.setStatus(404, message: "not found bbs")
+            return
         }
+        values["bbs"] = bbsEntity.toDictionary()
         
         //  bbs post
-        var postList = [[String:Any]]()
-        let sql2 = "SELECT b.id, b.comment, b.created_at, u.name FROM bbs_comment AS b INNER JOIN user AS u ON u.id = b.user_id WHERE b.bbs_id = :1 ORDER BY b.id"
-        try sqlite.forEachRow(sql2, doBindings: {
-            (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, bbsId)
-        }) {
-            (stmt:SQLiteStmt, r:Int) -> () in
-            var id:Int?, comment:String?, createdAt:String?, name:String?
-            (id, comment, createdAt, name) = (stmt.columnInt(0), stmt.columnText(1), stmt.columnText(2), stmt.columnText(3))
-            if let id = id {
-                postList.append(["id": id, "comment": comment ?? "", "createdAt": createdAt ?? "", "name": name ?? ""])
-            }
-        }
-        
-        var values: MustacheEvaluationContext.MapType = MustacheEvaluationContext.MapType()
-        values["bbs"] = bbs
-        values["postList"] = postList
+        let bbsCommentEntities = try bbsCommentReposity.selectByBbsId(bbsId)
+        values["postList"] = bbsCommentEntities.map({ (entity) -> [String: Any] in
+            entity.toDictionary()
+        })
         
         //  show user info if logged
         if let loginUser = try getUser(userIdInSession()) {
@@ -490,12 +650,12 @@ class BbsHandler: BaseRequestHandler {
         try response.renderHTML("bbs_detail.mustache", values: values)
     }
     
-    func addcommentAction() throws {
+    private func addcommentAction() throws {
         let sqlite = try SQLite(DB_PATH)
         defer { sqlite.close() }
         
         //  validate
-        guard let bbsId = request.postParam("bbs_id") else {
+        guard let bbsIdString = request.postParam("bbs_id"), let bbsId = Int(bbsIdString) else {
             response.setStatus(500, message: "invalidate request parameter")
             return
         }
@@ -505,26 +665,12 @@ class BbsHandler: BaseRequestHandler {
         }
         
         //  insert
-        try sqlite.execute("INSERT INTO bbs_comment (bbs_id, comment, user_id, created_at) VALUES (:1, :2, :3, datetime('now'))") {
-            (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, bbsId)
-            try stmt.bind(2, comment)
-            try stmt.bind(3, self.userIdInSession()!)
-        }
-        
-        if sqlite.errCode() > 0 {
-            response.setStatus(500, message: String(sqlite.errCode()) + " : " + sqlite.errMsg())
-            return
-        }
+        let entity = BbsCommentEntity(id: nil, bbsId: bbsId, comment: comment, userId: try userIdInSession()!, createdAt: nil)
+        let storedEntity = try bbsCommentReposity.insert(entity)
 
-        response.redirectTo("/bbs/detail/" + bbsId)
+        response.redirectTo("/bbs/detail/\(storedEntity.bbsId)")
     }
 }
-
-//struct bbsEntiry {
-//    <#properties and methods#>
-//}
-
 
 //  MARK: - sample handlers
 class IndexHandler: RequestHandler {
