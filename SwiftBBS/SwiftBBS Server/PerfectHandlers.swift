@@ -47,8 +47,6 @@ public func PerfectServerModuleInit() {
         print("Failure creating database at " + Config.dbPath)
         print(e)
     }
-
-    DatabaseManager.path = Config.dbPath
 }
 
 //  MARK: - extensions
@@ -108,6 +106,7 @@ extension WebRequest {
 class BaseRequestHandler: RequestHandler {
     var request: WebRequest!
     var response: WebResponse!
+    var db: SQLite!
 
     //  action acl
     enum ActionAcl {
@@ -121,7 +120,16 @@ class BaseRequestHandler: RequestHandler {
     var redirectUrlIfLogin: String?
     var redirectUrlIfNotLogin: String?
 
-    lazy var userReposity = UserRepository()
+    //  repository
+    var userReposity: UserRepository {
+        return UserRepository(db: db)
+    }
+    var bbsReposity: BbsRepository {
+        return BbsRepository(db: db)
+    }
+    var bbsCommentReposity: BbsCommentRepository {
+        return BbsCommentRepository(db: db)
+    }
 
     func userIdInSession() throws -> Int? {
         let session = response.getSession(Config.sessionName)    //  TODO:configuration session
@@ -151,11 +159,12 @@ class BaseRequestHandler: RequestHandler {
         self.response = response
         
         defer {
-            DatabaseManager.close()
             response.requestCompletedCallback()
         }
 
         do {
+            db = try SQLite(Config.dbPath)
+            
             switch try checkActionAcl() {
             case .NeedLogin:
                 if let redirectUrl = redirectUrlIfNotLogin {
@@ -299,9 +308,6 @@ class UserHandler: BaseRequestHandler {
 
 class BbsHandler: BaseRequestHandler {
     
-    lazy var bbsReposity = BbsRepository()
-    lazy var bbsCommentReposity = BbsCommentRepository()
-
     override init() {
         super.init()
         

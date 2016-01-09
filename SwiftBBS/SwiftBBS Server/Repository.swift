@@ -17,5 +17,9 @@ enum RepositoryError : ErrorType {
 }
 
 class Repository {
-    let db = DatabaseManager.db
+    let db: SQLite!
+    
+    init(db: SQLite) {
+        self.db = db
+    }
 }
