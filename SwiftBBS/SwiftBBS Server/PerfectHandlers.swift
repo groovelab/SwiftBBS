@@ -121,6 +121,8 @@ class BaseRequestHandler: RequestHandler {
     var redirectUrlIfLogin: String?
     var redirectUrlIfNotLogin: String?
 
+    lazy var userReposity = UserRepository()
+
     func userIdInSession() throws -> Int? {
         let session = response.getSession(Config.sessionName)    //  TODO:configuration session
         guard let userId = session["id"] as? Int else {
@@ -136,33 +138,12 @@ class BaseRequestHandler: RequestHandler {
         return userId
     }
 
-    func getUser(userId: Int?) throws -> [String: Any]? {
+    func getUser(userId: Int?) throws -> UserEntity? {
         guard let userId = userId else {
             return nil
         }
         
-        let sqlite = try SQLite(DB_PATH)
-        defer { sqlite.close() }
-        
-        var loginUser = [String: Any]()
-        
-        let sql = "SELECT id, name FROM user WHERE id = :1"
-        try sqlite.forEachRow(sql, doBindings: {
-            (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, userId)
-            }) {
-                (stmt:SQLiteStmt, r:Int) -> () in
-                var id: Int?, name: String?
-                (id, name) = (stmt.columnInt(0), stmt.columnText(1))
-                if let id = id {
-                    loginUser = ["id": id, "name": name ?? ""]
-                }
-        }
-        
-        if loginUser.count == 0 {
-            return nil
-        }
-        return loginUser
+        return try userReposity.findById(userId)
     }
 
     func handleRequest(request: WebRequest, response: WebResponse) {
@@ -240,7 +221,7 @@ class UserHandler: BaseRequestHandler {
         case "logout":
             try logoutAction()
         case "register" where request.requestMethod() == "POST":
-            try addAction()
+            try doRegisterAction()
         case "register":
             try registerAction()
         default:
@@ -251,7 +232,7 @@ class UserHandler: BaseRequestHandler {
     //  MARK: actions
     private func mypageAction() throws {
         var values = MustacheEvaluationContext.MapType()
-        values["loginUser"] = try getUser(userIdInSession())
+        values["loginUser"] = try getUser(userIdInSession())?.toDictionary()
         try response.renderHTML("user_mypage.mustache", values: values)
     }
         
@@ -260,11 +241,7 @@ class UserHandler: BaseRequestHandler {
         try response.renderHTML("user_register.mustache", values: values)
     }
         
-    private func addAction() throws {
-        //  TODO:refactor like DI
-        let sqlite = try SQLite(DB_PATH)
-        defer { sqlite.close() }
-            
+    private func doRegisterAction() throws {
         //  validate TODO:create validaotr
         guard let name = request.postParam("name") else {
             response.setStatus(500, message: "invalidate request parameter")
@@ -275,18 +252,10 @@ class UserHandler: BaseRequestHandler {
             return
         }
         
-        //  insert TODO:create User model class
-        try sqlite.execute("INSERT INTO user (name, password, created_at) VALUES (:1, :2, datetime('now'))") {
-            (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, name)
-            try stmt.bind(2, password)  //  TODO:encrypto
-        }
-        
-        if sqlite.errCode() > 0 {
-            response.setStatus(500, message: String(sqlite.errCode()) + " : " + sqlite.errMsg())
-            return
-        }
-        
+        //  insert
+        let userEntity = UserEntity(id: nil, name: name, password: password, createdAt: nil)
+        try userReposity.insert(userEntity)
+
         //  TODO:do login
         
         response.redirectTo("/user/login")  //  TODO:add success message
@@ -298,9 +267,6 @@ class UserHandler: BaseRequestHandler {
     }
 
     private func doLoginAction() throws {
-        let sqlite = try SQLite(DB_PATH)
-        defer { sqlite.close() }
-        
         //  validate
         guard let loginName = request.postParam("name") else {
             response.setStatus(500, message: "invalidate request parameter")
@@ -311,24 +277,11 @@ class UserHandler: BaseRequestHandler {
             return
         }
         
-        //  check exist
-        var successLogin = false
-        let sql = "SELECT id FROM user WHERE name = :1 AND password = :2"
-        try sqlite.forEachRow(sql, doBindings: {
-            (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, loginName)
-            try stmt.bind(2, loginPassword)
-        }) {
-            (stmt:SQLiteStmt, r:Int) -> () in
-            let id:Int? = stmt.columnInt(0)
-            if let id = id {
-                let session = self.response.getSession(Config.sessionName)
-                session["id"] = id
-                successLogin = true
-            }
-        }
-        
-        if successLogin {
+        //  check exist //  TODO:create user class include authentication
+        if let userEntity = try userReposity.findByName(loginName, password: loginPassword), let userId = userEntity.id {
+            //  success login
+            let session = self.response.getSession(Config.sessionName)
+            session["id"] = userId
             response.redirectTo("/bbs") //  TODO:add login success message
         } else {
             response.redirectTo("/user/login")  //  TODO:add login failed message
@@ -388,7 +341,7 @@ class BbsHandler: BaseRequestHandler {
         
         //  show user info if logged
         if let loginUser = try getUser(userIdInSession()) {
-            values["loginUser"] = loginUser
+            values["loginUser"] = loginUser.toDictionary()
         }
         
         try response.renderHTML("bbs_list.mustache", values: values)
@@ -442,7 +395,7 @@ class BbsHandler: BaseRequestHandler {
         
         //  show user info if logged
         if let loginUser = try getUser(userIdInSession()) {
-            values["loginUser"] = loginUser
+            values["loginUser"] = loginUser.toDictionary()
         }
 
         try response.renderHTML("bbs_detail.mustache", values: values)

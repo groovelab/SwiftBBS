@@ -39,18 +39,8 @@ struct BbsWithUserEntity {
 }
 
 //  MARK: - repository
-enum RepositoryError : ErrorType {
-    case Select(Int)
-    case Insert(Int)
-    case Update(Int)
-    case Delete(Int)
-}
-
-class BbsRepository {
+class BbsRepository : Repository {
     func insert(var entity: BbsEntity) throws -> BbsEntity {
-        let sqlite = try SQLite(DB_PATH)    //  TODO:refactor
-        defer { sqlite.close() }
-        
         let sql = "INSERT INTO bbs (title, comment, user_id, created_at) VALUES (:1, :2, :3, datetime('now'))"
         try sqlite.execute(sql) { (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, entity.title)
@@ -68,14 +58,11 @@ class BbsRepository {
     }
     
     func findById(id: Int) throws -> BbsWithUserEntity? {
-        let sqlite = try SQLite(DB_PATH)    //  TODO:refactor
-        defer { sqlite.close() }
-        
         let sql = "SELECT b.id, b.title, b.comment, b.user_id, u.name, b.created_at FROM bbs as b INNER JOIN user AS u ON u.id = b.user_id WHERE b.id = :1"
         var columns = [Any]()
         try sqlite.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, id)
-        }) {(stmt:SQLiteStmt, r:Int) -> () in
+        }) { (stmt:SQLiteStmt, r:Int) -> () in
             columns.append(stmt.columnInt(0))
             columns.append(stmt.columnText(1))
             columns.append(stmt.columnText(2))
@@ -104,9 +91,6 @@ class BbsRepository {
     }
     
     func selectByKeyword(keyword: String?) throws -> [BbsWithUserEntity] {
-        let sqlite = try SQLite(DB_PATH)    //  TODO:refactor
-        defer { sqlite.close() }
-        
         let sql = "SELECT b.id, b.title, b.comment, b.user_id, u.name, b.created_at FROM bbs AS b "
             + "INNER JOIN user as u ON u.id = b.user_id "
             + "\(keyword != nil ? "WHERE b.title LIKE :1 OR b.comment LIKE :1" : "") "
@@ -117,7 +101,7 @@ class BbsRepository {
             if let keyword = keyword {
                 try stmt.bind(1, "%" + keyword + "%")
             }
-        }) {(stmt:SQLiteStmt, r:Int) -> () in
+        }) { (stmt:SQLiteStmt, r:Int) -> () in
             entities.append(
                 BbsWithUserEntity(
                     id: stmt.columnInt(0),

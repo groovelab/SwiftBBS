@@ -39,11 +39,8 @@ struct BbsCommentWithUserEntity {
 }
 
 //  MARK: - repository
-class BbsCommentRepository {
+class BbsCommentRepository : Repository{
     func insert(var entity: BbsCommentEntity) throws -> BbsCommentEntity {
-        let sqlite = try SQLite(DB_PATH)    //  TODO:refactor
-        defer { sqlite.close() }
-        
         let sql = "INSERT INTO bbs_comment (bbs_id, comment, user_id, created_at) VALUES (:1, :2, :3, datetime('now'))"
         try sqlite.execute(sql) { (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, entity.bbsId)
@@ -61,16 +58,13 @@ class BbsCommentRepository {
     }
     
     func selectByBbsId(bbsId: Int) throws -> [BbsCommentWithUserEntity] {
-        let sqlite = try SQLite(DB_PATH)    //  TODO:refactor
-        defer { sqlite.close() }
-        
         let sql = "SELECT b.id, b.bbs_id, b.comment, b.user_id, u.name, b.created_at FROM bbs_comment AS b "
             + "INNER JOIN user AS u ON u.id = b.user_id WHERE b.bbs_id = :1 "
             + "ORDER BY b.id"
         var entities = [BbsCommentWithUserEntity]()
         try sqlite.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, bbsId)
-        }) {(stmt:SQLiteStmt, r:Int) -> () in
+        }) { (stmt:SQLiteStmt, r:Int) -> () in
             entities.append(
                 BbsCommentWithUserEntity(
                     id: stmt.columnInt(0),
