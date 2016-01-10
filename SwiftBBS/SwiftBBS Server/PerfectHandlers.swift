@@ -25,11 +25,11 @@ public func PerfectServerModuleInit() {
     Routing.Routes["GET", ["/sqlite/add"]] = { _ in return SqliteAddHandler() }
     Routing.Routes["POST", ["/sqlite/add"]] = { _ in return SqliteAddHandler() }
 
-    //  user TODO:update, delete handler
+    //  user
     Routing.Routes["GET", ["/user", "/user/{action}"]] = { _ in return UserHandler() }
     Routing.Routes["POST", ["/user/{action}"]] = { _ in return UserHandler() }
 
-    //  bbs TODO:update, delete handler
+    //  bbs
     Routing.Routes["GET", ["/bbs", "/bbs/{action}", "/bbs/{action}/{id}"]] = { _ in return BbsHandler() }
     Routing.Routes["POST", ["/bbs/{action}"]] = { _ in return BbsHandler() }
 
@@ -38,10 +38,10 @@ public func PerfectServerModuleInit() {
     // Create our SQLite database.
     do {
         let sqlite = try SQLite(Config.dbPath)    //  TODO:use MySQL
-        try sqlite.execute("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, name TEXT, password TEXT, created_at TEXT)")
+        try sqlite.execute("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, name TEXT, password TEXT, created_at TEXT, updated_at TEXT)")
         try sqlite.execute("CREATE UNIQUE INDEX IF NOT EXISTS user_name ON user (name)")
-        try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs (id INTEGER PRIMARY KEY, title TEXT, comment TEXT, user_id INTEGER, created_at TEXT)")
-        try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs_comment (id INTEGER PRIMARY KEY, bbs_id INTEGER, comment TEXT, user_id INTEGER, created_at TEXT)")
+        try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs (id INTEGER PRIMARY KEY, title TEXT, comment TEXT, user_id INTEGER, created_at TEXT, updated_at TEXT)")
+        try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs_comment (id INTEGER PRIMARY KEY, bbs_id INTEGER, comment TEXT, user_id INTEGER, created_at TEXT, updated_at TEXT)")
         try sqlite.execute("CREATE INDEX IF NOT EXISTS bbs_comment_bbs_id ON bbs_comment (bbs_id);")
     } catch (let e){
         print("Failure creating database at " + Config.dbPath)
@@ -201,7 +201,7 @@ class UserHandler: BaseRequestHandler {
         super.init()
         
         //  define action acl
-        needLoginActions = ["index", "mypage", "logout"]
+        needLoginActions = ["index", "mypage", "logout", "edit", "delete"]
         redirectUrlIfNotLogin = "/user/login"
 
         noNeedLoginActions = ["login", "add"]
@@ -220,6 +220,12 @@ class UserHandler: BaseRequestHandler {
             try doRegisterAction()
         case "register":
             try registerAction()
+        case "edit" where request.requestMethod() == "POST":
+            try doEditAction()
+        case "edit":
+            try editAction()
+        case "delete" where request.requestMethod() == "POST":
+            try doDeleteAction()
         default:
             try mypageAction()
         }
@@ -233,7 +239,50 @@ class UserHandler: BaseRequestHandler {
         try setLoginUser(&values)
         try response.renderHTML("user_mypage.mustache", values: values)
     }
+    
+    func editAction() throws {
+        var values = MustacheEvaluationContext.MapType()
         
+        //  show user info if logged
+        try setLoginUser(&values)
+        try response.renderHTML("user_edit.mustache", values: values)
+    }
+    
+    func doEditAction() throws {
+        //  validate TODO:create validaotr
+        guard let name = request.param("name") else {
+            response.setStatus(500, message: "invalidate request parameter")
+            return
+        }
+        
+        let password = request.param("password") ?? ""
+        
+        //  update
+        guard var userEntity = try getUser(userIdInSession()) else {
+            response.setStatus(404, message: "not found user")
+            return
+        }
+
+        userEntity.name = name
+        userEntity.password = password  //  TODO:encrypt
+        try userReposity.update(userEntity)
+        
+        response.redirectTo("/user/mypage")
+    }
+
+    func doDeleteAction() throws {
+        //  delete
+        guard let userEntity = try getUser(userIdInSession()) else {
+            response.setStatus(404, message: "not found user")
+            return
+        }
+        
+        try userReposity.delete(userEntity)
+        logout()
+        
+        response.redirectTo("/bbs")
+    }
+    
     func registerAction() throws {
         let values = MustacheEvaluationContext.MapType()
         try response.renderHTML("user_register.mustache", values: values)
@@ -251,7 +300,7 @@ class UserHandler: BaseRequestHandler {
         }
         
         //  insert
-        let userEntity = UserEntity(id: nil, name: name, password: password, createdAt: nil)
+        let userEntity = UserEntity(id: nil, name: name, password: password, createdAt: nil, updatedAt: nil)
         try userReposity.insert(userEntity)
 
         //  do login
@@ -287,8 +336,7 @@ class UserHandler: BaseRequestHandler {
     }
     
     func logoutAction() throws {
-        let session = self.response.getSession(Config.sessionName)
-        session["id"] = nil
+        logout()
         
         response.redirectTo("/user/login")
     }
@@ -302,6 +350,11 @@ class UserHandler: BaseRequestHandler {
         } else {
             return false
         }
+    }
+    
+    private func logout() {
+        let session = self.response.getSession(Config.sessionName)
+        session["id"] = nil
     }
 }
 
@@ -357,15 +410,12 @@ class BbsHandler: BaseRequestHandler {
             return
         }
         
-        //  insert
-        let entity = BbsEntity(id: nil, title: title, comment: comment, userId: try self.userIdInSession()!, createdAt: nil)
-        let storedEntity = try bbsReposity.insert(entity)
+        //  insert  TODO:add image
+        let entity = BbsEntity(id: nil, title: title, comment: comment, userId: try self.userIdInSession()!, createdAt: nil, updatedAt: nil)
+        try bbsReposity.insert(entity)
         
-        if let bbsId = storedEntity.id {
-            response.redirectTo("/bbs/detail/\(bbsId)")
-        } else {
-            response.redirectTo("/bbs")
-        }
+        let bbsId = bbsReposity.lastInsertId()
+        response.redirectTo("/bbs/detail/\(bbsId)")
     }
     
     func detailAction() throws {
@@ -406,10 +456,10 @@ class BbsHandler: BaseRequestHandler {
         }
         
         //  insert
-        let entity = BbsCommentEntity(id: nil, bbsId: bbsId, comment: comment, userId: try userIdInSession()!, createdAt: nil)
-        let storedEntity = try bbsCommentReposity.insert(entity)
+        let entity = BbsCommentEntity(id: nil, bbsId: bbsId, comment: comment, userId: try userIdInSession()!, createdAt: nil, updatedAt: nil)
+        try bbsCommentReposity.insert(entity)
 
-        response.redirectTo("/bbs/detail/\(storedEntity.bbsId)")
+        response.redirectTo("/bbs/detail/\(entity.bbsId)")
     }
 }
 

@@ -16,6 +16,7 @@ struct BbsCommentEntity {
     var comment: String
     var userId: Int
     var createdAt: String?
+    var updatedAt: String?
 }
 
 struct BbsCommentWithUserEntity {
@@ -25,23 +26,25 @@ struct BbsCommentWithUserEntity {
     var userId: Int
     var userName: String
     var createdAt: String
+    var updatedAt: String
     
     func toDictionary() -> [String: Any] {
         return [
             "id": id,
             "bbsId": bbsId,
-            "comment" : comment,
-            "userId" : userId,
-            "userName" : userName,
-            "createdAt" : createdAt,
+            "comment": comment,
+            "userId": userId,
+            "userName": userName,
+            "createdAt": createdAt,
+            "updatedAt": updatedAt,
         ]
     }
 }
 
 //  MARK: - repository
-class BbsCommentRepository : Repository{
-    func insert(var entity: BbsCommentEntity) throws -> BbsCommentEntity {
-        let sql = "INSERT INTO bbs_comment (bbs_id, comment, user_id, created_at) VALUES (:1, :2, :3, datetime('now'))"
+class BbsCommentRepository : Repository {
+    func insert(entity: BbsCommentEntity) throws -> Int {
+        let sql = "INSERT INTO bbs_comment (bbs_id, comment, user_id, created_at, updated_at) VALUES (:1, :2, :3, datetime('now'), datetime('now'))"
         try db.execute(sql) { (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, entity.bbsId)
             try stmt.bind(2, entity.comment)
@@ -53,12 +56,11 @@ class BbsCommentRepository : Repository{
             throw RepositoryError.Insert(errCode)
         }
         
-        entity.id = db.lastInsertRowID()
-        return entity
+        return db.changes()
     }
     
     func selectByBbsId(bbsId: Int) throws -> [BbsCommentWithUserEntity] {
-        let sql = "SELECT b.id, b.bbs_id, b.comment, b.user_id, u.name, b.created_at FROM bbs_comment AS b "
+        let sql = "SELECT b.id, b.bbs_id, b.comment, b.user_id, u.name, b.created_at, b.updated_at FROM bbs_comment AS b "
             + "INNER JOIN user AS u ON u.id = b.user_id WHERE b.bbs_id = :1 "
             + "ORDER BY b.id"
         var entities = [BbsCommentWithUserEntity]()
@@ -72,7 +74,8 @@ class BbsCommentRepository : Repository{
                     comment: stmt.columnText(2),
                     userId: stmt.columnInt(3),
                     userName: stmt.columnText(4),
-                    createdAt: stmt.columnText(5)
+                    createdAt: stmt.columnText(5),
+                    updatedAt: stmt.columnText(6)
                 )
             )
         }

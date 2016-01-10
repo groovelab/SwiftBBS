@@ -22,4 +22,8 @@ class Repository {
     init(db: SQLite) {
         self.db = db
     }
+    
+    func lastInsertId() -> Int {
+        return db.lastInsertRowID()
+    }
 }

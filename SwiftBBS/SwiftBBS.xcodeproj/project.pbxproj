@@ -11,6 +11,8 @@
 		0A337BE71C41405500CEA758 /* BbsCommentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A337BE61C41405500CEA758 /* BbsCommentRepository.swift */; };
 		0A337BE91C414B4700CEA758 /* Repository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A337BE81C414B4700CEA758 /* Repository.swift */; };
 		0A337BEB1C414BCA00CEA758 /* UserRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A337BEA1C414BCA00CEA758 /* UserRepository.swift */; };
+		0A337BF21C425A4D00CEA758 /* user_edit.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A337BF11C425A4D00CEA758 /* user_edit.mustache */; };
+		0A337BF31C425AAB00CEA758 /* user_edit.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A337BF11C425A4D00CEA758 /* user_edit.mustache */; };
 		0A84901E1C36CB2500149828 /* PerfectLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A84901D1C36CB2500149828 /* PerfectLib.framework */; };
 		0A8490211C36FCB900149828 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8490201C36FCB900149828 /* Config.swift */; };
 		0A84902E1C370BEE00149828 /* template.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A84902B1C370AEF00149828 /* template.mustache */; };
@@ -55,6 +57,7 @@
 			dstPath = Templates;
 			dstSubfolderSpec = 16;
 			files = (
+				0A337BF31C425AAB00CEA758 /* user_edit.mustache in CopyFiles */,
 				0AE911F41C40F04D00F6BA79 /* user_mypage.mustache in CopyFiles */,
 				0AE911EB1C3EA5C200F6BA79 /* common_footer.mustache in CopyFiles */,
 				0AE911E81C3EA4D200F6BA79 /* common_header.mustache in CopyFiles */,
@@ -84,6 +87,7 @@
 		0A337BE61C41405500CEA758 /* BbsCommentRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BbsCommentRepository.swift; sourceTree = "<group>"; };
 		0A337BE81C414B4700CEA758 /* Repository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repository.swift; sourceTree = "<group>"; };
 		0A337BEA1C414BCA00CEA758 /* UserRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserRepository.swift; sourceTree = "<group>"; };
+		0A337BF11C425A4D00CEA758 /* user_edit.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user_edit.mustache; sourceTree = "<group>"; };
 		0A84901D1C36CB2500149828 /* PerfectLib.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PerfectLib.framework; path = "../../Library/Developer/Xcode/DerivedData/Perfect-bmsnkpplajpulvabysklkvgjzgsj/Build/Products/Debug/PerfectLib.framework"; sourceTree = "<group>"; };
 		0A8490201C36FCB900149828 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		0A84902B1C370AEF00149828 /* template.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = template.mustache; sourceTree = "<group>"; };
@@ -161,6 +165,7 @@
 				0AE911E91C3EA59900F6BA79 /* common_footer.mustache */,
 				0A8490351C3BE05000149828 /* user_register.mustache */,
 				0AE911F21C40EEB700F6BA79 /* user_mypage.mustache */,
+				0A337BF11C425A4D00CEA758 /* user_edit.mustache */,
 				0A8490381C3BF07100149828 /* user_login.mustache */,
 				0A84903E1C3C059D00149828 /* bbs_list.mustache */,
 				0A84903B1C3BFC9D00149828 /* bbs_detail.mustache */,
@@ -334,6 +339,7 @@
 				0AE911EA1C3EA59900F6BA79 /* common_footer.mustache in Resources */,
 				0A84903F1C3C059D00149828 /* bbs_list.mustache in Resources */,
 				0AE911E71C3E9DF300F6BA79 /* common_header.mustache in Resources */,
+				0A337BF21C425A4D00CEA758 /* user_edit.mustache in Resources */,
 				0AE911F31C40EEB700F6BA79 /* user_mypage.mustache in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

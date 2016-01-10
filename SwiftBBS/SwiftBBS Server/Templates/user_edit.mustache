@@ -1,0 +1,38 @@
+{{> common_header}}
+
+<div class="container theme-showcase" role="main">
+<div class="page-header">
+<h1>edit form</h1>
+</div>
+
+<div class="row">
+<div class="col-md-6">
+
+{{#loginUser}}
+<form action="/user/edit" method="post">
+<div class="form-group">
+<label for="name">name</label>
+<input type="text" class="form-control" id="name" name="name" value="{{name}}">
+</div>
+<div class="form-group">
+<label for="password">password</label>
+<input type="password" class="form-control" id="password" name="password">
+</div>
+<button type="submit" class="btn btn-default">update</button>
+</form>
+{{/loginUser}}
+
+<br>
+<h4>delete</h4>
+
+<form action="/user/delete" method="post">
+<p class="text-danger">
+if want to delete your data
+<button type="submit" class="btn btn-danger">delete</button>
+</p>
+</form>
+
+</div>
+</div>
+
+{{> common_footer}}
