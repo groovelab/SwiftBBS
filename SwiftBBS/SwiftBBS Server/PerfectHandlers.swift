@@ -225,7 +225,7 @@ class UserHandler: BaseRequestHandler {
     }
     
     //  MARK: actions
-    private func mypageAction() throws {
+    func mypageAction() throws {
         var values = MustacheEvaluationContext.MapType()
         
         //  show user info if logged
@@ -233,12 +233,12 @@ class UserHandler: BaseRequestHandler {
         try response.renderHTML("user_mypage.mustache", values: values)
     }
         
-    private func registerAction() throws {
+    func registerAction() throws {
         let values = MustacheEvaluationContext.MapType()
         try response.renderHTML("user_register.mustache", values: values)
     }
         
-    private func doRegisterAction() throws {
+    func doRegisterAction() throws {
         //  validate TODO:create validaotr
         guard let name = request.param("name") else {
             response.setStatus(500, message: "invalidate request parameter")
@@ -253,17 +253,20 @@ class UserHandler: BaseRequestHandler {
         let userEntity = UserEntity(id: nil, name: name, password: password, createdAt: nil)
         try userReposity.insert(userEntity)
 
-        //  TODO:do login
-        
-        response.redirectTo("/user/login")  //  TODO:add success message
+        //  do login
+        if try login(name, password: password) {
+            response.redirectTo("/bbs") //  TODO:add login success message
+        } else {
+            response.redirectTo("/user/login")  //  TODO:add success message
+        }
     }
     
-    private func loginAction() throws {
+    func loginAction() throws {
         let values = MustacheEvaluationContext.MapType()
         try response.renderHTML("user_login.mustache", values: values)
     }
 
-    private func doLoginAction() throws {
+    func doLoginAction() throws {
         //  validate
         guard let loginName = request.param("name") else {
             response.setStatus(500, message: "invalidate request parameter")
@@ -275,21 +278,29 @@ class UserHandler: BaseRequestHandler {
         }
         
         //  check exist
-        if let userEntity = try userReposity.findByName(loginName, password: loginPassword), let userId = userEntity.id {
-            //  success login
-            let session = self.response.getSession(Config.sessionName)
-            session["id"] = userId
+        if try login(loginName, password: loginPassword) {
             response.redirectTo("/bbs") //  TODO:add login success message
         } else {
             response.redirectTo("/user/login")  //  TODO:add login failed message
         }
     }
     
-    private func logoutAction() throws {
+    func logoutAction() throws {
         let session = self.response.getSession(Config.sessionName)
         session["id"] = nil
         
         response.redirectTo("/user/login")
+    }
+
+    private func login(name: String, password: String) throws -> Bool {
+        if let userEntity = try userReposity.findByName(name, password: password), let userId = userEntity.id {
+            //  success login
+            let session = self.response.getSession(Config.sessionName)
+            session["id"] = userId
+            return true
+        } else {
+            return false
+        }
     }
 }
 
@@ -319,7 +330,7 @@ class BbsHandler: BaseRequestHandler {
         }
     }
     
-    private func listAction() throws {
+    func listAction() throws {
         let keyword = request.param("keyword")
         let bbsEntities = try bbsReposity.selectByKeyword(keyword)
         
@@ -334,7 +345,7 @@ class BbsHandler: BaseRequestHandler {
         try response.renderHTML("bbs_list.mustache", values: values)
     }
     
-    private func addAction() throws {
+    func addAction() throws {
         //  validate
         guard let title = request.param("title") else {
             response.setStatus(500, message: "invalidate request parameter")
@@ -356,7 +367,7 @@ class BbsHandler: BaseRequestHandler {
         }
     }
     
-    private func detailAction() throws {
+    func detailAction() throws {
         guard let bbsIdString = request.urlVariables["id"], let bbsId = Int(bbsIdString) else {
             response.setStatus(500, message: "invalidate request parameter")
             return
@@ -382,7 +393,7 @@ class BbsHandler: BaseRequestHandler {
         try response.renderHTML("bbs_detail.mustache", values: values)
     }
     
-    private func addcommentAction() throws {
+    func addcommentAction() throws {
         //  validate
         guard let bbsIdString = request.param("bbs_id"), let bbsId = Int(bbsIdString) else {
             response.setStatus(500, message: "invalidate request parameter")
