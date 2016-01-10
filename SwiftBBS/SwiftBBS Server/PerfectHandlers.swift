@@ -288,7 +288,7 @@ class UserHandler: BaseRequestHandler {
     //  TODO:adopt ajax
     func editAction() throws {
         var values = MustacheEvaluationContext.MapType()
-        
+
         //  show user info if logged
         try setLoginUser(&values)
         try response.renderHTML("user_edit.mustache", values: values)

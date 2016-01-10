@@ -17,7 +17,7 @@ struct UserEntity {
     var createdAt: String?
     var updatedAt: String?
     
-    func toDictionary() -> [String: Any] {  //  TODO:declare method in protocol
+    func toDictionary() -> [String: Any] {
         return [
             "id": id ?? 0,
             "name": name,
