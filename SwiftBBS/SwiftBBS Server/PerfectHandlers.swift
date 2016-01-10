@@ -112,7 +112,7 @@ class BaseRequestHandler: RequestHandler {
     lazy var bbsCommentReposity: BbsCommentRepository = BbsCommentRepository(db: self.db)
 
     func userIdInSession() throws -> Int? {
-        let session = response.getSession(Config.sessionName)    //  TODO:configuration session
+        let session = response.getSession(Config.sessionName)
         guard let userId = session["id"] as? Int else {
             return nil
         }
@@ -144,7 +144,8 @@ class BaseRequestHandler: RequestHandler {
 
         do {
             db = try SQLite(Config.dbPath)
-            
+            try response.getSession(Config.sessionName, withConfiguration: SessionConfiguration(Config.sessionName, expires: 60))
+
             switch try checkActionAcl() {
             case .NeedLogin:
                 if let redirectUrl = redirectUrlIfNotLogin {
