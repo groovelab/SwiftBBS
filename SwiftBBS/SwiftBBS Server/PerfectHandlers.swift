@@ -121,15 +121,9 @@ class BaseRequestHandler: RequestHandler {
     var redirectUrlIfNotLogin: String?
 
     //  repository
-    var userReposity: UserRepository {
-        return UserRepository(db: db)
-    }
-    var bbsReposity: BbsRepository {
-        return BbsRepository(db: db)
-    }
-    var bbsCommentReposity: BbsCommentRepository {
-        return BbsCommentRepository(db: db)
-    }
+    lazy var userReposity: UserRepository = UserRepository(db: self.db)
+    lazy var bbsReposity: BbsRepository = BbsRepository(db: self.db)
+    lazy var bbsCommentReposity: BbsCommentRepository = BbsCommentRepository(db: self.db)
 
     func userIdInSession() throws -> Int? {
         let session = response.getSession(Config.sessionName)    //  TODO:configuration session
@@ -190,7 +184,7 @@ class BaseRequestHandler: RequestHandler {
         //  need implement in subclass
     }
     
-    private func checkActionAcl() throws -> ActionAcl {
+    func checkActionAcl() throws -> ActionAcl {
         if let _ = try userIdInSession() {
             //  already login
             if noNeedLoginActions.contains(request.action) {
@@ -204,6 +198,12 @@ class BaseRequestHandler: RequestHandler {
         }
         
         return .None
+    }
+    
+    func setLoginUser(inout values: MustacheEvaluationContext.MapType) throws {
+        if let loginUser = try getUser(userIdInSession()) {
+            values["loginUser"] = loginUser.toDictionary()
+        }
     }
 }
 
@@ -241,7 +241,9 @@ class UserHandler: BaseRequestHandler {
     //  MARK: actions
     private func mypageAction() throws {
         var values = MustacheEvaluationContext.MapType()
-        values["loginUser"] = try getUser(userIdInSession())?.toDictionary()
+        
+        //  show user info if logged
+        try setLoginUser(&values)
         try response.renderHTML("user_mypage.mustache", values: values)
     }
         
@@ -286,7 +288,7 @@ class UserHandler: BaseRequestHandler {
             return
         }
         
-        //  check exist //  TODO:create user class include authentication
+        //  check exist
         if let userEntity = try userReposity.findByName(loginName, password: loginPassword), let userId = userEntity.id {
             //  success login
             let session = self.response.getSession(Config.sessionName)
@@ -299,7 +301,6 @@ class UserHandler: BaseRequestHandler {
     
     private func logoutAction() throws {
         let session = self.response.getSession(Config.sessionName)
-        session.getLoadResult()
         session["id"] = nil
         
         response.redirectTo("/user/login")
@@ -342,11 +343,8 @@ class BbsHandler: BaseRequestHandler {
             bbsEntity.toDictionary()
         })
         
-        //  show user info if logged    //  TODO:common method
-        if let loginUser = try getUser(userIdInSession()) {
-            values["loginUser"] = loginUser.toDictionary()
-        }
-        
+        //  show user info if logged
+        try setLoginUser(&values)
         try response.renderHTML("bbs_list.mustache", values: values)
     }
     
@@ -394,10 +392,7 @@ class BbsHandler: BaseRequestHandler {
         })
         
         //  show user info if logged
-        if let loginUser = try getUser(userIdInSession()) {
-            values["loginUser"] = loginUser.toDictionary()
-        }
-
+        try setLoginUser(&values)
         try response.renderHTML("bbs_detail.mustache", values: values)
     }
     
