@@ -255,16 +255,15 @@ class UserHandler: BaseRequestHandler {
             return
         }
         
-        let password = request.param("password") ?? ""
+        let password = request.param("password") ?? ""  //  TODO: enctypt
         
         //  update
-        guard var userEntity = try getUser(userIdInSession()) else {
+        guard let beforeUserEntity = try getUser(userIdInSession()) else {
             response.setStatus(404, message: "not found user")
             return
         }
 
-        userEntity.name = name
-        userEntity.password = password  //  TODO:encrypt
+        let userEntity = UserEntity(id: beforeUserEntity.id, name: name, password: password, createdAt: nil, updatedAt: nil)
         try userReposity.update(userEntity)
         
         response.redirectTo("/user/mypage")
