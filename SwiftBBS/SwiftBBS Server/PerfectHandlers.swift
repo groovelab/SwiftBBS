@@ -84,20 +84,6 @@ extension WebResponse {
 }
 
 extension WebRequest {
-    func postParam(targetKey: String) -> String? {
-        let keyValues = postParams.filter { (key, value) -> Bool in
-            return (targetKey == key)
-        }
-        
-        //  TODO:consider array param like <input type="text" name="key[]">
-        if keyValues.count == 1 {
-            let keyValue = keyValues[0]
-            return keyValue.1
-        } else {
-            return nil
-        }
-    }
-    
     var action: String {
         return urlVariables["action"] ?? "index"
     }
@@ -254,11 +240,11 @@ class UserHandler: BaseRequestHandler {
         
     private func doRegisterAction() throws {
         //  validate TODO:create validaotr
-        guard let name = request.postParam("name") else {
+        guard let name = request.param("name") else {
             response.setStatus(500, message: "invalidate request parameter")
             return
         }
-        guard let password = request.postParam("password") else {
+        guard let password = request.param("password") else {
             response.setStatus(500, message: "invalidate request parameter")
             return
         }
@@ -279,11 +265,11 @@ class UserHandler: BaseRequestHandler {
 
     private func doLoginAction() throws {
         //  validate
-        guard let loginName = request.postParam("name") else {
+        guard let loginName = request.param("name") else {
             response.setStatus(500, message: "invalidate request parameter")
             return
         }
-        guard let loginPassword = request.postParam("password") else {
+        guard let loginPassword = request.param("password") else {
             response.setStatus(500, message: "invalidate request parameter")
             return
         }
@@ -334,7 +320,7 @@ class BbsHandler: BaseRequestHandler {
     }
     
     private func listAction() throws {
-        let keyword = request.postParam("keyword")
+        let keyword = request.param("keyword")
         let bbsEntities = try bbsReposity.selectByKeyword(keyword)
         
         var values: MustacheEvaluationContext.MapType = MustacheEvaluationContext.MapType()
@@ -350,11 +336,11 @@ class BbsHandler: BaseRequestHandler {
     
     private func addAction() throws {
         //  validate
-        guard let title = request.postParam("title") else {
+        guard let title = request.param("title") else {
             response.setStatus(500, message: "invalidate request parameter")
             return
         }
-        guard let comment = request.postParam("comment") else {
+        guard let comment = request.param("comment") else {
             response.setStatus(500, message: "invalidate request parameter")
             return
         }
@@ -398,11 +384,11 @@ class BbsHandler: BaseRequestHandler {
     
     private func addcommentAction() throws {
         //  validate
-        guard let bbsIdString = request.postParam("bbs_id"), let bbsId = Int(bbsIdString) else {
+        guard let bbsIdString = request.param("bbs_id"), let bbsId = Int(bbsIdString) else {
             response.setStatus(500, message: "invalidate request parameter")
             return
         }
-        guard let comment = request.postParam("comment") else {
+        guard let comment = request.param("comment") else {
             response.setStatus(500, message: "invalidate request parameter")
             return
         }
@@ -467,7 +453,7 @@ class TemplateHandler: RequestHandler {
 //  post
 class PostHandler: RequestHandler {
     func handleRequest(request: WebRequest, response: WebResponse) {
-        if let val2 = request.postParam("val2") {
+        if let val2 = request.param("val2") {
             print(val2)
         }
         
@@ -490,7 +476,7 @@ class SqliteHandler: RequestHandler {
             
             var sql = "SELECT * FROM user"
             var nameForSearch: String?
-            if let name = request.postParam("name") {
+            if let name = request.param("name") {
                 nameForSearch = name
                 sql = "SELECT * FROM user WHERE name LIKE :1"
             }
@@ -541,14 +527,14 @@ class SqliteAddHandler: RequestHandler {
             defer { sqlite.close() }
 
             //  validate
-            guard let _ = request.postParam("name") else {
+            guard let _ = request.param("name") else {
                 response.setStatus(500, message: "invalidate request parameter")
                 response.requestCompletedCallback()
                 return
             }
 
             //  insert
-            let name = request.postParam("name") ?? ""
+            let name = request.param("name") ?? ""
             try sqlite.execute("INSERT INTO user (name) VALUES (:1)") {
                 (stmt:SQLiteStmt) -> () in
                 try stmt.bind(1, name)
