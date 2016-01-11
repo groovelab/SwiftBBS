@@ -14,6 +14,8 @@ public func PerfectServerModuleInit() {
     Routing.Handler.registerGlobally()
     
     //  URL Routing
+    Routing.Routes["GET", ["/assets/*/*"]] = { _ in return StaticFileHandler() }
+    
     //  sample
     //  TODO:move to sample
     Routing.Routes["GET", ["/", "/index"] ] = { _ in return IndexHandler() }
