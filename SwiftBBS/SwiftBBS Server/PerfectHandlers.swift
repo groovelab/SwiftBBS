@@ -88,6 +88,9 @@ extension WebRequest {
     var action: String {
         return urlVariables["action"] ?? "index"
     }
+    var acceptJson: Bool {
+        return httpAccept().contains("application/json")
+    }
 }
 
 extension String {
@@ -471,7 +474,7 @@ class BbsHandler: BaseRequestHandler {
             return
         }
         
-        var values: MustacheEvaluationContext.MapType = MustacheEvaluationContext.MapType()
+        var values = [String: Any]()
 
         //  bbs
         guard let bbsEntity = try bbsReposity.findById(bbsId) else {
@@ -484,15 +487,30 @@ class BbsHandler: BaseRequestHandler {
         
         //  bbs post
         let bbsCommentEntities = try bbsCommentReposity.selectByBbsId(bbsId)
-        values["postList"] = bbsCommentEntities.map({ (entity) -> [String: Any] in
-            var dictionary = entity.toDictionary()
-            dictionary["comment"] = (dictionary["comment"] as! String).stringByEncodingHTML.htmlBrString
-            return dictionary
-        })
+        if request.acceptJson {
+            var comments = [Any]()
+            bbsCommentEntities.forEach({ (entity) in
+                var dictionary = entity.toDictionary()
+                dictionary["comment"] = (dictionary["comment"] as! String).stringByEncodingHTML.htmlBrString
+                comments.append(dictionary)
+            })
+            values["comments"] = comments
+        } else {
+            values["comments"] = bbsCommentEntities.map({ (entity) -> [String: Any] in
+                var dictionary = entity.toDictionary()
+                dictionary["comment"] = (dictionary["comment"] as! String).stringByEncodingHTML.htmlBrString
+                return dictionary
+            })
+        }
         
         //  show user info if logged
         try setLoginUser(&values)
-        try response.renderHTML("bbs_detail.mustache", values: values)
+        
+        if request.acceptJson {
+            try response.outputJson(values)
+        } else {
+            try response.renderHTML("bbs_detail.mustache", values: values)
+        }
     }
     
     func addcommentAction() throws {
