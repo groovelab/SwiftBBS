@@ -23,6 +23,5 @@ $(TARGET): modulecache
 	clang++ $(LFLAGS) $@.o -o $@.so
 
 clean:
-	@echo $(MODULE_SRC)
 	@rm *.o
 
