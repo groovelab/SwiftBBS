@@ -54,50 +54,12 @@ extension WebRequest {
 }
 
 extension String {
-    var sha1: String {
-        return self.dynamicType.base64(utf8.sha1)
-    }
-    
     var htmlBrString: String {
         return stringByReplacingString("\r\n", withString: "\n").stringByReplacingString("\n", withString: "<br>")
     }
     
-    //  if function in PerfectLib was changed to pulic, remove this
-    func stringByReplacingString(find: String, withString: String) -> String {
-        
-        guard !find.isEmpty else {
-            return self
-        }
-        guard !self.isEmpty else {
-            return self
-        }
-        
-        var ret = ""
-        var idx = self.startIndex
-        let endIdx = self.endIndex
-        
-        while idx != endIdx {
-            if self[idx] == find[find.startIndex] {
-                var newIdx = idx.advancedBy(1)
-                var findIdx = find.startIndex.advancedBy(1)
-                let findEndIdx = find.endIndex
-                
-                while newIdx != endIndex && findIdx != findEndIdx && self[newIdx] == find[findIdx] {
-                    newIdx = newIdx.advancedBy(1)
-                    findIdx = findIdx.advancedBy(1)
-                }
-                
-                if findIdx == findEndIdx { // match
-                    ret.appendContentsOf(withString)
-                    idx = newIdx
-                    continue
-                }
-            }
-            ret.append(self[idx])
-            idx = idx.advancedBy(1)
-        }
-        
-        return ret
+    var sha1: String {
+        return self.dynamicType.base64(utf8.sha1)
     }
     
     static func base64(a: [UInt8]) -> String {
