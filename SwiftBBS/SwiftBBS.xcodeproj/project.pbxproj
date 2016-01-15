@@ -15,9 +15,6 @@
 		0A337BF31C425AAB00CEA758 /* user_edit.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A337BF11C425A4D00CEA758 /* user_edit.mustache */; };
 		0A84901E1C36CB2500149828 /* PerfectLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A84901D1C36CB2500149828 /* PerfectLib.framework */; };
 		0A8490211C36FCB900149828 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8490201C36FCB900149828 /* Config.swift */; };
-		0A84902E1C370BEE00149828 /* template.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A84902B1C370AEF00149828 /* template.mustache */; };
-		0A8490301C39907D00149828 /* sqlite.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A84902F1C39907D00149828 /* sqlite.mustache */; };
-		0A8490311C39954100149828 /* sqlite.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A84902F1C39907D00149828 /* sqlite.mustache */; };
 		0A8490361C3BE05000149828 /* user_register.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A8490351C3BE05000149828 /* user_register.mustache */; };
 		0A8490371C3BE14A00149828 /* user_register.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A8490351C3BE05000149828 /* user_register.mustache */; };
 		0A8490391C3BF07100149828 /* user_login.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A8490381C3BF07100149828 /* user_login.mustache */; };
@@ -29,7 +26,11 @@
 		0A98F58A1C36B4D800E94B9D /* SwiftBBS Server.h in Headers */ = {isa = PBXBuildFile; fileRef = 0A98F5891C36B4D800E94B9D /* SwiftBBS Server.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0A98F5911C36B4D800E94B9D /* SwiftBBS Server.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A98F5861C36B4D800E94B9D /* SwiftBBS Server.framework */; };
 		0A98F5961C36B4D800E94B9D /* SwiftBBS_ServerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A98F5951C36B4D800E94B9D /* SwiftBBS_ServerTests.swift */; };
-		0A98F59F1C36B52700E94B9D /* PerfectHandlers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A98F59E1C36B52700E94B9D /* PerfectHandlers.swift */; };
+		0A98F59F1C36B52700E94B9D /* PerfectServerModuleInit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A98F59E1C36B52700E94B9D /* PerfectServerModuleInit.swift */; };
+		0AA9B7881C49510C004D3DE1 /* extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA9B7871C49510C004D3DE1 /* extension.swift */; };
+		0AA9B78A1C49511F004D3DE1 /* BbsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA9B7891C49511F004D3DE1 /* BbsHandler.swift */; };
+		0AA9B78D1C495145004D3DE1 /* UserHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA9B78C1C495145004D3DE1 /* UserHandler.swift */; };
+		0AA9B78F1C495189004D3DE1 /* BaseRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA9B78E1C495189004D3DE1 /* BaseRequestHandler.swift */; };
 		0AE911E71C3E9DF300F6BA79 /* common_header.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0AE911E61C3E9DF300F6BA79 /* common_header.mustache */; };
 		0AE911E81C3EA4D200F6BA79 /* common_header.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0AE911E61C3E9DF300F6BA79 /* common_header.mustache */; };
 		0AE911EA1C3EA59900F6BA79 /* common_footer.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0AE911E91C3EA59900F6BA79 /* common_footer.mustache */; };
@@ -65,8 +66,6 @@
 				0A84903D1C3BFD7400149828 /* bbs_detail.mustache in CopyFiles */,
 				0A84903A1C3BF12500149828 /* user_login.mustache in CopyFiles */,
 				0A8490371C3BE14A00149828 /* user_register.mustache in CopyFiles */,
-				0A8490311C39954100149828 /* sqlite.mustache in CopyFiles */,
-				0A84902E1C370BEE00149828 /* template.mustache in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,8 +89,6 @@
 		0A337BF11C425A4D00CEA758 /* user_edit.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user_edit.mustache; sourceTree = "<group>"; };
 		0A84901D1C36CB2500149828 /* PerfectLib.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PerfectLib.framework; path = "../../Library/Developer/Xcode/DerivedData/Perfect-bmsnkpplajpulvabysklkvgjzgsj/Build/Products/Debug/PerfectLib.framework"; sourceTree = "<group>"; };
 		0A8490201C36FCB900149828 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
-		0A84902B1C370AEF00149828 /* template.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = template.mustache; sourceTree = "<group>"; };
-		0A84902F1C39907D00149828 /* sqlite.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sqlite.mustache; sourceTree = "<group>"; };
 		0A8490351C3BE05000149828 /* user_register.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user_register.mustache; sourceTree = "<group>"; };
 		0A8490381C3BF07100149828 /* user_login.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user_login.mustache; sourceTree = "<group>"; };
 		0A84903B1C3BFC9D00149828 /* bbs_detail.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bbs_detail.mustache; sourceTree = "<group>"; };
@@ -102,7 +99,11 @@
 		0A98F5901C36B4D800E94B9D /* SwiftBBS ServerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SwiftBBS ServerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A98F5951C36B4D800E94B9D /* SwiftBBS_ServerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftBBS_ServerTests.swift; sourceTree = "<group>"; };
 		0A98F5971C36B4D800E94B9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		0A98F59E1C36B52700E94B9D /* PerfectHandlers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PerfectHandlers.swift; sourceTree = "<group>"; };
+		0A98F59E1C36B52700E94B9D /* PerfectServerModuleInit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PerfectServerModuleInit.swift; sourceTree = "<group>"; };
+		0AA9B7871C49510C004D3DE1 /* extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = extension.swift; sourceTree = "<group>"; };
+		0AA9B7891C49511F004D3DE1 /* BbsHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BbsHandler.swift; sourceTree = "<group>"; };
+		0AA9B78C1C495145004D3DE1 /* UserHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserHandler.swift; sourceTree = "<group>"; };
+		0AA9B78E1C495189004D3DE1 /* BaseRequestHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseRequestHandler.swift; sourceTree = "<group>"; };
 		0AE911E61C3E9DF300F6BA79 /* common_header.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = common_header.mustache; sourceTree = "<group>"; };
 		0AE911E91C3EA59900F6BA79 /* common_footer.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = common_footer.mustache; sourceTree = "<group>"; };
 		0AE911EF1C3ED29400F6BA79 /* perfect_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = perfect_icon.png; sourceTree = "<group>"; };
@@ -159,8 +160,6 @@
 		0A84902A1C370AEF00149828 /* Templates */ = {
 			isa = PBXGroup;
 			children = (
-				0A84902B1C370AEF00149828 /* template.mustache */,
-				0A84902F1C39907D00149828 /* sqlite.mustache */,
 				0AE911E61C3E9DF300F6BA79 /* common_header.mustache */,
 				0AE911E91C3EA59900F6BA79 /* common_footer.mustache */,
 				0A8490351C3BE05000149828 /* user_register.mustache */,
@@ -204,7 +203,9 @@
 			isa = PBXGroup;
 			children = (
 				0A8490201C36FCB900149828 /* Config.swift */,
-				0A98F59E1C36B52700E94B9D /* PerfectHandlers.swift */,
+				0A98F59E1C36B52700E94B9D /* PerfectServerModuleInit.swift */,
+				0AA9B7871C49510C004D3DE1 /* extension.swift */,
+				0AA9B78B1C495126004D3DE1 /* Handlers */,
 				0A337BE31C413EF900CEA758 /* Model */,
 				0A84902A1C370AEF00149828 /* Templates */,
 				0A8490431C3D53A700149828 /* webroot */,
@@ -221,6 +222,16 @@
 				0A98F5971C36B4D800E94B9D /* Info.plist */,
 			);
 			path = "SwiftBBS ServerTests";
+			sourceTree = "<group>";
+		};
+		0AA9B78B1C495126004D3DE1 /* Handlers */ = {
+			isa = PBXGroup;
+			children = (
+				0AA9B78E1C495189004D3DE1 /* BaseRequestHandler.swift */,
+				0AA9B7891C49511F004D3DE1 /* BbsHandler.swift */,
+				0AA9B78C1C495145004D3DE1 /* UserHandler.swift */,
+			);
+			name = Handlers;
 			sourceTree = "<group>";
 		};
 		0AE911ED1C3ED29400F6BA79 /* assets */ = {
@@ -332,7 +343,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A8490361C3BE05000149828 /* user_register.mustache in Resources */,
-				0A8490301C39907D00149828 /* sqlite.mustache in Resources */,
 				0A8490391C3BF07100149828 /* user_login.mustache in Resources */,
 				0A84903C1C3BFC9D00149828 /* bbs_detail.mustache in Resources */,
 				0AE911F01C3ED29400F6BA79 /* perfect_icon.png in Resources */,
@@ -358,8 +368,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0A98F59F1C36B52700E94B9D /* PerfectHandlers.swift in Sources */,
+				0AA9B78A1C49511F004D3DE1 /* BbsHandler.swift in Sources */,
+				0A98F59F1C36B52700E94B9D /* PerfectServerModuleInit.swift in Sources */,
+				0AA9B7881C49510C004D3DE1 /* extension.swift in Sources */,
+				0AA9B78F1C495189004D3DE1 /* BaseRequestHandler.swift in Sources */,
 				0A337BE51C413F3C00CEA758 /* BbsRepository.swift in Sources */,
+				0AA9B78D1C495145004D3DE1 /* UserHandler.swift in Sources */,
 				0A337BEB1C414BCA00CEA758 /* UserRepository.swift in Sources */,
 				0A337BE91C414B4700CEA758 /* Repository.swift in Sources */,
 				0A8490211C36FCB900149828 /* Config.swift in Sources */,
