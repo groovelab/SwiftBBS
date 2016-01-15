@@ -34,7 +34,7 @@ class UserRepository : Repository {
         let sql = "INSERT INTO user (name, password, created_at, updated_at) VALUES (:1, :2, datetime('now'), datetime('now'))"
         try db.execute(sql) { (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, entity.name)
-            try stmt.bind(2, entity.password)   //  TODO:encrypt
+            try stmt.bind(2, entity.password.sha1)
         }
         
         let errCode = db.errCode()
@@ -54,7 +54,7 @@ class UserRepository : Repository {
         try db.execute(sql) { (stmt:SQLiteStmt) -> () in
             try stmt.bind(":name", entity.name)
             if !entity.password.isEmpty {
-                try stmt.bind(":password", entity.password)
+                try stmt.bind(":password", entity.password.sha1)
             }
             try stmt.bind(":id", id)
         }
@@ -120,7 +120,7 @@ class UserRepository : Repository {
         var columns = [Any]()
         try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, name)
-            try stmt.bind(2, password)
+            try stmt.bind(2, password.sha1)
         }) { (stmt:SQLiteStmt, r:Int) -> () in
             columns.append(stmt.columnInt(0))
             columns.append(stmt.columnText(1))

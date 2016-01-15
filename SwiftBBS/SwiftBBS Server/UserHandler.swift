@@ -69,7 +69,7 @@ class UserHandler: BaseRequestHandler {
             return
         }
         
-        let password = request.param("password") ?? ""  //  TODO: enctypt
+        let password = request.param("password") ?? ""
         
         //  update
         guard let beforeUserEntity = try getUser(userIdInSession()) else {
