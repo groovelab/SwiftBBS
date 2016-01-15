@@ -10,6 +10,12 @@
 import PerfectLib
 
 class BaseRequestHandler: RequestHandler {
+    enum ActionResponse {
+        case Output(templatePath: String?, values: [String: Any])
+        case Redirect(url: String)
+        case Error(status: Int, message: String)
+    }
+    
     var request: WebRequest!
     var response: WebResponse!
     var db: SQLite!
@@ -64,31 +70,55 @@ class BaseRequestHandler: RequestHandler {
         
         do {
             db = try SQLite(Config.dbPath)
-            try response.getSession(Config.sessionName, withConfiguration: SessionConfiguration(Config.sessionName, expires: 60))
+            try response.getSession(Config.sessionName, withConfiguration: SessionConfiguration(Config.sessionName, expires: Config.sessionExpires))
             
             switch try checkActionAcl() {
             case .NeedLogin:
                 if let redirectUrl = redirectUrlIfNotLogin {
-                    response.redirectTo(redirectUrl)
+                    if request.acceptJson == true {
+                        response.setStatus(403, message: "need login")
+                    } else {
+                        response.redirectTo(redirectUrl)
+                    }
                     return
                 }
             case .NoNeedLogin:
                 if let redirectUrl = redirectUrlIfLogin {
-                    response.redirectTo(redirectUrl)
+                    if request.acceptJson == true {
+                        response.setStatus(403, message: "need login")
+                    } else {
+                        response.redirectTo(redirectUrl)
+                    }
                     return
                 }
             case .None:
                 break
             }
             
-            try dispatchAction(request.action)
+            switch try dispatchAction(request.action) {
+            case let .Output(templatePath, responseValues):
+                var values = responseValues
+                try setLoginUser(&values)   //  set user info if logged
+                
+                if request.acceptJson {
+                    try response.outputJson(values)
+                } else if let templatePath = templatePath {
+                    try response.renderHTML(templatePath, values: values)
+                }
+            case let .Redirect(url):
+                response.redirectTo(url)
+            case let .Error(status, message):
+                response.setStatus(status, message: message)
+                break;
+            }
         } catch (let e) {
             print(e)
         }
     }
     
-    func dispatchAction(action: String) throws {
+    func dispatchAction(action: String) throws -> ActionResponse {
         //  need implement in subclass
+        return .Error(status: 500, message: "need implement")
     }
     
     func checkActionAcl() throws -> ActionAcl {
@@ -107,7 +137,7 @@ class BaseRequestHandler: RequestHandler {
         return .None
     }
     
-    func setLoginUser(inout values: MustacheEvaluationContext.MapType) throws {
+    func setLoginUser(inout values: [String: Any]) throws {
         if let loginUser = try getUser(userIdInSession()) {
             values["loginUser"] = loginUser.toDictionary()
         }

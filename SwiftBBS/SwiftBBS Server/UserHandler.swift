@@ -21,95 +21,88 @@ class UserHandler: BaseRequestHandler {
         redirectUrlIfLogin = "/bbs"
     }
     
-    override func dispatchAction(action: String) throws {
+    override func dispatchAction(action: String) throws -> ActionResponse {
         switch request.action {
         case "login" where request.requestMethod() == "POST":
-            try doLoginAction()
+            return try doLoginAction()
         case "login":
-            try loginAction()
+            return try loginAction()
         case "logout":
-            try logoutAction()
+            return try logoutAction()
         case "register" where request.requestMethod() == "POST":
-            try doRegisterAction()
+            return try doRegisterAction()
         case "register":
-            try registerAction()
+            return try registerAction()
         case "edit" where request.requestMethod() == "POST":
-            try doEditAction()
+            return try doEditAction()
         case "edit":
-            try editAction()
+            return try editAction()
         case "delete" where request.requestMethod() == "POST":
-            try doDeleteAction()
+            return try doDeleteAction()
         default:
-            try mypageAction()
+            return try mypageAction()
         }
     }
     
     //  MARK: actions
-    func mypageAction() throws {
-        var values = MustacheEvaluationContext.MapType()
-        
-        //  show user info if logged
-        try setLoginUser(&values)
-        try response.renderHTML("user_mypage.mustache", values: values)
+    func mypageAction() throws -> ActionResponse {
+        return .Output(templatePath: "user_mypage.mustache", values: [String: Any]())
     }
     
-    //  TODO:adopt ajax
-    func editAction() throws {
-        var values = MustacheEvaluationContext.MapType()
-        
-        //  show user info if logged
-        try setLoginUser(&values)
-        try response.renderHTML("user_edit.mustache", values: values)
+    func editAction() throws -> ActionResponse {
+        return .Output(templatePath: "user_edit.mustache", values: [String: Any]())
     }
     
-    func doEditAction() throws {
+    func doEditAction() throws -> ActionResponse {
         //  validate TODO:create validaotr
         guard let name = request.param("name") else {
-            response.setStatus(500, message: "invalidate request parameter")
-            return
+            return .Error(status: 500, message: "invalidate request parameter")
         }
         
         let password = request.param("password") ?? ""
         
         //  update
         guard let beforeUserEntity = try getUser(userIdInSession()) else {
-            response.setStatus(404, message: "not found user")
-            return
+            return .Error(status: 404, message: "not found user")
         }
         
         let userEntity = UserEntity(id: beforeUserEntity.id, name: name, password: password, createdAt: nil, updatedAt: nil)
         try userReposity.update(userEntity)
         
-        response.redirectTo("/user/mypage")
+        if request.acceptJson {
+            return .Output(templatePath: nil, values: [String: Any]())
+        } else {
+            return .Redirect(url: "/user/mypage")
+        }
     }
     
-    func doDeleteAction() throws {
+    func doDeleteAction() throws -> ActionResponse {
         //  delete
         guard let userEntity = try getUser(userIdInSession()) else {
-            response.setStatus(404, message: "not found user")
-            return
+            return .Error(status: 404, message: "not found user")
         }
         
         try userReposity.delete(userEntity)
         logout()
         
-        response.redirectTo("/bbs")
+        if request.acceptJson {
+            return .Output(templatePath: nil, values: [String: Any]())
+        } else {
+            return .Redirect(url: "/bbs")
+        }
     }
     
-    func registerAction() throws {
-        let values = MustacheEvaluationContext.MapType()
-        try response.renderHTML("user_register.mustache", values: values)
+    func registerAction() throws -> ActionResponse {
+        return .Output(templatePath: "user_register.mustache", values: [String: Any]())
     }
     
-    func doRegisterAction() throws {
+    func doRegisterAction() throws -> ActionResponse {
         //  validate TODO:create validaotr
         guard let name = request.param("name") else {
-            response.setStatus(500, message: "invalidate request parameter")
-            return
+            return .Error(status: 500, message: "invalidate request parameter")
         }
         guard let password = request.param("password") else {
-            response.setStatus(500, message: "invalidate request parameter")
-            return
+            return .Error(status: 500, message: "invalidate request parameter")
         }
         
         //  insert
@@ -117,43 +110,51 @@ class UserHandler: BaseRequestHandler {
         try userReposity.insert(userEntity)
         
         //  do login
-        if try login(name, password: password) {
-            response.redirectTo("/bbs") //  TODO:add login success message
+        let isLoginSuccess = try login(name, password: password)
+        if request.acceptJson {
+            var values = [String: Any]()
+            values["status"] = isLoginSuccess ? "success" : "failed"
+            return .Output(templatePath: nil, values: [String: Any]())
         } else {
-            response.redirectTo("/user/login")  //  TODO:add success message
+            return .Redirect(url: isLoginSuccess ? "/bbs" : "/user/login")  ///  TODO:add login success or failed message
         }
     }
     
-    func loginAction() throws {
-        let values = MustacheEvaluationContext.MapType()
-        try response.renderHTML("user_login.mustache", values: values)
+    func loginAction() throws -> ActionResponse {
+        return .Output(templatePath: "user_login.mustache", values: [String: Any]())
     }
     
-    func doLoginAction() throws {
+    func doLoginAction() throws -> ActionResponse {
         //  validate
-        guard let loginName = request.param("name") else {
-            response.setStatus(500, message: "invalidate request parameter")
-            return
+        guard let name = request.param("name") else {
+            return .Error(status: 500, message: "invalidate request parameter")
         }
-        guard let loginPassword = request.param("password") else {
-            response.setStatus(500, message: "invalidate request parameter")
-            return
+        guard let password = request.param("password") else {
+            return .Error(status: 500, message: "invalidate request parameter")
         }
         
         //  check exist
-        if try login(loginName, password: loginPassword) {
-            response.redirectTo("/bbs") //  TODO:add login success message
+        let isLoginSuccess = try login(name, password: password)
+        if request.acceptJson {
+            var values = [String: Any]()
+            values["status"] = isLoginSuccess ? "success" : "failed"
+            return .Output(templatePath: nil, values: [String: Any]())
         } else {
-            response.redirectTo("/user/login")  //  TODO:add login failed message
+            return .Redirect(url: isLoginSuccess ? "/bbs" : "/user/login")  ///  TODO:add login success or failed message
         }
     }
     
-    func logoutAction() throws {
+    func logoutAction() throws -> ActionResponse {
         logout()
         
-        response.redirectTo("/user/login")
+        if request.acceptJson {
+            return .Output(templatePath: nil, values: [String: Any]())
+        } else {
+            return .Redirect(url: "/user/login")
+        }
     }
     
+    //  TODO:create authenticator
     private func login(name: String, password: String) throws -> Bool {
         if let userEntity = try userReposity.findByName(name, password: password), let userId = userEntity.id {
             //  success login

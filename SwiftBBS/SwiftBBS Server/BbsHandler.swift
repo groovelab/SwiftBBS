@@ -10,6 +10,7 @@
 import PerfectLib
 
 class BbsHandler: BaseRequestHandler {
+    
     override init() {
         super.init()
         
@@ -21,45 +22,51 @@ class BbsHandler: BaseRequestHandler {
         //        redirectUrlIfLogin = "/"
     }
     
-    override func dispatchAction(action: String) throws {
+    override func dispatchAction(action: String) throws -> ActionResponse {
         switch request.action {
         case "add" where request.requestMethod() == "POST":
-            try addAction()
+            return try addAction()
         case "addcomment" where request.requestMethod() == "POST":
-            try addcommentAction()
+            return try addcommentAction()
         case "detail":
-            try detailAction()
+            return try detailAction()
         default:
-            try listAction()
+            return try listAction()
         }
     }
     
-    func listAction() throws {
+    //  MARK: actions
+    func listAction() throws -> ActionResponse {
         let keyword = request.param("keyword")
         let bbsEntities = try bbsReposity.selectByKeyword(keyword)
         
-        var values: MustacheEvaluationContext.MapType = MustacheEvaluationContext.MapType()
-        values["keyword"] = keyword ?? ""
-        values["bbsList"] = bbsEntities.map({ (bbsEntity) -> [String: Any] in
-            var dictionary = bbsEntity.toDictionary()
-            dictionary["comment"] = (dictionary["comment"] as! String).stringByEncodingHTML.htmlBrString
-            return dictionary
-        })
+        var values = [String: Any]()
         
-        //  show user info if logged
-        try setLoginUser(&values)
-        try response.renderHTML("bbs_list.mustache", values: values)
+        values["keyword"] = keyword ?? ""
+        if request.acceptJson {
+            var bbsList = [Any]()
+            bbsEntities.forEach({ (entity) in
+                bbsList.append(entity.toDictionary())
+            })
+            values["bbsList"] = bbsList
+        } else {
+            values["bbsList"] = bbsEntities.map({ (bbsEntity) -> [String: Any] in
+                var dictionary = bbsEntity.toDictionary()
+                dictionary["comment"] = (dictionary["comment"] as! String).stringByEncodingHTML.htmlBrString
+                return dictionary
+            })
+        }
+        
+        return .Output(templatePath: "bbs_list.mustache", values: values)
     }
     
-    func addAction() throws {
+    func addAction() throws -> ActionResponse {
         //  validate
         guard let title = request.param("title") else {
-            response.setStatus(500, message: "invalidate request parameter")
-            return
+            return .Error(status: 500, message: "invalidate request parameter")
         }
         guard let comment = request.param("comment") else {
-            response.setStatus(500, message: "invalidate request parameter")
-            return
+            return .Error(status: 500, message: "invalidate request parameter")
         }
         
         //  insert  TODO:add image
@@ -67,21 +74,26 @@ class BbsHandler: BaseRequestHandler {
         try bbsReposity.insert(entity)
         
         let bbsId = bbsReposity.lastInsertId()
-        response.redirectTo("/bbs/detail/\(bbsId)")
+        
+        if request.acceptJson {
+            var values = [String: Any]()
+            values["bbsId"] = bbsId
+            return .Output(templatePath: nil, values: values)
+        } else {
+            return .Redirect(url: "/bbs/detail/\(bbsId)")
+        }
     }
     
-    func detailAction() throws {
+    func detailAction() throws -> ActionResponse {
         guard let bbsIdString = request.urlVariables["id"], let bbsId = Int(bbsIdString) else {
-            response.setStatus(500, message: "invalidate request parameter")
-            return
+            return .Error(status: 500, message: "invalidate request parameter")
         }
         
         var values = [String: Any]()
         
         //  bbs
         guard let bbsEntity = try bbsReposity.findById(bbsId) else {
-            response.setStatus(404, message: "not found bbs")
-            return
+            return .Error(status: 404, message: "not found bbs")
         }
         var dictionary = bbsEntity.toDictionary()
         dictionary["comment"] = (dictionary["comment"] as! String).stringByEncodingHTML.htmlBrString
@@ -92,9 +104,7 @@ class BbsHandler: BaseRequestHandler {
         if request.acceptJson {
             var comments = [Any]()
             bbsCommentEntities.forEach({ (entity) in
-                var dictionary = entity.toDictionary()
-                dictionary["comment"] = (dictionary["comment"] as! String).stringByEncodingHTML.htmlBrString
-                comments.append(dictionary)
+                comments.append(entity.toDictionary())
             })
             values["comments"] = comments
         } else {
@@ -105,31 +115,28 @@ class BbsHandler: BaseRequestHandler {
             })
         }
         
-        //  show user info if logged
-        try setLoginUser(&values)
-        
-        if request.acceptJson {
-            try response.outputJson(values)
-        } else {
-            try response.renderHTML("bbs_detail.mustache", values: values)
-        }
+        return .Output(templatePath: "bbs_detail.mustache", values: values)
     }
     
-    func addcommentAction() throws {
+    func addcommentAction() throws -> ActionResponse {
         //  validate
         guard let bbsIdString = request.param("bbs_id"), let bbsId = Int(bbsIdString) else {
-            response.setStatus(500, message: "invalidate request parameter")
-            return
+            return .Error(status: 500, message: "invalidate request parameter")
         }
         guard let comment = request.param("comment") else {
-            response.setStatus(500, message: "invalidate request parameter")
-            return
+            return .Error(status: 500, message: "invalidate request parameter")
         }
         
         //  insert
         let entity = BbsCommentEntity(id: nil, bbsId: bbsId, comment: comment, userId: try userIdInSession()!, createdAt: nil, updatedAt: nil)
         try bbsCommentReposity.insert(entity)
         
-        response.redirectTo("/bbs/detail/\(entity.bbsId)")
+        if request.acceptJson {
+            var values = [String: Any]()
+            values["commentId"] = bbsCommentReposity.lastInsertId()
+            return .Output(templatePath: nil, values: values)
+        } else {
+            return .Redirect(url: "/bbs/detail/\(entity.bbsId)")
+        }
     }
 }

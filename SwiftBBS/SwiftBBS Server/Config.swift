@@ -10,6 +10,7 @@ import PerfectLib
 
 class Config {
     static let sessionName = "session"
+    static let sessionExpires = 60
     static let dbName = "SwiftBBS"
     static let dbPath = PerfectServer.staticPerfectServer.homeDir() + serverSQLiteDBs + dbName
 }
