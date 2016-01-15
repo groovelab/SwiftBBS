@@ -99,7 +99,7 @@ class BbsRepository : Repository {
             + "INNER JOIN user as u ON u.id = b.user_id "
             + "\(keyword != nil ? "WHERE b.title LIKE :1 OR b.comment LIKE :1" : "") "
             + "ORDER BY b.id"
-        
+
         var entities = [BbsWithUserEntity]()
         try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
             if let keyword = keyword {
