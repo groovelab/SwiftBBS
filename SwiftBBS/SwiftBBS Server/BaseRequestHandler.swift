@@ -5,7 +5,6 @@
 //  Created by Takeo Namba on 2016/01/16.
 //	Copyright GrooveLab
 //
-//
 
 import PerfectLib
 

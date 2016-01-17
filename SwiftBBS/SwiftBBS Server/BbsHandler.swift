@@ -5,7 +5,6 @@
 //  Created by Takeo Namba on 2016/01/16.
 //	Copyright GrooveLab
 //
-//
 
 import PerfectLib
 
@@ -96,7 +95,9 @@ class BbsHandler: BaseRequestHandler {
             return .Error(status: 404, message: "not found bbs")
         }
         var dictionary = bbsEntity.toDictionary()
-        dictionary["comment"] = (dictionary["comment"] as! String).stringByEncodingHTML.htmlBrString
+        if request.acceptJson == false {
+            dictionary["comment"] = (dictionary["comment"] as! String).stringByEncodingHTML.htmlBrString
+        }
         values["bbs"] = dictionary
         
         //  bbs post

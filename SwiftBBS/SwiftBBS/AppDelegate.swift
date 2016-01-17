@@ -2,8 +2,8 @@
 //  AppDelegate.swift
 //  SwiftBBS
 //
-//  Created by 難波健雄 on 2016/01/16.
-//
+//  Created by Takeo Namba on 2016/01/16.
+//	Copyright GrooveLab
 //
 
 import UIKit

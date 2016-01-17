@@ -5,7 +5,6 @@
 //  Created by Takeo Namba on 2016/01/16.
 //	Copyright GrooveLab
 //
-//
 
 import PerfectLib
 
@@ -70,7 +69,9 @@ class UserHandler: BaseRequestHandler {
         try userReposity.update(userEntity)
         
         if request.acceptJson {
-            return .Output(templatePath: nil, values: [String: Any]())
+            var values = [String: Any]()
+            values["status"] = "success"
+            return .Output(templatePath: nil, values: values)
         } else {
             return .Redirect(url: "/user/mypage")
         }
@@ -86,7 +87,9 @@ class UserHandler: BaseRequestHandler {
         logout()
         
         if request.acceptJson {
-            return .Output(templatePath: nil, values: [String: Any]())
+            var values = [String: Any]()
+            values["status"] = "success"
+            return .Output(templatePath: nil, values: values)
         } else {
             return .Redirect(url: "/bbs")
         }
@@ -114,7 +117,7 @@ class UserHandler: BaseRequestHandler {
         if request.acceptJson {
             var values = [String: Any]()
             values["status"] = isLoginSuccess ? "success" : "failed"
-            return .Output(templatePath: nil, values: [String: Any]())
+            return .Output(templatePath: nil, values: values)
         } else {
             return .Redirect(url: isLoginSuccess ? "/bbs" : "/user/login")  ///  TODO:add login success or failed message
         }
@@ -138,7 +141,7 @@ class UserHandler: BaseRequestHandler {
         if request.acceptJson {
             var values = [String: Any]()
             values["status"] = isLoginSuccess ? "success" : "failed"
-            return .Output(templatePath: nil, values: [String: Any]())
+            return .Output(templatePath: nil, values: values)
         } else {
             return .Redirect(url: isLoginSuccess ? "/bbs" : "/user/login")  ///  TODO:add login success or failed message
         }
@@ -148,7 +151,9 @@ class UserHandler: BaseRequestHandler {
         logout()
         
         if request.acceptJson {
-            return .Output(templatePath: nil, values: [String: Any]())
+            var values = [String: Any]()
+            values["status"] = "success"
+            return .Output(templatePath: nil, values: values)
         } else {
             return .Redirect(url: "/user/login")
         }

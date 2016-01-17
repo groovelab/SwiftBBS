@@ -2,8 +2,8 @@
 //  Config.swift
 //  SwiftBBS
 //
-//  Created by 難波健雄 on 2016/01/02.
-//
+//  Created by Takeo Namba on 2016/01/02.
+//	Copyright GrooveLab
 //
 
 import PerfectLib
