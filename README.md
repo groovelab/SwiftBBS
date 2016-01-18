@@ -1,13 +1,12 @@
 # SwiftBBS
-## under construction
 
-OS : Ubuntu 15.10
+SwiftBBS is BBS with [Swift](https://github.com/apple/swift), SQLite and [PerfectLib](https://github.com/PerfectlySoft/Perfect) on Linux (Ubuntu 15.10)
 
-## install Swift
+## Install Swift
 
-ref. https://gist.github.com/groovelab/dc2a434e2db0b27320ac#swift%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB
+See [swift.org](https://swift.org/getting-started/#installing-swift) or [gist](https://gist.github.com/groovelab/dc2a434e2db0b27320ac#swift%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB)
 
-## git clone
+## Clone repository
 
 ```
 $ git clone https://github.com/groovelab/SwiftBBS.git
@@ -17,9 +16,9 @@ $ git submodule update
 $ git submodule foreach 'git pull origin master'
 ```
 
-## install PerfectLib
+## Install PerfectLib
 
-ref. https://gist.github.com/groovelab/dc2a434e2db0b27320ac#perfectlib-%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB
+ref. [PerfectLib README](https://github.com/PerfectlySoft/Perfect/tree/master/PerfectLib#perfectlib) or [gist](https://gist.github.com/groovelab/dc2a434e2db0b27320ac#perfectlib-%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB)
 
 ```
 $ sudo apt-get -y install libssl-dev libevent-dev libsqlite3-dev make make-guile
@@ -30,9 +29,11 @@ $ ls -al /usr/local/lib/*Perfect*
 $ cd ../../ 
 ```
 
-## install Perfect Server FastCGI
+## Install Perfect Server FastCGI
 
-ref. https://gist.github.com/groovelab/dc2a434e2db0b27320ac#perfectserver%E3%82%92%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB
+You can run SwiftBBS on PerfectServerHttp or Apache2(mod_perfect)
+
+ref. [PerfectServer README](https://github.com/PerfectlySoft/Perfect/tree/master/PerfectServer#perfect-server) or [gist](https://gist.github.com/groovelab/dc2a434e2db0b27320ac#perfectserver%E3%82%92%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB)
 
 ```
 $ cd Perfect/PerfectServer
@@ -42,7 +43,7 @@ $ ls -al /usr/local/bin/perfect*
 $ cd ../../
 ```
 
-## deploy SwiftBBS
+## Deploy SwiftBBS
 
 ```
 $ cd SwiftBBS
@@ -51,21 +52,24 @@ $ sudo make install
 $ cd ../
 ```
 
-## run Perfect Server FastCGI
+## Run Perfect Server FastCGI
 
 ```
 $ SwiftBBS/SwiftBBS\ Server/perfectServerFcgi.sh start
 ```
 
-## configure nginx
+## Configure nginx
 
-ref. https://gist.github.com/groovelab/fae744207b96133ebd4a
 
 ```
 $ sudo apt-get install nginx
-$ sudo vi /etc/nginx/sites-available/default (ref. https://gist.github.com/groovelab/fae744207b96133ebd4a#file-your-domain-com)
-$ $ sudo service nginx start
+$ sudo vi /etc/nginx/sites-available/default
+$ sudo service nginx start
 ```
+
+See [/etc/nginx/sites-available/default](https://gist.github.com/groovelab/fae744207b96133ebd4a#file-your-domain-com)
+
+## After
 
 access http://your.domain.com/
 
