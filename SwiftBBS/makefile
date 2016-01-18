@@ -14,6 +14,10 @@ LFLAGS = $(SHLIB_PATH) -lFoundation -lswiftCore -lswiftGlibc /usr/local/lib/Perf
 
 all: $(TARGET)
 
+install:
+	@mkdir -p `pwd`/SwiftBBS\ Server/PerfectLibraries
+	ln -sf `pwd`/$(TARGET).so `pwd`/SwiftBBS\ Server/PerfectLibraries
+
 modulecache:
 	@mkdir -p $(MODULE_CACHE_PATH)
 
@@ -22,5 +26,5 @@ $(TARGET): modulecache
 	clang++ $(LFLAGS) $@.o -o $@.so
 
 clean:
-	@rm *.o
+	@rm -f *.o
 
