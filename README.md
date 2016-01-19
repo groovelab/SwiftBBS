@@ -72,7 +72,7 @@ See [/etc/nginx/sites-available/default](https://gist.github.com/groovelab/fae74
 you must change ```$perfect_root``` and ```$root``` like below
 
 ```
-set $perfect_root "/your_home/SwiftBBS/SwiftBBS/SwiftBBS Server";
+set $perfect_root "(your_home)/SwiftBBS/SwiftBBS/SwiftBBS Server";
 set $root "${perfect_root}/webroot";
 ```
 ## After
