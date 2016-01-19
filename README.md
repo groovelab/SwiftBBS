@@ -70,8 +70,8 @@ $ sudo service nginx start
 See [/etc/nginx/sites-available/default](https://gist.github.com/groovelab/fae744207b96133ebd4a#file-your-domain-com)
 you must change ```$perfect_root``` and ```$root``` like below
 ```
-        set $perfect_root "/home/nanba/swift/SwiftBBS/SwiftBBS/SwiftBBS Server";
-        set $root "${perfect_root}/webroot";
+set $perfect_root "/home/nanba/swift/SwiftBBS/SwiftBBS/SwiftBBS Server";
+set $root "${perfect_root}/webroot";
 ```
 ## After
 
