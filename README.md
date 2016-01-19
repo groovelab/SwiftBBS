@@ -6,6 +6,7 @@ SwiftBBS is BBS with [Swift](https://github.com/apple/swift), SQLite and [Perfec
 
 See [swift.org](https://swift.org/getting-started/#installing-swift) or [gist](https://gist.github.com/groovelab/dc2a434e2db0b27320ac#swift%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB)
 
+
 ## Clone repository
 
 ```
@@ -60,7 +61,6 @@ $ SwiftBBS/SwiftBBS\ Server/perfectServerFcgi.sh start
 
 ## Configure nginx
 
-
 ```
 $ sudo apt-get install nginx
 $ sudo vi /etc/nginx/sites-available/default
@@ -68,7 +68,11 @@ $ sudo service nginx start
 ```
 
 See [/etc/nginx/sites-available/default](https://gist.github.com/groovelab/fae744207b96133ebd4a#file-your-domain-com)
-
+you must change ```$perfect_root``` and ```$root``` like below
+```
+        set $perfect_root "/home/nanba/swift/SwiftBBS/SwiftBBS/SwiftBBS Server";
+        set $root "${perfect_root}/webroot";
+```
 ## After
 
 access http://your.domain.com/
