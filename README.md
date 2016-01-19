@@ -26,7 +26,10 @@ $ sudo apt-get -y install libssl-dev libevent-dev libsqlite3-dev make make-guile
 $ cd Perfect/PerfectLib
 $ sudo make
 $ sudo make install
-$ ls -al /usr/local/lib/*Perfect*
+$ ll /usr/local/lib/*Perfect*
+/usr/local/lib/PerfectLib.so -> (your_home)/SwiftBBS/Perfect/PerfectLib/PerfectLib.so
+/usr/local/lib/PerfectLib.swiftdoc -> (your_home)/SwiftBBS/Perfect/PerfectLib/PerfectLib.swiftdoc
+/usr/local/lib/PerfectLib.swiftmodule -> (your_home)/SwiftBBS/Perfect/PerfectLib/PerfectLib.swiftmodule
 $ cd ../../ 
 ```
 
@@ -39,8 +42,9 @@ ref. [PerfectServer README](https://github.com/PerfectlySoft/Perfect/tree/master
 ```
 $ cd Perfect/PerfectServer
 $ sudo make
-$ sudo ln -sf perfectserverfcgi /usr/local/lib/
-$ ls -al /usr/local/bin/perfect*
+$ sudo ln -sf "$(pwd)/perfectserverfcgi" /usr/local/bin/
+$ ll /usr/local/bin/perfect*
+/usr/local/bin/perfectserverfcgi -> (your_home)/SwiftBBS/Perfect/PerfectServer/perfectserverfcgi
 $ cd ../../
 ```
 
