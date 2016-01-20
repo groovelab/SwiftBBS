@@ -6,10 +6,15 @@
 //	Copyright GrooveLab
 //
 
+import Foundation
 import PerfectLib
 
 class BbsHandler: BaseRequestHandler {
-    
+    //  repository
+    lazy var bbsRepository: BbsRepository = BbsRepository(db: self.db)
+    lazy var bbsCommentRepository: BbsCommentRepository = BbsCommentRepository(db: self.db)
+    lazy var imageRepository: ImageRepository = ImageRepository(db: self.db)
+
     override init() {
         super.init()
         
@@ -37,7 +42,7 @@ class BbsHandler: BaseRequestHandler {
     //  MARK: actions
     func listAction() throws -> ActionResponse {
         let keyword = request.param("keyword")
-        let bbsEntities = try bbsReposity.selectByKeyword(keyword)
+        let bbsEntities = try bbsRepository.selectByKeyword(keyword)
         
         var values = [String: Any]()
         
@@ -67,12 +72,28 @@ class BbsHandler: BaseRequestHandler {
         guard let comment = request.param("comment") else {
             return .Error(status: 500, message: "invalidate request parameter")
         }
+        let fileUploads = request.fileUploads
+        let image = fileUploads.filter { (uploadFile) -> Bool in
+            return uploadFile.fieldName == "image"
+        }.first
+        //  TODO: validate image (ex.mime type or file size)
         
-        //  insert  TODO:add image
+        //  insert  TODO: begin transaction
         let entity = BbsEntity(id: nil, title: title, comment: comment, userId: try self.userIdInSession()!, createdAt: nil, updatedAt: nil)
-        try bbsReposity.insert(entity)
+        try bbsRepository.insert(entity)
         
-        let bbsId = bbsReposity.lastInsertId()
+        let bbsId = bbsRepository.lastInsertId()
+        
+        //  add image
+        if let image = image {
+            if let fileName = ImageEntity.fileName(fromPath: image.tmpFileName), let ext = ImageEntity.fileExtension(image.fileName) {
+                let path = fileName + "." + ext
+                try File(image.tmpFileName).copyTo(Config.uploadDirPath + path)
+            
+                let imageEntity = ImageEntity(id: nil, parent: "bbs", parentId: bbsId, path: path, ext: ext, originalName: image.fileName, userId: try self.userIdInSession()!, createdAt: nil, updatedAt: nil)
+                try imageRepository.insert(imageEntity)   //  TODO: delete file if catch exception
+            }
+        }
         
         if request.acceptJson {
             var values = [String: Any]()
@@ -91,7 +112,7 @@ class BbsHandler: BaseRequestHandler {
         var values = [String: Any]()
         
         //  bbs
-        guard let bbsEntity = try bbsReposity.findById(bbsId) else {
+        guard let bbsEntity = try bbsRepository.findById(bbsId) else {
             return .Error(status: 404, message: "not found bbs")
         }
         var dictionary = bbsEntity.toDictionary()
@@ -100,8 +121,16 @@ class BbsHandler: BaseRequestHandler {
         }
         values["bbs"] = dictionary
         
+        //  bbs image
+        let imageEntities = try imageRepository.selectBelongTo(parent:"bbs", parentId: bbsEntity.id)
+        if let imageEntity = imageEntities.first {
+            var dictionary = imageEntity.toDictionary()
+            dictionary["url"] = Config.uploadDirUrl + (dictionary["path"] as! String)
+            values["image"] = dictionary
+        }
+        
         //  bbs post
-        let bbsCommentEntities = try bbsCommentReposity.selectByBbsId(bbsId)
+        let bbsCommentEntities = try bbsCommentRepository.selectByBbsId(bbsId)
         if request.acceptJson {
             var comments = [Any]()
             bbsCommentEntities.forEach({ (entity) in
@@ -130,11 +159,11 @@ class BbsHandler: BaseRequestHandler {
         
         //  insert
         let entity = BbsCommentEntity(id: nil, bbsId: bbsId, comment: comment, userId: try userIdInSession()!, createdAt: nil, updatedAt: nil)
-        try bbsCommentReposity.insert(entity)
+        try bbsCommentRepository.insert(entity)
         
         if request.acceptJson {
             var values = [String: Any]()
-            values["commentId"] = bbsCommentReposity.lastInsertId()
+            values["commentId"] = bbsCommentRepository.lastInsertId()
             return .Output(templatePath: nil, values: values)
         } else {
             return .Redirect(url: "/bbs/detail/\(entity.bbsId)")

@@ -66,7 +66,7 @@ class UserHandler: BaseRequestHandler {
         }
         
         let userEntity = UserEntity(id: beforeUserEntity.id, name: name, password: password, createdAt: nil, updatedAt: nil)
-        try userReposity.update(userEntity)
+        try userRepository.update(userEntity)
         
         if request.acceptJson {
             var values = [String: Any]()
@@ -83,7 +83,7 @@ class UserHandler: BaseRequestHandler {
             return .Error(status: 404, message: "not found user")
         }
         
-        try userReposity.delete(userEntity)
+        try userRepository.delete(userEntity)
         logout()
         
         if request.acceptJson {
@@ -110,7 +110,7 @@ class UserHandler: BaseRequestHandler {
         
         //  insert
         let userEntity = UserEntity(id: nil, name: name, password: password, createdAt: nil, updatedAt: nil)
-        try userReposity.insert(userEntity)
+        try userRepository.insert(userEntity)
         
         //  do login
         let isLoginSuccess = try login(name, password: password)
@@ -161,7 +161,7 @@ class UserHandler: BaseRequestHandler {
     
     //  TODO:create authenticator
     private func login(name: String, password: String) throws -> Bool {
-        if let userEntity = try userReposity.findByName(name, password: password), let userId = userEntity.id {
+        if let userEntity = try userRepository.findByName(name, password: password), let userId = userEntity.id {
             //  success login
             let session = self.response.getSession(Config.sessionName)
             session["id"] = userId

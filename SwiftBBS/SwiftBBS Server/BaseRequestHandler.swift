@@ -32,10 +32,8 @@ class BaseRequestHandler: RequestHandler {
     var redirectUrlIfNotLogin: String?
     
     //  repository
-    lazy var userReposity: UserRepository = UserRepository(db: self.db)
-    lazy var bbsReposity: BbsRepository = BbsRepository(db: self.db)
-    lazy var bbsCommentReposity: BbsCommentRepository = BbsCommentRepository(db: self.db)
-    
+    lazy var userRepository: UserRepository = UserRepository(db: self.db)
+
     func userIdInSession() throws -> Int? {
         let session = response.getSession(Config.sessionName)
         guard let userId = session["id"] as? Int else {
@@ -55,7 +53,7 @@ class BaseRequestHandler: RequestHandler {
             return nil
         }
         
-        return try userReposity.findById(userId)
+        return try userRepository.findById(userId)
     }
     
     func handleRequest(request: WebRequest, response: WebResponse) {

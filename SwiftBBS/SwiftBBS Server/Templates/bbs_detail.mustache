@@ -3,7 +3,12 @@
 <div class="container theme-showcase" role="main">
     <div class="jumbotron">
     {{#bbs}}
-        <h1><img src="/assets/img/perfect_icon.png" width="60" height="60" alt="perfect lib" class="img-thumbnail"> {{title}}</h1>
+        <h1>
+            {{#image}}
+                <img src="{{url}}" width="60" height="60" alt="{{originalName}}" class="img-thumbnail">
+            {{/image}}
+            {{title}}
+        </h1>
         <p>{{{comment}}}</p>
         <p>created by {{name}} at {{createdAt}}</p>
     {{/bbs}}

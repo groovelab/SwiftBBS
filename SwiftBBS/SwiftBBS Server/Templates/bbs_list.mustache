@@ -35,7 +35,7 @@
         <h1>create bbs form</h1>
     </div>
 
-    <form action="/bbs/add" method="post">
+    <form action="/bbs/add" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="title">title</label>
             <input type="text" class="form-control" id="title" name="title" placeholder="">
@@ -43,6 +43,11 @@
         <div class="form-group">
             <label for="comment">comment</label>
             <textarea name="comment" id="comment" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputFile">Image (optional)</label>
+            <input type="file" id="image" name="image">
+            <p class="help-block">select image, if you want to add image</p>
         </div>
         <button type="submit" class="btn btn-default">create bbs</button>
     </form>
