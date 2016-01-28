@@ -13,6 +13,11 @@ class Config {
     static let sessionExpires = 60
     static let dbName = "SwiftBBS"
     static let dbPath = PerfectServer.staticPerfectServer.homeDir() + serverSQLiteDBs + dbName
-    static let uploadDirPath = PerfectServer.staticPerfectServer.homeDir() + "webroot/uploads/"
-    static let uploadDirUrl = "/uploads/"
+    static let uploadDirPath = "uploads/"
+
+#if os(Linux)
+    static let imageMagickDir = "/usr/bin/"
+#else
+    static let imageMagickDir = "/usr/local/bin/"
+#endif
 }

@@ -86,17 +86,15 @@ class BbsHandler: BaseRequestHandler {
         
         //  add image
         if let image = image {
-            if let fileName = ImageEntity.fileName(fromPath: image.tmpFileName), let ext = ImageEntity.fileExtension(image.fileName) {
-                let path = fileName + "." + ext
-                let imageFilae = try File(image.tmpFileName).copyTo(Config.uploadDirPath + path)
-                
-                //  convert image
-                let proc = try SysProcess("mogrify", args:["-strip", "-resize", "100x100>", imageFilae.path()], env:[("PATH", "/usr/bin:/bin")])
-                defer { proc.close() }
-
-                let imageEntity = ImageEntity(id: nil, parent: "bbs", parentId: bbsId, path: path, ext: ext, originalName: image.fileName, userId: try self.userIdInSession()!, createdAt: nil, updatedAt: nil)
-                try imageRepository.insert(imageEntity)   //  TODO: delete file if catch exception
-            }
+            let imageService = ImageService(
+                uploadedImage: image,
+                uploadDirPath: request.documentRoot + Config.uploadDirPath,
+                repository: imageRepository
+            )
+            imageService.parent = .Bbs
+            imageService.parentId = bbsId
+            imageService.userId = try self.userIdInSession()!
+            try imageService.save()    //  TODO: delete file if catch exception
         }
         
         if request.acceptJson {
@@ -126,10 +124,10 @@ class BbsHandler: BaseRequestHandler {
         values["bbs"] = dictionary
         
         //  bbs image
-        let imageEntities = try imageRepository.selectBelongTo(parent:"bbs", parentId: bbsEntity.id)
+        let imageEntities = try imageRepository.selectBelongTo(parent:.Bbs, parentId: bbsEntity.id)
         if let imageEntity = imageEntities.first {
             var dictionary = imageEntity.toDictionary()
-            dictionary["url"] = Config.uploadDirUrl + (dictionary["path"] as! String)
+            dictionary["url"] = "/" + Config.uploadDirPath + (dictionary["path"] as! String)
             values["image"] = dictionary
         }
         

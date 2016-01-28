@@ -54,6 +54,7 @@
 		0AA9B8451C4FFAF5004D3DE1 /* dummy.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0AA9B8441C4FFAF5004D3DE1 /* dummy.txt */; };
 		0AA9B8461C4FFB11004D3DE1 /* dummy.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0AA9B8441C4FFAF5004D3DE1 /* dummy.txt */; };
 		0AA9B8471C500187004D3DE1 /* PerfectLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AA9B7C81C49896D004D3DE1 /* PerfectLib.framework */; };
+		0AA9B84A1C5A65B6004D3DE1 /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA9B8491C5A65B5004D3DE1 /* ImageService.swift */; };
 		0AE911E71C3E9DF300F6BA79 /* common_header.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0AE911E61C3E9DF300F6BA79 /* common_header.mustache */; };
 		0AE911E81C3EA4D200F6BA79 /* common_header.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0AE911E61C3E9DF300F6BA79 /* common_header.mustache */; };
 		0AE911EA1C3EA59900F6BA79 /* common_footer.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0AE911E91C3EA59900F6BA79 /* common_footer.mustache */; };
@@ -178,6 +179,7 @@
 		0AA9B7E41C4C0A39004D3DE1 /* RoundedCornerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoundedCornerView.swift; sourceTree = "<group>"; };
 		0AA9B83F1C4FE67B004D3DE1 /* ImageRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageRepository.swift; sourceTree = "<group>"; };
 		0AA9B8441C4FFAF5004D3DE1 /* dummy.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.txt; sourceTree = "<group>"; };
+		0AA9B8491C5A65B5004D3DE1 /* ImageService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
 		0AE911E61C3E9DF300F6BA79 /* common_header.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = common_header.mustache; sourceTree = "<group>"; };
 		0AE911E91C3EA59900F6BA79 /* common_footer.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = common_footer.mustache; sourceTree = "<group>"; };
 		0AE911EF1C3ED29400F6BA79 /* perfect_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = perfect_icon.png; sourceTree = "<group>"; };
@@ -229,6 +231,7 @@
 		0A337BE31C413EF900CEA758 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				0AA9B8481C5A65A2004D3DE1 /* Service */,
 				0A337BF01C41CE0F00CEA758 /* Repository */,
 			);
 			name = Model;
@@ -427,6 +430,14 @@
 				0AA9B8441C4FFAF5004D3DE1 /* dummy.txt */,
 			);
 			path = uploads;
+			sourceTree = "<group>";
+		};
+		0AA9B8481C5A65A2004D3DE1 /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				0AA9B8491C5A65B5004D3DE1 /* ImageService.swift */,
+			);
+			name = Service;
 			sourceTree = "<group>";
 		};
 		0AE911ED1C3ED29400F6BA79 /* assets */ = {
@@ -662,6 +673,7 @@
 				0AA9B7881C49510C004D3DE1 /* extension.swift in Sources */,
 				0AA9B78F1C495189004D3DE1 /* BaseRequestHandler.swift in Sources */,
 				0A337BE51C413F3C00CEA758 /* BbsRepository.swift in Sources */,
+				0AA9B84A1C5A65B6004D3DE1 /* ImageService.swift in Sources */,
 				0AA9B78D1C495145004D3DE1 /* UserHandler.swift in Sources */,
 				0A337BEB1C414BCA00CEA758 /* UserRepository.swift in Sources */,
 				0AA9B8401C4FE67B004D3DE1 /* ImageRepository.swift in Sources */,

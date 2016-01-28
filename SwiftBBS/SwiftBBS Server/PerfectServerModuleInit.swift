@@ -34,7 +34,7 @@ public func PerfectServerModuleInit() {
         try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs (id INTEGER PRIMARY KEY, title TEXT, comment TEXT, user_id INTEGER, created_at TEXT, updated_at TEXT)")
         try sqlite.execute("CREATE TABLE IF NOT EXISTS bbs_comment (id INTEGER PRIMARY KEY, bbs_id INTEGER, comment TEXT, user_id INTEGER, created_at TEXT, updated_at TEXT)")
         try sqlite.execute("CREATE INDEX IF NOT EXISTS bbs_comment_bbs_id ON bbs_comment (bbs_id);")
-        try sqlite.execute("CREATE TABLE IF NOT EXISTS image (id INTEGER PRIMARY KEY, parent TEXT, parent_id INTEGER, path TEXT, ext TEXT, original_name TEXT, user_id INTEGER, created_at TEXT, updated_at TEXT)")
+        try sqlite.execute("CREATE TABLE IF NOT EXISTS image (id INTEGER PRIMARY KEY, parent TEXT, parent_id INTEGER, path TEXT, ext TEXT, original_name TEXT, width INTEGER, height INTEGER, user_id INTEGER, created_at TEXT, updated_at TEXT)")
         try sqlite.execute("CREATE INDEX IF NOT EXISTS image_parent ON image (parent, parent_id);")
     } catch (let e){
         print("Failure creating database at " + Config.dbPath)
