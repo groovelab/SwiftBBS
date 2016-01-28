@@ -38,7 +38,7 @@ extension WebResponse {
     
     func outputJson(values: [String:JSONValue]) throws {
         addHeader("content-type", value: "application/json")
-        let encoded = try JSONEncode().encode(values)
+        let encoded = try JSONEncoder().encode(values)
         appendBodyString(encoded)
     }
 }

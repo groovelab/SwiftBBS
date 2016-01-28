@@ -88,8 +88,12 @@ class BbsHandler: BaseRequestHandler {
         if let image = image {
             if let fileName = ImageEntity.fileName(fromPath: image.tmpFileName), let ext = ImageEntity.fileExtension(image.fileName) {
                 let path = fileName + "." + ext
-                try File(image.tmpFileName).copyTo(Config.uploadDirPath + path)
-            
+                let imageFilae = try File(image.tmpFileName).copyTo(Config.uploadDirPath + path)
+                
+                //  convert image
+                let proc = try SysProcess("mogrify", args:["-strip", "-resize", "100x100>", imageFilae.path()], env:[("PATH", "/usr/bin:/bin")])
+                defer { proc.close() }
+
                 let imageEntity = ImageEntity(id: nil, parent: "bbs", parentId: bbsId, path: path, ext: ext, originalName: image.fileName, userId: try self.userIdInSession()!, createdAt: nil, updatedAt: nil)
                 try imageRepository.insert(imageEntity)   //  TODO: delete file if catch exception
             }
