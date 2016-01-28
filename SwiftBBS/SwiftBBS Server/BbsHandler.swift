@@ -47,19 +47,13 @@ class BbsHandler: BaseRequestHandler {
         var values = [String: Any]()
         
         values["keyword"] = keyword ?? ""
-        if request.acceptJson {
-            var bbsList = [Any]()
-            bbsEntities.forEach({ (entity) in
-                bbsList.append(entity.toDictionary())
-            })
-            values["bbsList"] = bbsList
-        } else {
-            values["bbsList"] = bbsEntities.map({ (bbsEntity) -> [String: Any] in
-                var dictionary = bbsEntity.toDictionary()
+        values["bbsList"] = bbsEntities.map({ (bbsEntity) -> [String: Any] in
+            var dictionary = bbsEntity.toDictionary()
+            if !request.acceptJson {
                 dictionary["comment"] = (dictionary["comment"] as! String).stringByEncodingHTML.htmlBrString
-                return dictionary
-            })
-        }
+            }
+            return dictionary
+        })
         
         return .Output(templatePath: "bbs_list.mustache", values: values)
     }
@@ -118,7 +112,7 @@ class BbsHandler: BaseRequestHandler {
             return .Error(status: 404, message: "not found bbs")
         }
         var dictionary = bbsEntity.toDictionary()
-        if request.acceptJson == false {
+        if !request.acceptJson {
             dictionary["comment"] = (dictionary["comment"] as! String).stringByEncodingHTML.htmlBrString
         }
         values["bbs"] = dictionary
@@ -133,19 +127,13 @@ class BbsHandler: BaseRequestHandler {
         
         //  bbs post
         let bbsCommentEntities = try bbsCommentRepository.selectByBbsId(bbsId)
-        if request.acceptJson {
-            var comments = [Any]()
-            bbsCommentEntities.forEach({ (entity) in
-                comments.append(entity.toDictionary())
-            })
-            values["comments"] = comments
-        } else {
-            values["comments"] = bbsCommentEntities.map({ (entity) -> [String: Any] in
-                var dictionary = entity.toDictionary()
+        values["comments"] = bbsCommentEntities.map({ (entity) -> [String: Any] in
+            var dictionary = entity.toDictionary()
+            if !request.acceptJson {
                 dictionary["comment"] = (dictionary["comment"] as! String).stringByEncodingHTML.htmlBrString
-                return dictionary
-            })
-        }
+            }
+            return dictionary
+        })
         
         return .Output(templatePath: "bbs_detail.mustache", values: values)
     }

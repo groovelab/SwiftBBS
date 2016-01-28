@@ -72,7 +72,7 @@ class BaseRequestHandler: RequestHandler {
             switch try checkActionAcl() {
             case .NeedLogin:
                 if let redirectUrl = redirectUrlIfNotLogin {
-                    if request.acceptJson == true {
+                    if request.acceptJson {
                         response.setStatus(403, message: "need login")
                     } else {
                         response.redirectTo(redirectUrl)
@@ -81,7 +81,7 @@ class BaseRequestHandler: RequestHandler {
                 }
             case .NoNeedLogin:
                 if let redirectUrl = redirectUrlIfLogin {
-                    if request.acceptJson == true {
+                    if request.acceptJson {
                         response.setStatus(403, message: "need login")
                     } else {
                         response.redirectTo(redirectUrl)
