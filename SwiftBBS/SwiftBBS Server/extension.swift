@@ -50,6 +50,9 @@ extension WebRequest {
     var acceptJson: Bool {
         return httpAccept().contains("application/json")
     }
+    var docRoot: String {
+        return documentRoot + (((String(documentRoot.characters.last) ?? "") == "/") ? "" : "/")
+    }
 }
 
 extension String {

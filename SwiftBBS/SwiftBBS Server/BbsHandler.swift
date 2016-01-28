@@ -82,7 +82,7 @@ class BbsHandler: BaseRequestHandler {
         if let image = image {
             let imageService = ImageService(
                 uploadedImage: image,
-                uploadDirPath: request.documentRoot + Config.uploadDirPath,
+                uploadDirPath: request.docRoot + Config.uploadDirPath,
                 repository: imageRepository
             )
             imageService.parent = .Bbs
