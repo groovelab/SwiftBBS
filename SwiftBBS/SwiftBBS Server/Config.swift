@@ -16,7 +16,7 @@ class Config {
     static let uploadDirPath = "uploads/"
 
 #if os(Linux)
-    static let imageMagickDir = "/usr/bin/"
+    static let imageMagickDir = ""
 #else
     static let imageMagickDir = "/usr/local/bin/"
 #endif
