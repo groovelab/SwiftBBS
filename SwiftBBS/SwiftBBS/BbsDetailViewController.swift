@@ -111,7 +111,7 @@ class BbsDetailViewController: UIViewController {
             }
             
             do {
-                let jsonDecoded = try JSONDecode().decode(stringData)
+                let jsonDecoded = try JSONDecoder().decode(stringData)
                 if let jsonMap = jsonDecoded as? JSONDictionaryType {
                     if let bbsDictionary = jsonMap.dictionary["bbs"] as? JSONDictionaryType {
                         self.bbs = bbsDictionary
@@ -190,7 +190,7 @@ class BbsDetailViewController: UIViewController {
             }
             
             do {
-                let jsonDecoded = try JSONDecode().decode(stringData)
+                let jsonDecoded = try JSONDecoder().decode(stringData)
                 if let jsonMap = jsonDecoded as? JSONDictionaryType {
                     if let _ = jsonMap["commentId"] as? Int {
                         dispatch_async(dispatch_get_main_queue(), {

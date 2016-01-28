@@ -54,7 +54,7 @@ class UserRegisterViewController: UIViewController {
             }
             
             do {
-                let jsonDecoded = try JSONDecode().decode(stringData)
+                let jsonDecoded = try JSONDecoder().decode(stringData)
                 if let jsonMap = jsonDecoded as? JSONDictionaryType {
                     if let status = jsonMap["status"] as? String {
                         if status == "success" {

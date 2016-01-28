@@ -68,7 +68,7 @@ class MypageViewController: UIViewController {
             }
             
             do {
-                let jsonDecoded = try JSONDecode().decode(stringData)
+                let jsonDecoded = try JSONDecoder().decode(stringData)
                 if let jsonMap = jsonDecoded as? JSONDictionaryType {
                     if let userDictionary = jsonMap.dictionary["loginUser"] as? JSONDictionaryType {
                         self.user = userDictionary
@@ -132,7 +132,7 @@ class MypageViewController: UIViewController {
             }
             
             do {
-                let jsonDecoded = try JSONDecode().decode(stringData)
+                let jsonDecoded = try JSONDecoder().decode(stringData)
                 if let jsonMap = jsonDecoded as? JSONDictionaryType {
                     if let status = jsonMap["status"] as? String {
                         if status == "success" {

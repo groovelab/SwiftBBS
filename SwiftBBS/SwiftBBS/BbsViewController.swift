@@ -76,7 +76,7 @@ class BbsViewController: UIViewController {
             }
 
             do {
-                let jsonDecoded = try JSONDecode().decode(stringData)
+                let jsonDecoded = try JSONDecoder().decode(stringData)
                 if let jsonMap = jsonDecoded as? JSONDictionaryType {
                     if let bbsList = jsonMap.dictionary["bbsList"] as? JSONArrayType {
                         self.bbsArray = bbsList

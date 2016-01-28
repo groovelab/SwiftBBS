@@ -58,7 +58,7 @@ class BbsAddViewController: UIViewController {
             }
             
             do {
-                let jsonDecoded = try JSONDecode().decode(stringData)
+                let jsonDecoded = try JSONDecoder().decode(stringData)
                 if let jsonMap = jsonDecoded as? JSONDictionaryType {
                     if let bbsId = jsonMap["bbsId"] as? Int {
                         dispatch_async(dispatch_get_main_queue(), {
