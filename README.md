@@ -2,10 +2,15 @@
 
 SwiftBBS is BBS with [Swift](https://github.com/apple/swift), SQLite and [PerfectLib](https://github.com/PerfectlySoft/Perfect) on Linux (Ubuntu 15.10)
 
+## Install ImageMagick
+
+```
+$ sudo apt-get install -y imagemagick
+```
+
 ## Install Swift
 
 See [swift.org](https://swift.org/getting-started/#installing-swift) or [gist](https://gist.github.com/groovelab/dc2a434e2db0b27320ac#swift%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB)
-
 
 ## Clone repository
 
