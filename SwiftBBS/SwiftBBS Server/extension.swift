@@ -51,7 +51,7 @@ extension WebRequest {
         return httpAccept().contains("application/json")
     }
     var docRoot: String {
-        return documentRoot + (((String(documentRoot.characters.last) ?? "") == "/") ? "" : "/")
+        return documentRoot.addedLastSlashString
     }
 }
 
@@ -62,6 +62,10 @@ extension String {
     
     var sha1: String {
         return self.dynamicType.base64(utf8.sha1)
+    }
+    
+    var addedLastSlashString: String {
+        return self + (((String(characters.last) ?? "") == "/") ? "" : "/")
     }
     
     static func base64(a: [UInt8]) -> String {
