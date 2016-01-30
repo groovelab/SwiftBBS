@@ -93,16 +93,17 @@ class BbsRepository : Repository {
         )
     }
     
-    func selectByKeyword(keyword: String?) throws -> [BbsWithUserEntity] {
+    func selectByKeyword(keyword: String?, selectOption: SelectOption?) throws -> [BbsWithUserEntity] {
         let sql = "SELECT b.id, b.title, b.comment, b.user_id, u.name, b.created_at, b.updated_at FROM bbs AS b "
             + "INNER JOIN user as u ON u.id = b.user_id "
-            + "\(keyword != nil ? "WHERE b.title LIKE :1 OR b.comment LIKE :1" : "") "
-            + "ORDER BY b.id"
+            + "\(keyword != nil ? "WHERE b.title LIKE :1 OR b.comment LIKE :keyword" : "") "
+            + "ORDER BY b.id "
+            + "\(selectOption != nil ? selectOption!.limitOffsetSql() : "")"
 
         var entities = [BbsWithUserEntity]()
         try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
             if let keyword = keyword {
-                try stmt.bind(1, "%" + keyword + "%")
+                try stmt.bind(":keyword", "%" + keyword + "%")
             }
         }) { (stmt:SQLiteStmt, r:Int) -> () in
             entities.append(
@@ -119,5 +120,22 @@ class BbsRepository : Repository {
         }
         
         return entities
+    }
+    
+    func countByKeyword(keyword: String?) throws -> Int {
+        let sql = "SELECT COUNT(*) FROM bbs AS b "
+            + "INNER JOIN user as u ON u.id = b.user_id "
+            + "\(keyword != nil ? "WHERE b.title LIKE :1 OR b.comment LIKE :keyword" : "") "
+        
+        var count = 0
+        try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
+            if let keyword = keyword {
+                try stmt.bind(":keyword", "%" + keyword + "%")
+            }
+        }) { (stmt:SQLiteStmt, r:Int) -> () in
+            count = stmt.columnInt(0)
+        }
+        
+        return count
     }
 }

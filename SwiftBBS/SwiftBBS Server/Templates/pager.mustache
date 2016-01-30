@@ -1,0 +1,24 @@
+{{#pager}}
+    <nav>
+        <ul class="pagination">
+
+        {{#hasPrev}}
+            <li><a href="/bbs?page={{prevPage}}" aria-label="Next"><span aria-hidden="true">&laquo;</span></a></li>
+        {{/hasPrev}}
+        {{^hasPrev}}
+            <li class="disabled"><span aria-hidden="true">&raquo;</span></li>
+        {{/hasPrev}}
+
+        {{#pages}}
+            <li {{#current}}class="active"{{/current}}><a href="/bbs?page={{page}}">{{page}}</a></li>
+        {{/pages}}
+
+        {{#hasNext}}
+            <li><a href="/bbs?page={{nextPage}}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+        {{/hasNext}}
+        {{^hasNext}}
+            <li class="disabled"><span aria-hidden="true">&raquo;</span></li>
+        {{/hasNext}}
+        </ul>
+    </nav>
+{{/pager}}

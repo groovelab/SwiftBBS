@@ -15,10 +15,6 @@ class BaseRequestHandler: RequestHandler {
         case Error(status: Int, message: String)
     }
     
-    var request: WebRequest!
-    var response: WebResponse!
-    var db: SQLite!
-    
     //  action acl
     enum ActionAcl {
         case NeedLogin
@@ -30,8 +26,12 @@ class BaseRequestHandler: RequestHandler {
     var noNeedLoginActions: [String] = []
     var redirectUrlIfLogin: String?
     var redirectUrlIfNotLogin: String?
+
+    var request: WebRequest!
+    var response: WebResponse!
+    var db: SQLite!
     
-    //  repository
+    lazy var selectOption: SelectOption = self.request.selectOption
     lazy var userRepository: UserRepository = UserRepository(db: self.db)
 
     func userIdInSession() throws -> Int? {

@@ -6,7 +6,6 @@
 //	Copyright GrooveLab
 //
 
-import Foundation
 import PerfectLib
 
 class BbsHandler: BaseRequestHandler {
@@ -42,10 +41,9 @@ class BbsHandler: BaseRequestHandler {
     //  MARK: actions
     func listAction() throws -> ActionResponse {
         let keyword = request.param("keyword")
-        let bbsEntities = try bbsRepository.selectByKeyword(keyword)
+        let bbsEntities = try bbsRepository.selectByKeyword(keyword, selectOption: selectOption)
         
         var values = [String: Any]()
-        
         values["keyword"] = keyword ?? ""
         values["bbsList"] = bbsEntities.map({ (bbsEntity) -> [String: Any] in
             var dictionary = bbsEntity.toDictionary()
@@ -54,6 +52,9 @@ class BbsHandler: BaseRequestHandler {
             }
             return dictionary
         })
+        
+        let totalCount = try bbsRepository.countByKeyword(keyword)
+        values["pager"] = Pager(totalCount: totalCount, selectOption: selectOption).toDictionary()
         
         return .Output(templatePath: "bbs_list.mustache", values: values)
     }

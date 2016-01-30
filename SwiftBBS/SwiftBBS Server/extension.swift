@@ -9,6 +9,21 @@
 import OpenSSL
 import PerfectLib
 
+extension WebRequest {
+    var action: String {
+        return urlVariables["action"] ?? "index"
+    }
+    var acceptJson: Bool {
+        return httpAccept().contains("application/json")
+    }
+    var docRoot: String {
+        return documentRoot.addedLastSlashString
+    }
+    var selectOption: SelectOption {
+        return SelectOption(page: param("page"), rows: param("rows"))
+    }
+}
+
 extension WebResponse {
     func render(templatePath: String, values: MustacheEvaluationContext.MapType) throws -> String {
         let fullPath = "Templates/" + templatePath
@@ -40,18 +55,6 @@ extension WebResponse {
         addHeader("content-type", value: "application/json")
         let encoded = try values.jsonEncodedString()
         appendBodyString(encoded)
-    }
-}
-
-extension WebRequest {
-    var action: String {
-        return urlVariables["action"] ?? "index"
-    }
-    var acceptJson: Bool {
-        return httpAccept().contains("application/json")
-    }
-    var docRoot: String {
-        return documentRoot.addedLastSlashString
     }
 }
 
