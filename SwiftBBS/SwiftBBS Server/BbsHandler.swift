@@ -8,6 +8,90 @@
 
 import PerfectLib
 
+
+enum ValidatorError : ErrorType {
+    case Invalid(String)
+}
+
+protocol Validator {
+    func validate(value: Any?) throws
+}
+
+class ValidatorManager : Validator {
+    var validators = [Validator]()
+    var errorMessages = [String]()
+    
+    func validate(value: Any?) throws {
+        try validators.forEach { (validator) in
+            do {
+                try validator.validate(value)
+            } catch ValidatorError.Invalid(let msg) {
+                errorMessages.append(msg)
+            }
+        }
+        
+        if errorMessages.count > 0 {
+            throw ValidatorError.Invalid(errorMessages.description)
+        }
+    }
+}
+
+class RequiredValidator : Validator {
+    var errorMessage = "required"
+    
+    func validate(value: Any?) throws {
+        guard let value = value else {
+            throw ValidatorError.Invalid(errorMessage)
+        }
+        
+        if let string = value as? String where string.characters.count == 0 {
+            throw ValidatorError.Invalid(errorMessage)
+        }
+    }
+}
+
+class LengthValidator : Validator {
+    var min: Int?
+    var max: Int?
+    
+    var errorMessageShorter: String {
+        return "min length is \(min!)"
+    }
+    var errorMessageLonger: String {
+        return "max length is \(max!)"
+    }
+
+    convenience init(min: Int, max: Int) {
+        self.init()
+        self.min = min
+        self.max = max
+    }
+    
+    convenience init(min: Int) {
+        self.init()
+        self.min = max
+    }
+    
+    convenience init(max: Int) {
+        self.init()
+        self.max = max
+    }
+    
+    func validate(value: Any?) throws {
+        guard let value = value as? String else {
+            return
+        }
+        
+        if let min = min where value.characters.count < min {
+            throw ValidatorError.Invalid(errorMessageShorter)
+        } else if let max = max where value.characters.count > max {
+            throw ValidatorError.Invalid(errorMessageLonger)
+        }
+    }
+}
+
+
+
 class BbsHandler: BaseRequestHandler {
     //  repository
     lazy var bbsRepository: BbsRepository = BbsRepository(db: self.db)
@@ -60,13 +144,28 @@ class BbsHandler: BaseRequestHandler {
     }
     
     func addAction() throws -> ActionResponse {
+        let title = request.param("title")
+        let comment = request.param("comment")
+        
         //  validate
-        guard let title = request.param("title") else {
-            return .Error(status: 500, message: "invalidate request parameter")
+        let titleValidatorManager = ValidatorManager()
+        titleValidatorManager.validators.append(RequiredValidator())
+        titleValidatorManager.validators.append(LengthValidator(max: 100))
+        do {
+            try titleValidatorManager.validate(title)
+        } catch ValidatorError.Invalid(let message) {
+            return .Error(status: 500, message: "invalidate request parameter title:" + message)
         }
-        guard let comment = request.param("comment") else {
-            return .Error(status: 500, message: "invalidate request parameter")
+        
+        let commentvalidatorManager = ValidatorManager()
+        commentvalidatorManager.validators.append(RequiredValidator())
+        commentvalidatorManager.validators.append(LengthValidator(max: 1000))
+        do {
+            try commentvalidatorManager.validate(comment)
+        } catch ValidatorError.Invalid(let message) {
+            return .Error(status: 500, message: "invalidate request parameter title:" + message)
         }
+
         let fileUploads = request.fileUploads
         let image = fileUploads.filter { (uploadFile) -> Bool in
             return uploadFile.fieldName == "image"
@@ -74,7 +173,7 @@ class BbsHandler: BaseRequestHandler {
         //  TODO: validate image (ex.mime type or file size)
         
         //  insert  TODO: begin transaction
-        let entity = BbsEntity(id: nil, title: title, comment: comment, userId: try self.userIdInSession()!, createdAt: nil, updatedAt: nil)
+        let entity = BbsEntity(id: nil, title: title!, comment: comment!, userId: try self.userIdInSession()!, createdAt: nil, updatedAt: nil)
         try bbsRepository.insert(entity)
         
         let bbsId = bbsRepository.lastInsertId()
