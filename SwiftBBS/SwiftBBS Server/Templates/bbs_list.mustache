@@ -3,11 +3,8 @@
 <div class="container theme-showcase" role="main">
 
     <div class="page-header">
-        <h1>bbs list</h1>
+<h1>bbs list&nbsp;&nbsp;&nbsp;<a href="#create_bbs_form" class="btn btn-primary btn-sm" role="button">Create new BBS</a></h1>
     </div>
-
-{{> pager}}
-
 
     <div class="row">
         <div class="col-md-12">
@@ -34,11 +31,13 @@
         </div>
     </div>
 
+{{> bbs_pager}}
+
     <div class="page-header">
         <h1>create bbs form</h1>
     </div>
 
-    <form action="/bbs/add" method="post" enctype="multipart/form-data">
+    <form action="/bbs/add" method="post" enctype="multipart/form-data" id="create_bbs_form" name="create_bbs_form">
         <div class="form-group">
             <label for="title">title</label>
             <input type="text" class="form-control" id="title" name="title" placeholder="">

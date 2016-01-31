@@ -19,9 +19,6 @@ extension WebRequest {
     var docRoot: String {
         return documentRoot.addedLastSlashString
     }
-    var selectOption: SelectOption {
-        return SelectOption(page: param("page"), rows: param("rows"))
-    }
 }
 
 extension WebResponse {

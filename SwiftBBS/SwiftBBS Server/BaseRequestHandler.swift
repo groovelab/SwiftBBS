@@ -31,7 +31,7 @@ class BaseRequestHandler: RequestHandler {
     var response: WebResponse!
     var db: SQLite!
     
-    lazy var selectOption: SelectOption = self.request.selectOption
+    lazy var selectOption: SelectOption = SelectOption(page: self.request.param("page"), rows: self.request.param("rows"))
     lazy var userRepository: UserRepository = UserRepository(db: self.db)
 
     func userIdInSession() throws -> Int? {
