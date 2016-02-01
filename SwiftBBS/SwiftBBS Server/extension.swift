@@ -19,6 +19,10 @@ extension WebRequest {
     var docRoot: String {
         return documentRoot.addedLastSlashString
     }
+    
+    func uploadedFile(fieldName: String) -> MimeReader.BodySpec? {
+        return fileUploads.filter { $0.fieldName == fieldName }.first
+    }
 }
 
 extension WebResponse {
@@ -68,6 +72,10 @@ extension String {
         return self + (((String(characters.last) ?? "") == "/") ? "" : "/")
     }
     
+    var fileExtension: String? {
+        return lowercaseString.componentsSeparatedByString(".").last
+    }
+
     static func base64(a: [UInt8]) -> String {
         let bio = BIO_push(BIO_new(BIO_f_base64()), BIO_new(BIO_s_mem()))
         

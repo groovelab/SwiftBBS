@@ -14,6 +14,8 @@ class Config {
     static let dbName = "SwiftBBS"
     static let dbPath = PerfectServer.staticPerfectServer.homeDir() + serverSQLiteDBs + dbName
     static let uploadDirPath = "uploads/"
+    static let uploadImageFileSize = 3 * 1024 * 1024
+    static let uploadImageFileExtensions = ["jpg","png"]
 
 #if os(Linux)
     static let imageMagickDir = ""

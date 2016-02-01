@@ -19,7 +19,7 @@ class ImageService {
         return uploadedImage.tmpFileName.componentsSeparatedByString("/").last
     }
     var fileExtension: String? {
-        return uploadedImage.fileName.lowercaseString.componentsSeparatedByString(".").last
+        return uploadedImage.fileName.fileExtension
     }
     var originalName: String {
         return uploadedImage.fileName
