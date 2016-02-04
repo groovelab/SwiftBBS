@@ -14,10 +14,6 @@ class BbsHandler: BaseRequestHandler {
     lazy var bbsCommentRepository: BbsCommentRepository = BbsCommentRepository(db: self.db)
     lazy var imageRepository: ImageRepository = ImageRepository(db: self.db)
     
-    //  upload image
-    lazy var uploadMaxFileSize: Int = Config.uploadImageFileSize
-    lazy var uploadAllowFileExtensions: String = Config.uploadImageFileExtensions.joinWithSeparator(",")
-
     //  form class
     class AddForm : Form {
         override var validatorSetting: [String: [String]] {
