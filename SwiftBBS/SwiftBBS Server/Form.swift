@@ -9,29 +9,30 @@
 import PerfectLib
 
 struct FormError : ErrorType {
-    var errorMessages: [String: String]
+    var messages: [String: String]
     
     func toString() -> String {
         var message = ""
-        for (key, value) in errorMessages {
+        for (key, value) in messages {
             message += key + ":" + value + ". "
         }
         return message
     }
 }
 
-class Form {
-    var validatorSetting: [String: [String]]  {
-        return [:]
-    }
+protocol FormType {
+    var validatorSetting: [String: [String]] { get }
+}
+
+extension FormType {
     var validatorManager: ValidatorManager {
-        return ValidatorManager.generate(validatorSetting)
+        return ValidatorManager(stringKeyAndValidators: validatorSetting)
     }
-    var validatedValues = [String: Any]()
     
-    func validate(request: WebRequest) throws {
+    func validate(request: WebRequest) throws -> [String: Any] {
         var errorMessages = [String: String]()
-        
+        var validatedValues = [String: Any]()
+
         try validatorSetting.forEach { (key, _) -> () in
             do {
                 let validators = validatorManager.validators(key)
@@ -52,7 +53,9 @@ class Form {
         }
         
         if errorMessages.count > 0 {
-            throw FormError(errorMessages: errorMessages)
+            throw FormError(messages: errorMessages)
         }
+        
+        return validatedValues
     }
 }

@@ -14,9 +14,9 @@ class BbsHandler: BaseRequestHandler {
     lazy var bbsCommentRepository: BbsCommentRepository = BbsCommentRepository(db: self.db)
     lazy var imageRepository: ImageRepository = ImageRepository(db: self.db)
     
-    //  form class
-    class AddForm : Form {
-        override var validatorSetting: [String: [String]] {
+    //  form
+    struct AddForm : FormType {
+        var validatorSetting: [String: [String]] {
             return [
                 "title" : ["required", "length,1,100"],
                 "comment": ["required", "length,1,1000"],
@@ -25,8 +25,8 @@ class BbsHandler: BaseRequestHandler {
         }
     }
     
-    class AddCommentForm : Form {
-        override var validatorSetting: [String: [String]] {
+    struct AddCommentForm : FormType {
+        var validatorSetting: [String: [String]] {
             return [
                 "bbs_id" : ["required", "int,1,n"],
                 "comment": ["required", "length,1,1000"],
@@ -80,16 +80,16 @@ class BbsHandler: BaseRequestHandler {
     }
     
     func addAction() throws -> ActionResponse {
-        let form = AddForm()
+        let validatedValues: [String: Any]!
         do {
-            try form.validate(request)
+            validatedValues = try AddForm().validate(request)
         } catch let error as FormError {
             return .Error(status: 500, message: "invalidate request parameter. " + error.toString())
         }
         
-        let title = form.validatedValues["title"] as! String
-        let comment = form.validatedValues["comment"] as! String
-        let image = form.validatedValues["image"] as? MimeReader.BodySpec
+        let title = validatedValues["title"] as! String
+        let comment = validatedValues["comment"] as! String
+        let image = validatedValues["image"] as? MimeReader.BodySpec
 
         //  insert  TODO: begin transaction
         let entity = BbsEntity(id: nil, title: title, comment: comment, userId: try self.userIdInSession()!, createdAt: nil, updatedAt: nil)
@@ -158,15 +158,15 @@ class BbsHandler: BaseRequestHandler {
     }
     
     func addcommentAction() throws -> ActionResponse {
-        let form = AddCommentForm()
+        let validatedValues: [String: Any]!
         do {
-            try form.validate(request)
+            validatedValues = try AddCommentForm().validate(request)
         } catch let error as FormError {
             return .Error(status: 500, message: "invalidate request parameter. " + error.toString())
         }
         
-        let bbsId = form.validatedValues["bbs_id"] as! Int
-        let comment = form.validatedValues["comment"] as! String
+        let bbsId = validatedValues["bbs_id"] as! Int
+        let comment = validatedValues["comment"] as! String
         
         //  insert
         let entity = BbsCommentEntity(id: nil, bbsId: bbsId, comment: comment, userId: try userIdInSession()!, createdAt: nil, updatedAt: nil)

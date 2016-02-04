@@ -22,12 +22,10 @@ class ValidatorManager {
     
     private var validatorContainer = [String: [Validator]]()
     
-    static func generate(stringKeyAndValidators: [String: [String]]) -> ValidatorManager {
-        let validatorManager = ValidatorManager()
+    init(stringKeyAndValidators: [String: [String]]) {
         stringKeyAndValidators.forEach { (key, stringValidators) -> () in
-            validatorManager.addValidators(key, stringValidators: stringValidators)
+            addValidators(key, stringValidators: stringValidators)
         }
-        return validatorManager
     }
 
     func addValidators(key: String, stringValidators: [String]) {
@@ -65,14 +63,19 @@ class ValidatorManager {
                     validators.append(IntValidator())
                 }
             case "image":
-                let validator = UploadImageValidator()
-                if args.count > 0, let fileSize = Int(args[0]) {
-                    validator.fileSize = fileSize
+                if args.count > 0 {
+                    if let fileSize = Int(args[0]) {
+                        
+                        let fileExtensions = args.dropFirst().map({ String($0) })
+                        
+                        let validator = UploadImageValidator(fileSize: fileSize, fileExtensions: fileExtensions)
+                        validators.append(validator)
+                    } else {
+                        validators.append(UploadImageValidator())
+                    }
+                } else {
+                    validators.append(UploadImageValidator())
                 }
-                if args.count > 1 {
-                    args.dropFirst().forEach { validator.addAllowExtension($0) }
-                }
-                validators.append(validator)
             default: break
             }
             
@@ -146,7 +149,7 @@ class ValidatorManager {
     }
 }
 
-class RequiredValidator : Validator {
+struct RequiredValidator : Validator {
     var errorMessage = "required"
     
     func validate(value: Any?) throws {
@@ -160,7 +163,7 @@ class RequiredValidator : Validator {
     }
 }
 
-class LengthValidator : Validator {
+struct LengthValidator : Validator {
     var min: Int?
     var max: Int?
     
@@ -172,19 +175,17 @@ class LengthValidator : Validator {
         return "max length is \(max!)"
     }
     
-    convenience init(min: Int, max: Int) {
-        self.init()
+    init() {}
+    init(min: Int, max: Int) {
         self.min = min
         self.max = max
     }
     
-    convenience init(min: Int) {
-        self.init()
+    init(min: Int) {
         self.min = min
     }
     
-    convenience init(max: Int) {
-        self.init()
+    init(max: Int) {
         self.max = max
     }
     
@@ -204,7 +205,7 @@ class LengthValidator : Validator {
     }
 }
 
-class IntValidator : Validator {
+struct IntValidator : Validator {
     var min: Int?
     var max: Int?
     
@@ -216,19 +217,17 @@ class IntValidator : Validator {
         return "max is \(max!)"
     }
     
-    convenience init(min: Int, max: Int) {
-        self.init()
+    init() {}
+    init(min: Int, max: Int) {
         self.min = min
         self.max = max
     }
     
-    convenience init(min: Int) {
-        self.init()
+    init(min: Int) {
         self.min = min
     }
     
-    convenience init(max: Int) {
-        self.init()
+    init(max: Int) {
         self.max = max
     }
     
@@ -248,11 +247,13 @@ class IntValidator : Validator {
     }
 }
 
-class UploadFileValidator : Validator {
-    var fileSize: Int? = 10 * 1024 * 1024  //  10 MB
-    var fileExtensions = [String]()
-    var contentTypes = [String]()
-    
+protocol UploadFileValidator : Validator{
+    var fileSize: Int? { get set }
+    var fileExtensions: [String] { get set }
+    var contentTypes: [String] { get set }
+}
+
+extension UploadFileValidator {
     var errorMessageFileSize: String {
         return "maximum file size is \(fileSize!) byte"
     }
@@ -262,7 +263,22 @@ class UploadFileValidator : Validator {
     var errorMessageContentType: String {
         return "allowed content types are \(contentTypes.description)"
     }
-    
+
+    init() {
+        self.init()
+    }
+
+    init(fileSize: Int?, fileExtensions: [String]?, contentTypes: [String]?) {
+        self.init()
+        self.fileSize = fileSize
+        if let fileExtensions = fileExtensions {
+            self.fileExtensions = fileExtensions
+        }
+        if let contentTypes = contentTypes {
+            self.contentTypes = contentTypes
+        }
+    }
+
     func validate(value: Any?) throws {
         guard let value = value as? MimeReader.BodySpec else {
             return
@@ -278,16 +294,26 @@ class UploadFileValidator : Validator {
     }
 }
 
-class UploadImageValidator : UploadFileValidator {
-    func addAllowExtension(fileExtension: String) {
-        switch fileExtension {
-        case "jpg":
-            fileExtensions.append("jpg")
-            fileExtensions.append("jpeg")
-            contentTypes.append("image/jpeg")
-        default:
-            fileExtensions.append(fileExtension)
-            contentTypes.append("image/\(fileExtension)")
+struct UploadImageValidator : UploadFileValidator {
+    var fileSize: Int?
+    var fileExtensions = [String]()
+    var contentTypes = [String]()
+
+    init(fileSize: Int?, fileExtensions: [String]?) {
+        self.fileSize = fileSize
+        if let fileExtensions = fileExtensions {
+            for fileExtension in fileExtensions {
+                switch fileExtension {
+                case "jpg":
+                    self.fileExtensions.append("jpg")
+                    self.fileExtensions.append("jpeg")
+                    self.contentTypes.append("image/jpeg")
+                default:
+                    self.fileExtensions.append(fileExtension)
+                    self.contentTypes.append("image/\(fileExtension)")
+                }
+            }
+
         }
     }
 }
