@@ -30,32 +30,11 @@ class BaseRequestHandler: RequestHandler {
     var request: WebRequest!
     var response: WebResponse!
     var db: SQLite!
+    var session: SessionManager!
     
     lazy var selectOption: SelectOption = SelectOption(page: self.request.param("page"), rows: self.request.param("rows"))
     lazy var userRepository: UserRepository = UserRepository(db: self.db)
 
-    func userIdInSession() throws -> Int? {
-        let session = response.getSession(Config.sessionName)
-        guard let userId = session["id"] as? Int else {
-            return nil
-        }
-        
-        //  check user table if exists
-        guard let _ = try getUser(userId) else {
-            return nil
-        }
-        
-        return userId
-    }
-    
-    func getUser(userId: Int?) throws -> UserEntity? {
-        guard let userId = userId else {
-            return nil
-        }
-        
-        return try userRepository.findById(userId)
-    }
-    
     func handleRequest(request: WebRequest, response: WebResponse) {
         //  initialize
         self.request = request
@@ -67,7 +46,7 @@ class BaseRequestHandler: RequestHandler {
         
         do {
             db = try SQLite(Config.dbPath)
-            try response.getSession(Config.sessionName, withConfiguration: SessionConfiguration(Config.sessionName, expires: Config.sessionExpires))
+            session = try response.getSession(Config.sessionName, withConfiguration: SessionConfiguration(Config.sessionName, expires: Config.sessionExpires))
             
             switch try checkActionAcl() {
             case .NeedLogin:
@@ -118,7 +97,34 @@ class BaseRequestHandler: RequestHandler {
         return .Error(status: 500, message: "need implement")
     }
     
-    func checkActionAcl() throws -> ActionAcl {
+    func userIdInSession() throws -> Int? {
+        guard let userId = session["id"] as? Int else {
+            return nil
+        }
+        
+        //  check user table if exists
+        guard let _ = try getUser(userId) else {
+            return nil
+        }
+        
+        return userId
+    }
+    
+    func getUser(userId: Int?) throws -> UserEntity? {
+        guard let userId = userId else {
+            return nil
+        }
+        
+        return try userRepository.findById(userId)
+    }
+    
+    func setLoginUser(inout values: [String: Any]) throws {
+        if let loginUser = try getUser(userIdInSession()) {
+            values["loginUser"] = loginUser.toDictionary()
+        }
+    }
+
+    private func checkActionAcl() throws -> ActionAcl {
         if let _ = try userIdInSession() {
             //  already login
             if noNeedLoginActions.contains(request.action) {
@@ -132,12 +138,6 @@ class BaseRequestHandler: RequestHandler {
         }
         
         return .None
-    }
-    
-    func setLoginUser(inout values: [String: Any]) throws {
-        if let loginUser = try getUser(userIdInSession()) {
-            values["loginUser"] = loginUser.toDictionary()
-        }
     }
 }
 
