@@ -18,6 +18,7 @@
 		0A337BEB1C414BCA00CEA758 /* UserRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A337BEA1C414BCA00CEA758 /* UserRepository.swift */; };
 		0A337BF21C425A4D00CEA758 /* user_edit.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A337BF11C425A4D00CEA758 /* user_edit.mustache */; };
 		0A337BF31C425AAB00CEA758 /* user_edit.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A337BF11C425A4D00CEA758 /* user_edit.mustache */; };
+		0A3F09331C63CA7200D3CC94 /* Form.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3F09321C63CA7200D3CC94 /* Form.swift */; };
 		0A8490211C36FCB900149828 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8490201C36FCB900149828 /* Config.swift */; };
 		0A8490361C3BE05000149828 /* user_register.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A8490351C3BE05000149828 /* user_register.mustache */; };
 		0A8490371C3BE14A00149828 /* user_register.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A8490351C3BE05000149828 /* user_register.mustache */; };
@@ -145,6 +146,7 @@
 		0A337BE81C414B4700CEA758 /* Repository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repository.swift; sourceTree = "<group>"; };
 		0A337BEA1C414BCA00CEA758 /* UserRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserRepository.swift; sourceTree = "<group>"; };
 		0A337BF11C425A4D00CEA758 /* user_edit.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user_edit.mustache; sourceTree = "<group>"; };
+		0A3F09321C63CA7200D3CC94 /* Form.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Form.swift; sourceTree = "<group>"; };
 		0A8490201C36FCB900149828 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		0A8490351C3BE05000149828 /* user_register.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user_register.mustache; sourceTree = "<group>"; };
 		0A8490381C3BF07100149828 /* user_login.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user_login.mustache; sourceTree = "<group>"; };
@@ -257,6 +259,7 @@
 		0A337BE31C413EF900CEA758 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				0A3F09311C63CA6500D3CC94 /* Form */,
 				0A0141981C5FAA77003783C3 /* Validator */,
 				0AA9B8481C5A65A2004D3DE1 /* Service */,
 				0A337BF01C41CE0F00CEA758 /* Repository */,
@@ -276,6 +279,14 @@
 				0AA9B83F1C4FE67B004D3DE1 /* ImageRepository.swift */,
 			);
 			name = Repository;
+			sourceTree = "<group>";
+		};
+		0A3F09311C63CA6500D3CC94 /* Form */ = {
+			isa = PBXGroup;
+			children = (
+				0A3F09321C63CA7200D3CC94 /* Form.swift */,
+			);
+			name = Form;
 			sourceTree = "<group>";
 		};
 		0A84901F1C36CB3400149828 /* Linked */ = {
@@ -708,6 +719,7 @@
 				0A0141951C5CA1AF003783C3 /* Pager.swift in Sources */,
 				0A01419A1C5FAAAB003783C3 /* Validator.swift in Sources */,
 				0AA9B78D1C495145004D3DE1 /* UserHandler.swift in Sources */,
+				0A3F09331C63CA7200D3CC94 /* Form.swift in Sources */,
 				0A337BEB1C414BCA00CEA758 /* UserRepository.swift in Sources */,
 				0AA9B8401C4FE67B004D3DE1 /* ImageRepository.swift in Sources */,
 				0A337BE91C414B4700CEA758 /* Repository.swift in Sources */,

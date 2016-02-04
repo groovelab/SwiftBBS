@@ -17,22 +17,29 @@ protocol Validator {
     func validate(value: Any?) throws
 }
 
-class ValidatorManager : Validator {
+class ValidatorManager {
     typealias RuleAndArgs = (rule: String, args: [String])
     
-    var validators = [Validator]()
+    private var validatorContainer = [String: [Validator]]()
     
-    static func build(stringValidators: [String]) -> ValidatorManager {
+    static func generate(stringKeyAndValidators: [String: [String]]) -> ValidatorManager {
         let validatorManager = ValidatorManager()
-        validatorManager.addValidators(fromStrings: stringValidators)
+        stringKeyAndValidators.forEach { (key, stringValidators) -> () in
+            validatorManager.addValidators(key, stringValidators: stringValidators)
+        }
         return validatorManager
     }
-    
-    func addValidators(fromStrings stringValidators: [String]) {
+
+    func addValidators(key: String, stringValidators: [String]) {
         for stringValidator in stringValidators {
             let rulesAndArgs = ruleAndArgs(stringValidator)
             let rule = rulesAndArgs.rule
             let args = rulesAndArgs.args
+            
+            var validators = [Validator]()
+            if let validatorList = validatorContainer[key] {
+                validators = validatorList
+            }
             
             switch rule {
             case "required":
@@ -68,31 +75,62 @@ class ValidatorManager : Validator {
                 validators.append(validator)
             default: break
             }
+            
+            validatorContainer[key] = validators
         }
     }
     
-    func validate(value: Any?) throws {
+    func validate(key: String, value: Any?) throws {
+        guard let validators = validatorContainer[key] else {
+            throw ValidationError.Fail
+        }
         try validators.forEach { (validator) in
             try validator.validate(value)
         }
     }
     
-    func validatedString(value: Any?) throws -> String {
-        try validate(value)
+    func validatedString(key: String, value: Any?) throws -> String? {
+        try validate(key, value: value)
         
+        if value == nil {
+            return nil
+        }
         guard let validatedString = value as? String else {
             throw ValidationError.Fail
         }
         return validatedString
     }
     
-    func validatedInt(value: Any?) throws -> Int {
-        try validate(value)
+    func validatedInt(key: String, value: Any?) throws -> Int? {
+        try validate(key, value: value)
         
+        if value == nil {
+            return nil
+        }
         guard let validatedInt = Int(value as? String ?? "") else {
             throw ValidationError.Fail
         }
         return validatedInt
+    }
+    
+    func validatedFile(key: String, value: Any?) throws -> MimeReader.BodySpec? {
+        try validate(key, value: value)
+        
+        if value == nil {
+            return nil
+        }
+        guard let validatedFile = value as? MimeReader.BodySpec else {
+            throw ValidationError.Fail
+        }
+        return validatedFile
+    }
+    
+    func validators(key: String) -> [Validator] {
+        if let validators = validatorContainer[key] {
+            return validators
+        } else {
+            return [Validator]()
+        }
     }
     
     private func ruleAndArgs(ruleAndArgsString: String) -> RuleAndArgs {
@@ -100,12 +138,6 @@ class ValidatorManager : Validator {
             return (rule: ruleAndArgsString, args: [String]())
         }
         
-//        let splitedString = ruleAndArgsString.characters.split(",")
-//        let rule = String(splitedString[0])
-//        let args = splitedString.dropFirst().map { (arg) -> String in
-//            return String(arg)
-//        }
-
         let separatedString = ruleAndArgsString.componentsSeparatedByString(",")
         let rule = separatedString.first!
         let args = Array(separatedString.dropFirst())

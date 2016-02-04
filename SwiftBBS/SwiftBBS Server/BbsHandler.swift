@@ -18,6 +18,26 @@ class BbsHandler: BaseRequestHandler {
     lazy var uploadMaxFileSize: Int = Config.uploadImageFileSize
     lazy var uploadAllowFileExtensions: String = Config.uploadImageFileExtensions.joinWithSeparator(",")
 
+    //  form class
+    class AddForm : Form {
+        override var validatorSetting: [String: [String]] {
+            return [
+                "title" : ["required", "length,1,100"],
+                "comment": ["required", "length,1,1000"],
+                "image": ["image,\(Config.uploadImageFileSize),\(Config.uploadImageFileExtensions.joinWithSeparator(","))"],
+            ]
+        }
+    }
+    
+    class AddCommentForm : Form {
+        override var validatorSetting: [String: [String]] {
+            return [
+                "bbs_id" : ["required", "int,1,n"],
+                "comment": ["required", "length,1,1000"],
+            ]
+        }
+    }
+
     override init() {
         super.init()
         
@@ -64,33 +84,17 @@ class BbsHandler: BaseRequestHandler {
     }
     
     func addAction() throws -> ActionResponse {
-        let title: String!
-        let comment: String!
-        let image: MimeReader.BodySpec?
-
-        //  validate
+        let form = AddForm()
         do {
-            let validator = ValidatorManager.build(["required", "length,1,100"])
-            title = try validator.validatedString(request.param("title"))
-        } catch ValidationError.Invalid(let message) {
-            return .Error(status: 500, message: "invalidate request parameter title:" + message)
+            try form.validate(request)
+        } catch let error as FormError {
+            return .Error(status: 500, message: "invalidate request parameter. " + error.toString())
         }
         
-        do {
-            let validator = ValidatorManager.build(["required", "length,1,1000"])
-            comment = try validator.validatedString(request.param("comment"))
-        } catch ValidationError.Invalid(let message) {
-            return .Error(status: 500, message: "invalidate request parameter comment:" + message)
-        }
+        let title = form.validatedValues["title"] as! String
+        let comment = form.validatedValues["comment"] as! String
+        let image = form.validatedValues["image"] as? MimeReader.BodySpec
 
-        do {
-            image = request.uploadedFile("image")
-            let validator = ValidatorManager.build(["image,\(uploadMaxFileSize),\(uploadAllowFileExtensions)"])
-            try validator.validate(image)
-        } catch ValidationError.Invalid(let message) {
-            return .Error(status: 500, message: "invalidate request parameter image:" + message)
-        }
-        
         //  insert  TODO: begin transaction
         let entity = BbsEntity(id: nil, title: title, comment: comment, userId: try self.userIdInSession()!, createdAt: nil, updatedAt: nil)
         try bbsRepository.insert(entity)
@@ -158,23 +162,15 @@ class BbsHandler: BaseRequestHandler {
     }
     
     func addcommentAction() throws -> ActionResponse {
-        let bbsId: Int!
-        let comment: String!
-        
-        //  validate
+        let form = AddCommentForm()
         do {
-            let validator = ValidatorManager.build(["required", "int,1,n"])
-            bbsId = try validator.validatedInt(request.param("bbs_id"))
-        } catch ValidationError.Invalid(let message) {
-            return .Error(status: 500, message: "invalidate request parameter bbs_id:" + message)
+            try form.validate(request)
+        } catch let error as FormError {
+            return .Error(status: 500, message: "invalidate request parameter. " + error.toString())
         }
         
-        do {
-            let validator = ValidatorManager.build(["required", "length,1,1000"])
-            comment = try validator.validatedString(request.param("comment"))
-        } catch ValidationError.Invalid(let message) {
-            return .Error(status: 500, message: "invalidate request parameter comment:" + message)
-        }
+        let bbsId = form.validatedValues["bbs_id"] as! Int
+        let comment = form.validatedValues["comment"] as! String
         
         //  insert
         let entity = BbsCommentEntity(id: nil, bbsId: bbsId, comment: comment, userId: try userIdInSession()!, createdAt: nil, updatedAt: nil)
