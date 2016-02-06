@@ -46,8 +46,14 @@ class ValidatorManager {
             case "required":
                 validators.append(RequiredValidator())
             case "length":
-                if args.count == 2, let min = Int(args[0]), let max = Int(args[1]) {
-                    validators.append(LengthValidator(min: min, max: max))
+                if args.count == 2 {
+                    if let min = Int(args[0]), let max = Int(args[1]) {
+                        validators.append(LengthValidator(min: min, max: max))
+                    } else if let min = Int(args[0]) {
+                        validators.append(LengthValidator(min: min))
+                    } else if let max = Int(args[1]) {
+                        validators.append(LengthValidator(max: max))
+                    }
                 } else {
                     validators.append(LengthValidator())
                 }

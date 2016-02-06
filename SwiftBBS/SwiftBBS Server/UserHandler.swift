@@ -9,6 +9,77 @@
 import PerfectLib
 
 class UserHandler: BaseRequestHandler {
+    //  MARK: forms
+    class RegisterForm : FormType {
+        var name: String!
+        var password: String!
+        
+        var validatorSetting: [String: [String]] {
+            return [
+                "name": ["required", "length,1,n"],
+                "password": ["required", "length,8,n"],
+            ]
+        }
+        
+        subscript (key: String) -> Any? {
+            get { return nil } //  not use
+            set {
+                switch key {
+                case "name": name = newValue! as! String
+                case "password": password = newValue! as! String
+                default: break
+                }
+            }
+        }
+    }
+    
+    class EditForm : FormType {
+        var name: String!
+        var password: String!
+        
+        var validatorSetting: [String: [String]] {
+            return [
+                "name": ["required", "length,1,n"],
+                "password": ["length,8,n"],
+            ]
+        }
+        
+        subscript (key: String) -> Any? {
+            get { return nil } //  not use
+            set {
+                switch key {
+                case "name": name = newValue! as! String
+                case "password": password = newValue as? String ?? ""
+                default: break
+                }
+            }
+        }
+    }
+    
+    class LoginForm : FormType {
+        var name: String!
+        var password: String!
+        
+        var validatorSetting: [String: [String]] {
+            return [
+                "name": ["required", "length,1,n"],
+                "password": ["required", "length,1,n"],
+            ]
+        }
+        
+        subscript (key: String) -> Any? {
+            get { return nil } //  not use
+            set {
+                switch key {
+                case "name": name = newValue! as! String
+                case "password": password = newValue! as! String
+                default: break
+                }
+            }
+        }
+    }
+
+    //  MARK: life cycle
     override init() {
         super.init()
         
@@ -53,19 +124,15 @@ class UserHandler: BaseRequestHandler {
     }
     
     func doEditAction() throws -> ActionResponse {
-        //  validate TODO:create validaotr
-        guard let name = request.param("name") else {
-            return .Error(status: 500, message: "invalidate request parameter")
+        var form = EditForm()
+        do {
+            try form.validate(request)
+        } catch let error as FormError {
+            return .Error(status: 500, message: "invalidate request parameter. " + error.toString())
         }
-        
-        let password = request.param("password") ?? ""
         
         //  update
-        guard let beforeUserEntity = try getUser(userIdInSession()) else {
-            return .Error(status: 404, message: "not found user")
-        }
-        
-        let userEntity = UserEntity(id: beforeUserEntity.id, name: name, password: password, createdAt: nil, updatedAt: nil)
+        let userEntity = UserEntity(id: try userIdInSession(), name: form.name, password: form.password, createdAt: nil, updatedAt: nil)
         try userRepository.update(userEntity)
         
         if request.acceptJson {
@@ -100,20 +167,19 @@ class UserHandler: BaseRequestHandler {
     }
     
     func doRegisterAction() throws -> ActionResponse {
-        //  validate TODO:create validaotr
-        guard let name = request.param("name") else {
-            return .Error(status: 500, message: "invalidate request parameter")
-        }
-        guard let password = request.param("password") else {
-            return .Error(status: 500, message: "invalidate request parameter")
+        var form = RegisterForm()
+        do {
+            try form.validate(request)
+        } catch let error as FormError {
+            return .Error(status: 500, message: "invalidate request parameter. " + error.toString())
         }
         
         //  insert
-        let userEntity = UserEntity(id: nil, name: name, password: password, createdAt: nil, updatedAt: nil)
+        let userEntity = UserEntity(id: nil, name: form.name, password: form.password, createdAt: nil, updatedAt: nil)
         try userRepository.insert(userEntity)
         
         //  do login
-        let isLoginSuccess = try login(name, password: password)
+        let isLoginSuccess = try login(form.name, password: form.password)
         if request.acceptJson {
             var values = [String: Any]()
             values["status"] = isLoginSuccess ? "success" : "failed"
@@ -128,16 +194,15 @@ class UserHandler: BaseRequestHandler {
     }
     
     func doLoginAction() throws -> ActionResponse {
-        //  validate
-        guard let name = request.param("name") else {
-            return .Error(status: 500, message: "invalidate request parameter")
-        }
-        guard let password = request.param("password") else {
-            return .Error(status: 500, message: "invalidate request parameter")
+        var form = LoginForm()
+        do {
+            try form.validate(request)
+        } catch let error as FormError {
+            return .Error(status: 500, message: "invalidate request parameter. " + error.toString())
         }
         
         //  check exist
-        let isLoginSuccess = try login(name, password: password)
+        let isLoginSuccess = try login(form.name, password: form.password)
         if request.acceptJson {
             var values = [String: Any]()
             values["status"] = isLoginSuccess ? "success" : "failed"
