@@ -22,37 +22,23 @@ struct FormError : ErrorType {
 
 protocol FormType {
     var validatorSetting: ValidatorManager.ValidatorsSetting { get }
-    func updateProperty(key: String, value: String)
-    func updateProperty(key: String, value: Int)
-    func updateProperty(key: String, value: MimeReader.BodySpec)
+    subscript (key: String) -> Any? { get set }
 }
 
 extension FormType {
-    func validate(request: WebRequest) throws {
+    mutating func validate(request: WebRequest) throws {
         let validatorManager = ValidatorManager.generate(fromStringKeyAndValidators: validatorSetting)
         var errorMessages = [String: String]()
         
         try validatorSetting.forEach { (key, _) in
             do {
-                var validatedValue: Any?
                 let validators = validatorManager.validators(key)
-                
                 if validators.filter( {$0 is IntValidator} ).count > 0 {
-                    validatedValue = try validatorManager.validatedInt(key, value: request.param(key))
+                    self[key] = try validatorManager.validatedInt(key, value: request.param(key))
                 } else if validators.filter( {$0 is UploadImageValidator} ).count > 0 {
-                    validatedValue = try validatorManager.validatedFile(key, value: request.uploadedFile(key))
+                    self[key] = try validatorManager.validatedFile(key, value: request.uploadedFile(key))
                 } else {
-                    validatedValue = try validatorManager.validatedString(key, value: request.param(key))
-                }
-
-                switch validatedValue {
-                case let value as String:
-                    updateProperty(key, value: value)
-                case let value as Int:
-                    updateProperty(key, value: value)
-                case let value as MimeReader.BodySpec:
-                    updateProperty(key, value: value)
-                default: break
+                    self[key] = try validatorManager.validatedString(key, value: request.param(key))
                 }
             } catch ValidationError.Invalid(let errorMessage) {
                 errorMessages[key] = errorMessage
@@ -63,9 +49,4 @@ extension FormType {
             throw FormError(messages: errorMessages)
         }
     }
-    
-    //  implement if need
-    func updateProperty(key: String, value: String) {}
-    func updateProperty(key: String, value: Int) {}
-    func updateProperty(key: String, value: MimeReader.BodySpec) {}
 }

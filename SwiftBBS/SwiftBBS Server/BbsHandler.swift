@@ -22,23 +22,21 @@ class BbsHandler: BaseRequestHandler {
 
         var validatorSetting: [String: [String]] {
             return [
-                "title" : ["required", "length,1,100"],
+                "title": ["required", "length,1,100"],
                 "comment": ["required", "length,1,1000"],
                 "image": ["image,\(Config.uploadImageFileSize),\(Config.uploadImageFileExtensions.joinWithSeparator(","))"],
             ]
         }
 
-        func updateProperty(key: String, value: String) {
-            switch key {
-            case "title": title = value
-            case "comment": comment = value
-            default: break
-            }
-        }
-        func updateProperty(key: String, value: MimeReader.BodySpec) {
-            switch key {
-            case "image": image = value
-            default: break
+        subscript (key: String) -> Any? {
+            get { return nil } //  not use
+            set {
+                switch key {
+                case "title": title = newValue! as! String
+                case "comment": comment = newValue! as! String
+                case "image": image = newValue as? MimeReader.BodySpec
+                default: break
+                }
             }
         }
     }
@@ -49,21 +47,19 @@ class BbsHandler: BaseRequestHandler {
         
         var validatorSetting: [String: [String]] {
             return [
-                "bbs_id" : ["required", "int,1,n"],
+                "bbs_id": ["required", "int,1,n"],
                 "comment": ["required", "length,1,1000"],
             ]
         }
-        
-        func updateProperty(key: String, value: String) {
-            switch key {
-            case "comment": comment = value
-            default: break
-            }
-        }
-        func updateProperty(key: String, value: Int) {
-            switch key {
-            case "bbs_id": bbsId = value
-            default: break
+
+        subscript (key: String) -> Any? {
+            get { return nil } //  not use
+            set {
+                switch key {
+                case "bbs_id": bbsId = newValue! as! Int
+                case "comment": comment = newValue! as! String
+                default: break
+                }
             }
         }
     }
@@ -115,18 +111,13 @@ class BbsHandler: BaseRequestHandler {
     }
     
     func addAction() throws -> ActionResponse {
-        let form = AddForm()
-//        let validatedValues: [String: Any]!
+        var form = AddForm()
         do {
             try form.validate(request)
         } catch let error as FormError {
             return .Error(status: 500, message: "invalidate request parameter. " + error.toString())
         }
         
-//        let title = validatedValues["title"] as! String
-//        let comment = validatedValues["comment"] as! String
-//        let image = validatedValues["image"] as? MimeReader.BodySpec
-
         //  insert  TODO: begin transaction
         let entity = BbsEntity(id: nil, title: form.title, comment: form.comment, userId: try self.userIdInSession()!, createdAt: nil, updatedAt: nil)
         try bbsRepository.insert(entity)
@@ -194,7 +185,7 @@ class BbsHandler: BaseRequestHandler {
     }
     
     func addcommentAction() throws -> ActionResponse {
-        let form = AddCommentForm()
+        var form = AddCommentForm()
         do {
             try form.validate(request)
         } catch let error as FormError {
