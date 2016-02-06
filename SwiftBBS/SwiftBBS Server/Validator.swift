@@ -71,6 +71,10 @@ class ValidatorManager {
                 } else {
                     validators.append(IntValidator())
                 }
+            case "identical":
+                if args.count == 1 {
+                    validators.append(IdenticalValidator(targetKey: args[0]))
+                }
             case "image":
                 let validator = UploadImageValidator()
                 if args.count > 0, let fileSize = Int(args[0]) {
@@ -196,11 +200,13 @@ class LengthValidator : Validator {
     }
     
     func validate(value: Any?) throws {
-        guard let value = value else {
-            return
-        }
+        guard let value = value else { return }
         guard let stringValue = value as? String else {
             throw ValidationError.Invalid(errorMessage)
+        }
+        
+        if stringValue.isEmpty {
+            return
         }
         
         if let min = min where stringValue.characters.count < min {
@@ -240,9 +246,7 @@ class IntValidator : Validator {
     }
     
     func validate(value: Any?) throws {
-        guard let value = value else {
-            return
-        }
+        guard let value = value else { return }
         guard let intValue = Int(value as? String ?? "") else {
             throw ValidationError.Invalid(errorMessage)
         }
@@ -251,6 +255,30 @@ class IntValidator : Validator {
             throw ValidationError.Invalid(errorMessageLess)
         } else if let max = max where intValue > max {
             throw ValidationError.Invalid(errorMessageGreater)
+        }
+    }
+}
+
+class IdenticalValidator : Validator {
+    var targetKey: String
+    var targetValue: String?
+    
+    var errorMessage: String {
+        return "not match with \(targetKey)"
+    }
+
+    init(targetKey: String) {
+        self.targetKey = targetKey
+    }
+    
+    func validate(value: Any?) throws {
+        guard let value = value as? String else { return }
+        guard let targetValue = targetValue else {
+            throw ValidationError.Fail
+        }
+        
+        if value != targetValue {
+            throw ValidationError.Invalid(errorMessage)
         }
     }
 }
@@ -271,9 +299,7 @@ class UploadFileValidator : Validator {
     }
     
     func validate(value: Any?) throws {
-        guard let value = value as? MimeReader.BodySpec else {
-            return
-        }
+        guard let value = value as? MimeReader.BodySpec else { return }
         
         if let fileSize = fileSize where fileSize < value.fileSize {
             throw ValidationError.Invalid(errorMessageFileSize)

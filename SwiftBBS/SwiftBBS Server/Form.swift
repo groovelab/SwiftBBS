@@ -33,6 +33,14 @@ extension FormType {
         try validatorSetting.forEach { (key, _) in
             do {
                 let validators = validatorManager.validators(key)
+                
+                //  for identical validator
+                validators.filter( {$0 is IdenticalValidator} ).forEach({ validator in
+                    if let validator = validator as? IdenticalValidator {
+                        validator.targetValue = request.param(validator.targetKey)
+                    }
+                })
+                
                 if validators.filter( {$0 is IntValidator} ).count > 0 {
                     self[key] = try validatorManager.validatedInt(key, value: request.param(key))
                 } else if validators.filter( {$0 is UploadImageValidator} ).count > 0 {

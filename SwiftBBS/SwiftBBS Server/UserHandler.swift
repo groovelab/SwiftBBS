@@ -13,11 +13,13 @@ class UserHandler: BaseRequestHandler {
     class RegisterForm : FormType {
         var name: String!
         var password: String!
+        var password2: String!
         
         var validatorSetting: [String: [String]] {
             return [
                 "name": ["required", "length,1,n"],
                 "password": ["required", "length,8,n"],
+                "password2": ["required", "length,8,n", "identical,password"],
             ]
         }
         
@@ -27,6 +29,7 @@ class UserHandler: BaseRequestHandler {
                 switch key {
                 case "name": name = newValue! as! String
                 case "password": password = newValue! as! String
+                case "password2": password2 = newValue! as! String
                 default: break
                 }
             }
@@ -36,11 +39,13 @@ class UserHandler: BaseRequestHandler {
     class EditForm : FormType {
         var name: String!
         var password: String!
-        
+        var password2: String?
+
         var validatorSetting: [String: [String]] {
             return [
                 "name": ["required", "length,1,n"],
                 "password": ["length,8,n"],
+                "password2": ["length,8,n", "identical,password"],
             ]
         }
         
@@ -50,6 +55,7 @@ class UserHandler: BaseRequestHandler {
                 switch key {
                 case "name": name = newValue! as! String
                 case "password": password = newValue as? String ?? ""
+                case "password2": password2 = newValue as? String
                 default: break
                 }
             }
