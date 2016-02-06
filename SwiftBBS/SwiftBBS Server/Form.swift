@@ -21,12 +21,12 @@ struct FormError : ErrorType {
 }
 
 protocol FormType {
-    var validatorSetting: [String: [String]] { get }
+    var validatorSetting: ValidatorManager.ValidatorsSetting { get }
 }
 
 extension FormType {
     var validatorManager: ValidatorManager {
-        return ValidatorManager(stringKeyAndValidators: validatorSetting)
+        return ValidatorManager.generate(fromStringKeyAndValidators: validatorSetting)
     }
     
     func validate(request: WebRequest) throws -> [String: Any] {

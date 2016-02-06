@@ -19,15 +19,18 @@ protocol Validator {
 
 class ValidatorManager {
     typealias RuleAndArgs = (rule: String, args: [String])
+    typealias ValidatorsSetting = [String: [String]]
     
     private var validatorContainer = [String: [Validator]]()
     
-    init(stringKeyAndValidators: [String: [String]]) {
+    static func generate(fromStringKeyAndValidators stringKeyAndValidators: ValidatorsSetting) -> ValidatorManager {
+        let validatorManager = ValidatorManager()
         stringKeyAndValidators.forEach { (key, stringValidators) -> () in
-            addValidators(key, stringValidators: stringValidators)
+            validatorManager.addValidators(key, stringValidators: stringValidators)
         }
+        return validatorManager
     }
-
+    
     func addValidators(key: String, stringValidators: [String]) {
         for stringValidator in stringValidators {
             let rulesAndArgs = ruleAndArgs(stringValidator)
@@ -63,19 +66,14 @@ class ValidatorManager {
                     validators.append(IntValidator())
                 }
             case "image":
-                if args.count > 0 {
-                    if let fileSize = Int(args[0]) {
-                        
-                        let fileExtensions = args.dropFirst().map({ String($0) })
-                        
-                        let validator = UploadImageValidator(fileSize: fileSize, fileExtensions: fileExtensions)
-                        validators.append(validator)
-                    } else {
-                        validators.append(UploadImageValidator())
-                    }
-                } else {
-                    validators.append(UploadImageValidator())
+                let validator = UploadImageValidator()
+                if args.count > 0, let fileSize = Int(args[0]) {
+                    validator.fileSize = fileSize
                 }
+                if args.count > 1 {
+                    args.dropFirst().forEach { validator.addAllowExtension($0) }
+                }
+                validators.append(validator)
             default: break
             }
             
@@ -149,7 +147,7 @@ class ValidatorManager {
     }
 }
 
-struct RequiredValidator : Validator {
+class RequiredValidator : Validator {
     var errorMessage = "required"
     
     func validate(value: Any?) throws {
@@ -163,7 +161,7 @@ struct RequiredValidator : Validator {
     }
 }
 
-struct LengthValidator : Validator {
+class LengthValidator : Validator {
     var min: Int?
     var max: Int?
     
@@ -175,17 +173,19 @@ struct LengthValidator : Validator {
         return "max length is \(max!)"
     }
     
-    init() {}
-    init(min: Int, max: Int) {
+    convenience init(min: Int, max: Int) {
+        self.init()
         self.min = min
         self.max = max
     }
     
-    init(min: Int) {
+    convenience init(min: Int) {
+        self.init()
         self.min = min
     }
     
-    init(max: Int) {
+    convenience init(max: Int) {
+        self.init()
         self.max = max
     }
     
@@ -205,7 +205,7 @@ struct LengthValidator : Validator {
     }
 }
 
-struct IntValidator : Validator {
+class IntValidator : Validator {
     var min: Int?
     var max: Int?
     
@@ -217,17 +217,19 @@ struct IntValidator : Validator {
         return "max is \(max!)"
     }
     
-    init() {}
-    init(min: Int, max: Int) {
+    convenience init(min: Int, max: Int) {
+        self.init()
         self.min = min
         self.max = max
     }
     
-    init(min: Int) {
+    convenience init(min: Int) {
+        self.init()
         self.min = min
     }
     
-    init(max: Int) {
+    convenience init(max: Int) {
+        self.init()
         self.max = max
     }
     
@@ -247,13 +249,11 @@ struct IntValidator : Validator {
     }
 }
 
-protocol UploadFileValidator : Validator{
-    var fileSize: Int? { get set }
-    var fileExtensions: [String] { get set }
-    var contentTypes: [String] { get set }
-}
-
-extension UploadFileValidator {
+class UploadFileValidator : Validator {
+    var fileSize: Int? = 10 * 1024 * 1024  //  10 MB
+    var fileExtensions = [String]()
+    var contentTypes = [String]()
+    
     var errorMessageFileSize: String {
         return "maximum file size is \(fileSize!) byte"
     }
@@ -263,22 +263,7 @@ extension UploadFileValidator {
     var errorMessageContentType: String {
         return "allowed content types are \(contentTypes.description)"
     }
-
-    init() {
-        self.init()
-    }
-
-    init(fileSize: Int?, fileExtensions: [String]?, contentTypes: [String]?) {
-        self.init()
-        self.fileSize = fileSize
-        if let fileExtensions = fileExtensions {
-            self.fileExtensions = fileExtensions
-        }
-        if let contentTypes = contentTypes {
-            self.contentTypes = contentTypes
-        }
-    }
-
+    
     func validate(value: Any?) throws {
         guard let value = value as? MimeReader.BodySpec else {
             return
@@ -294,26 +279,16 @@ extension UploadFileValidator {
     }
 }
 
-struct UploadImageValidator : UploadFileValidator {
-    var fileSize: Int?
-    var fileExtensions = [String]()
-    var contentTypes = [String]()
-
-    init(fileSize: Int?, fileExtensions: [String]?) {
-        self.fileSize = fileSize
-        if let fileExtensions = fileExtensions {
-            for fileExtension in fileExtensions {
-                switch fileExtension {
-                case "jpg":
-                    self.fileExtensions.append("jpg")
-                    self.fileExtensions.append("jpeg")
-                    self.contentTypes.append("image/jpeg")
-                default:
-                    self.fileExtensions.append(fileExtension)
-                    self.contentTypes.append("image/\(fileExtension)")
-                }
-            }
-
+class UploadImageValidator : UploadFileValidator {
+    func addAllowExtension(fileExtension: String) {
+        switch fileExtension {
+        case "jpg":
+            fileExtensions.append("jpg")
+            fileExtensions.append("jpeg")
+            contentTypes.append("image/jpeg")
+        default:
+            fileExtensions.append(fileExtension)
+            contentTypes.append("image/\(fileExtension)")
         }
     }
 }
