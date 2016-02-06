@@ -8,29 +8,17 @@
 
 import PerfectLib
 
-struct FormError : ErrorType {
-    var messages: [String: String]
-    
-    func toString() -> String {
-        var message = ""
-        for (key, value) in messages {
-            message += key + ":" + value + ". "
-        }
-        return message
-    }
-}
-
 protocol FormType {
-    var validatorSetting: ValidatorManager.ValidatorsSetting { get }
+    var validationRules: ValidatorManager.ValidationKeyAndRules { get }
     subscript (key: String) -> Any? { get set }
 }
 
 extension FormType {
     mutating func validate(request: WebRequest) throws {
-        let validatorManager = ValidatorManager.generate(fromStringKeyAndValidators: validatorSetting)
+        let validatorManager = ValidatorManager.generate(fromValidationKeyAndRules: validationRules)
         var errorMessages = [String: String]()
         
-        try validatorSetting.forEach { (key, _) in
+        try validationRules.forEach { (key, _) in
             do {
                 let validators = validatorManager.validators(key)
                 
@@ -58,3 +46,26 @@ extension FormType {
         }
     }
 }
+
+//class ExampleForm : FormType {
+//    var comment: String!
+//
+//    var validationRules: ValidatorManager.ValidationKeyAndRules {
+//        return [
+//            "comment": [
+//                ValidationType.Required,
+//                ValidationType.Length(min: 1, max: 1000)
+//            ],
+//        ]
+//    }
+//    
+//    subscript (key: String) -> Any? {
+//        get { return nil } //  not use
+//        set {
+//            switch key {
+//            case "comment": comment = newValue! as! String
+//            default: break
+//            }
+//        }
+//    }
+//}

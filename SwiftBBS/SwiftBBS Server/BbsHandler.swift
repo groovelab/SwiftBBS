@@ -20,11 +20,19 @@ class BbsHandler: BaseRequestHandler {
         var comment: String!
         var image: MimeReader.BodySpec?
 
-        var validatorSetting: [String: [String]] {
+        var validationRules: ValidatorManager.ValidationKeyAndRules {
             return [
-                "title": ["required", "length,1,100"],
-                "comment": ["required", "length,1,1000"],
-                "image": ["image,\(Config.uploadImageFileSize),\(Config.uploadImageFileExtensions.joinWithSeparator(","))"],
+                "title": [
+                    ValidationType.Required,
+                    ValidationType.Length(min: 1, max: 100)
+                ],
+                "comment": [
+                    ValidationType.Required,
+                    ValidationType.Length(min: 1, max: 1000)
+                ],
+                "image": [
+                    ValidationType.Image(fileSize: Config.uploadImageFileSize, fileExtensions: Config.uploadImageFileExtensions)
+                ]
             ]
         }
 
@@ -45,10 +53,16 @@ class BbsHandler: BaseRequestHandler {
         var bbsId: Int!
         var comment: String!
         
-        var validatorSetting: [String: [String]] {
+        var validationRules: ValidatorManager.ValidationKeyAndRules {
             return [
-                "bbs_id": ["required", "int,1,n"],
-                "comment": ["required", "length,1,1000"],
+                "bbs_id": [
+                    ValidationType.Required,
+                    ValidationType.Integer(min: 1, max: nil)
+                ],
+                "comment": [
+                    ValidationType.Required,
+                    ValidationType.Length(min: 1, max: 1000)
+                ],
             ]
         }
 
@@ -115,7 +129,7 @@ class BbsHandler: BaseRequestHandler {
         do {
             try form.validate(request)
         } catch let error as FormError {
-            return .Error(status: 500, message: "invalidate request parameter. " + error.toString())
+            return .Error(status: 500, message: "invalidate request parameter. " + error.description)
         }
         
         //  insert  TODO: begin transaction
@@ -189,7 +203,7 @@ class BbsHandler: BaseRequestHandler {
         do {
             try form.validate(request)
         } catch let error as FormError {
-            return .Error(status: 500, message: "invalidate request parameter. " + error.toString())
+            return .Error(status: 500, message: "invalidate request parameter. " + error.description)
         }
         
         //  insert

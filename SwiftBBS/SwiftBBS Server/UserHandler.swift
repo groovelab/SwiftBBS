@@ -15,11 +15,21 @@ class UserHandler: BaseRequestHandler {
         var password: String!
         var password2: String!
         
-        var validatorSetting: [String: [String]] {
+        var validationRules: ValidatorManager.ValidationKeyAndRules {
             return [
-                "name": ["required", "length,1,n"],
-                "password": ["required", "length,8,n"],
-                "password2": ["required", "length,8,n", "identical,password"],
+                "name": [
+                    ValidationType.Required,
+                    ValidationType.Length(min: 1, max: nil),
+                ],
+                "password": [
+                    ValidationType.Required,
+                    ValidationType.Length(min: 8, max: nil),
+                ],
+                "password2": [
+                    ValidationType.Required,
+                    ValidationType.Length(min: 8, max: nil),
+                    ValidationType.Identical(targetKey: "password")
+                ],
             ]
         }
         
@@ -41,11 +51,19 @@ class UserHandler: BaseRequestHandler {
         var password: String!
         var password2: String?
 
-        var validatorSetting: [String: [String]] {
+        var validationRules: ValidatorManager.ValidationKeyAndRules {
             return [
-                "name": ["required", "length,1,n"],
-                "password": ["length,8,n"],
-                "password2": ["length,8,n", "identical,password"],
+                "name": [
+                    ValidationType.Required,
+                    ValidationType.Length(min: 1, max: nil),
+                ],
+                "password": [
+                    ValidationType.Length(min: 8, max: nil),
+                ],
+                "password2": [
+                    ValidationType.Length(min: 8, max: nil),
+                    ValidationType.Identical(targetKey: "password")
+                ],
             ]
         }
         
@@ -66,10 +84,16 @@ class UserHandler: BaseRequestHandler {
         var name: String!
         var password: String!
         
-        var validatorSetting: [String: [String]] {
+        var validationRules: ValidatorManager.ValidationKeyAndRules {
             return [
-                "name": ["required", "length,1,n"],
-                "password": ["required", "length,1,n"],
+                "name": [
+                    ValidationType.Required,
+                    ValidationType.Length(min: 1, max: nil),
+                ],
+                "password": [
+                    ValidationType.Required,
+                    ValidationType.Length(min: 1, max: nil),
+                ],
             ]
         }
         
@@ -134,7 +158,7 @@ class UserHandler: BaseRequestHandler {
         do {
             try form.validate(request)
         } catch let error as FormError {
-            return .Error(status: 500, message: "invalidate request parameter. " + error.toString())
+            return .Error(status: 500, message: "invalidate request parameter. " + error.description)
         }
         
         //  update
@@ -177,7 +201,7 @@ class UserHandler: BaseRequestHandler {
         do {
             try form.validate(request)
         } catch let error as FormError {
-            return .Error(status: 500, message: "invalidate request parameter. " + error.toString())
+            return .Error(status: 500, message: "invalidate request parameter. " + error.description)
         }
         
         //  insert
@@ -204,7 +228,7 @@ class UserHandler: BaseRequestHandler {
         do {
             try form.validate(request)
         } catch let error as FormError {
-            return .Error(status: 500, message: "invalidate request parameter. " + error.toString())
+            return .Error(status: 500, message: "invalidate request parameter. " + error.description)
         }
         
         //  check exist
