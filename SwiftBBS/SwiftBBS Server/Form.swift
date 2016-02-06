@@ -22,30 +22,37 @@ struct FormError : ErrorType {
 
 protocol FormType {
     var validatorSetting: ValidatorManager.ValidatorsSetting { get }
+    func updateProperty(key: String, value: String)
+    func updateProperty(key: String, value: Int)
+    func updateProperty(key: String, value: MimeReader.BodySpec)
 }
 
 extension FormType {
-    var validatorManager: ValidatorManager {
-        return ValidatorManager.generate(fromStringKeyAndValidators: validatorSetting)
-    }
-    
-    func validate(request: WebRequest) throws -> [String: Any] {
+    func validate(request: WebRequest) throws {
+        let validatorManager = ValidatorManager.generate(fromStringKeyAndValidators: validatorSetting)
         var errorMessages = [String: String]()
-        var validatedValues = [String: Any]()
-
-        try validatorSetting.forEach { (key, _) -> () in
+        
+        try validatorSetting.forEach { (key, _) in
             do {
+                var validatedValue: Any?
                 let validators = validatorManager.validators(key)
-                if validators.filter( {$0 is IntValidator} ).count > 0 {
-                    validatedValues[key] = try validatorManager.validatedInt(key, value: request.param(key))
-                } else if validators.filter( {$0 is UploadImageValidator} ).count > 0 {
-                    validatedValues[key] = try validatorManager.validatedFile(key, value: request.uploadedFile(key))
-                } else {
-                    validatedValues[key] = try validatorManager.validatedString(key, value: request.param(key))
-                }
                 
-                if validators.filter( {$0 is RequiredValidator} ).count > 0 {
-                    validatedValues[key] = validatedValues[key]!
+                if validators.filter( {$0 is IntValidator} ).count > 0 {
+                    validatedValue = try validatorManager.validatedInt(key, value: request.param(key))
+                } else if validators.filter( {$0 is UploadImageValidator} ).count > 0 {
+                    validatedValue = try validatorManager.validatedFile(key, value: request.uploadedFile(key))
+                } else {
+                    validatedValue = try validatorManager.validatedString(key, value: request.param(key))
+                }
+
+                switch validatedValue {
+                case let value as String:
+                    updateProperty(key, value: value)
+                case let value as Int:
+                    updateProperty(key, value: value)
+                case let value as MimeReader.BodySpec:
+                    updateProperty(key, value: value)
+                default: break
                 }
             } catch ValidationError.Invalid(let errorMessage) {
                 errorMessages[key] = errorMessage
@@ -55,7 +62,10 @@ extension FormType {
         if errorMessages.count > 0 {
             throw FormError(messages: errorMessages)
         }
-        
-        return validatedValues
     }
+    
+    //  implement if need
+    func updateProperty(key: String, value: String) {}
+    func updateProperty(key: String, value: Int) {}
+    func updateProperty(key: String, value: MimeReader.BodySpec) {}
 }
