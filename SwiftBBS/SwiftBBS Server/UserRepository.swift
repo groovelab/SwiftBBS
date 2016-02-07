@@ -12,15 +12,47 @@ import PerfectLib
 struct UserEntity {
     var id: Int?
     var name: String
-    var password: String
+    var password: String?
+    var provider: String?
+    var providerUserId: String?
+    var providerUserName: String?
     var createdAt: String?
     var updatedAt: String?
+    
+    init(id: Int?, name: String, password: String?) {
+        self.id = id
+        self.name = name
+        self.password = password
+    }
+    
+    init(id: Int?, provider: String, providerUserId: String, providerUserName: String) {
+        self.id = id
+        self.name = provider + " : " + providerUserName
+        self.password = ""
+        self.provider = provider
+        self.providerUserId = providerUserId
+        self.providerUserName = providerUserName
+    }
+
+    init(id: Int?, name: String, password: String?, provider: String?, providerUserId: String?, providerUserName: String?, createdAt: String?, updatedAt: String?) {
+        self.id = id
+        self.name = name
+        self.password = password
+        self.provider = provider
+        self.providerUserId = providerUserId
+        self.providerUserName = providerUserName
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+    }
     
     func toDictionary() -> [String: Any] {
         return [
             "id": id ?? 0,
             "name": name,
             "password": "",//  exclude password
+            "provider": provider ?? "",
+            "provider_user_id": providerUserId ?? "",
+            "provider_user_name": providerUserName ?? "",
             "createdAt": createdAt ?? "",
             "updatedAt": updatedAt ?? "",
         ]
@@ -30,10 +62,25 @@ struct UserEntity {
 //  MARK: - repository
 class UserRepository : Repository {
     func insert(entity: UserEntity) throws -> Int {
-        let sql = "INSERT INTO user (name, password, created_at, updated_at) VALUES (:1, :2, datetime('now'), datetime('now'))"
+        let sql = "INSERT INTO user (name, \(entity.password != nil ? "password," : "") "
+            + "\(entity.provider != nil ? "provider," : "") \(entity.providerUserId != nil ? "provider_user_id," : "") \(entity.providerUserName != nil ? "provider_user_name," : "") "
+            + "created_at, updated_at) VALUES "
+            + "(:name, \(entity.password != nil ? ":password," : "") "
+            + "\(entity.provider != nil ? ":provider," : "") \(entity.providerUserId != nil ? ":providerUserId," : "") \(entity.providerUserName != nil ? ":providerUserName," : "") datetime('now'), datetime('now'))"
         try db.execute(sql) { (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, entity.name)
-            try stmt.bind(2, entity.password.sha1)
+            try stmt.bind(":name", entity.name)
+            if let password = entity.password {
+                try stmt.bind(":password", password.sha1)
+            }
+            if let provider = entity.provider {
+                try stmt.bind(":provider", provider)
+            }
+            if let providerUserId = entity.providerUserId {
+                try stmt.bind(":providerUserId", providerUserId)
+            }
+            if let providerUserName = entity.providerUserName {
+                try stmt.bind(":providerUserName", providerUserName)
+            }
         }
         
         let errCode = db.errCode()
@@ -49,11 +96,11 @@ class UserRepository : Repository {
             return 0
         }
         
-        let sql = "UPDATE user SET name = :name, \(entity.password.isEmpty ? "" : "password = :password,") updated_at = datetime('now') WHERE id = :id"
+        let sql = "UPDATE user SET name = :name, \(entity.password != nil ? "password = :password," : "") updated_at = datetime('now') WHERE id = :id"
         try db.execute(sql) { (stmt:SQLiteStmt) -> () in
             try stmt.bind(":name", entity.name)
-            if !entity.password.isEmpty {
-                try stmt.bind(":password", entity.password.sha1)
+            if let password = entity.password {
+                try stmt.bind(":password", password.sha1)
             }
             try stmt.bind(":id", id)
         }
@@ -85,7 +132,7 @@ class UserRepository : Repository {
     }
     
     func findById(id: Int) throws -> UserEntity? {
-        let sql = "SELECT id, name, created_at , updated_at FROM user WHERE id = :1"
+        let sql = "SELECT id, name, provider, provider_user_id, provider_user_name, created_at, updated_at FROM user WHERE id = :1"
         var columns = [Any]()
         try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, id)
@@ -94,6 +141,9 @@ class UserRepository : Repository {
             columns.append(stmt.columnText(1))
             columns.append(stmt.columnText(2))
             columns.append(stmt.columnText(3))
+            columns.append(stmt.columnText(4))
+            columns.append(stmt.columnText(5))
+            columns.append(stmt.columnText(6))
         }
         
         let errCode = db.errCode()
@@ -109,13 +159,16 @@ class UserRepository : Repository {
             id: columns[0] as? Int,
             name: columns[1] as! String,
             password: "",
-            createdAt: columns[2] as? String,
-            updatedAt: columns[3] as? String
+            provider: columns[2] as? String,
+            providerUserId: columns[3] as? String,
+            providerUserName: columns[4] as? String,
+            createdAt: columns[5] as? String,
+            updatedAt: columns[6] as? String
         )
     }
     
     func findByName(name: String, password: String) throws -> UserEntity? {
-        let sql = "SELECT id, name, created_at, updated_at FROM user WHERE name = :1 AND password = :2"
+        let sql = "SELECT id, name, provider, provider_user_id, provider_user_name, created_at, updated_at FROM user WHERE name = :1 AND password = :2"
         var columns = [Any]()
         try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
             try stmt.bind(1, name)
@@ -125,6 +178,9 @@ class UserRepository : Repository {
             columns.append(stmt.columnText(1))
             columns.append(stmt.columnText(2))
             columns.append(stmt.columnText(3))
+            columns.append(stmt.columnText(4))
+            columns.append(stmt.columnText(5))
+            columns.append(stmt.columnText(6))
         }
 
         let errCode = db.errCode()
@@ -140,8 +196,48 @@ class UserRepository : Repository {
             id: columns[0] as? Int,
             name: columns[1] as! String,
             password: "",
-            createdAt: columns[2] as? String,
-            updatedAt: columns[2] as? String
+            provider: columns[2] as? String,
+            providerUserId: columns[3] as? String,
+            providerUserName: columns[4] as? String,
+            createdAt: columns[5] as? String,
+            updatedAt: columns[6] as? String
+        )
+    }
+    
+    func findByProviderId(providerId: String, provider: String) throws -> UserEntity? {
+        let sql = "SELECT id, name, provider, provider_user_id, provider_user_name, created_at, updated_at FROM user WHERE provider = :1 AND provider_user_id = :2"
+        var columns = [Any]()
+        try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
+            try stmt.bind(1, provider)
+            try stmt.bind(2, providerId)
+            }) { (stmt:SQLiteStmt, r:Int) -> () in
+                columns.append(stmt.columnInt(0))
+                columns.append(stmt.columnText(1))
+                columns.append(stmt.columnText(2))
+                columns.append(stmt.columnText(3))
+                columns.append(stmt.columnText(4))
+                columns.append(stmt.columnText(5))
+                columns.append(stmt.columnText(6))
+        }
+        
+        let errCode = db.errCode()
+        if errCode > 0 {
+            throw RepositoryError.Select(errCode)
+        }
+        
+        guard columns.count > 0 else {
+            return nil
+        }
+        
+        return UserEntity(
+            id: columns[0] as? Int,
+            name: columns[1] as! String,
+            password: "",
+            provider: columns[2] as? String,
+            providerUserId: columns[3] as? String,
+            providerUserName: columns[4] as? String,
+            createdAt: columns[5] as? String,
+            updatedAt: columns[6] as? String
         )
     }
 }

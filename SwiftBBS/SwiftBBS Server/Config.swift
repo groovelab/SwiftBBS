@@ -17,9 +17,15 @@ class Config {
     static let uploadImageFileSize = 3 * 1024 * 1024
     static let uploadImageFileExtensions = ["jpg","png"]
 
+    //  FIXME: enter your github developer application credential
+    static let gitHubClientId = ""
+    static let gitHubClientSecret = ""
+
 #if os(Linux)
     static let imageMagickDir = ""
+    static let curlDir = ""
 #else
     static let imageMagickDir = "/usr/local/bin/"
+    static let curlDir = "/usr/bin/"
 #endif
 }

@@ -29,14 +29,20 @@ struct Pager {
     init(totalCount: Int, selectOption: SelectOption) {
         let totalPage = (totalCount / selectOption.rows) + (((totalCount % selectOption.rows) > 0) ? 1 : 0)
         var pages = [Int]()
-        for i in 1...totalPage {
-            pages.append(i)
+        if totalPage > 0 {
+            for i in 1...totalPage {
+                pages.append(i)
+            }
         }
 
         self.init(current: selectOption.page, countPerPage: selectOption.rows, totalCount: totalCount, pages: pages)
     }
     
-    func toDictionary() ->  [String: Any] {
+    func toDictionary() ->  [String: Any]? {
+        if totalCount == 0 {
+            return nil
+        }
+        
         let pages = self.pages.map { (page) -> [String: Any] in
             return ["page": page, "current": page == current]
         }

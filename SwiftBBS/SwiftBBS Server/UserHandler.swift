@@ -162,7 +162,7 @@ class UserHandler: BaseRequestHandler {
         }
         
         //  update
-        let userEntity = UserEntity(id: try userIdInSession(), name: form.name, password: form.password, createdAt: nil, updatedAt: nil)
+        let userEntity = UserEntity(id: try userIdInSession(), name: form.name, password: form.password)
         try userRepository.update(userEntity)
         
         if request.acceptJson {
@@ -205,7 +205,7 @@ class UserHandler: BaseRequestHandler {
         }
         
         //  insert
-        let userEntity = UserEntity(id: nil, name: form.name, password: form.password, createdAt: nil, updatedAt: nil)
+        let userEntity = UserEntity(id: nil, name: form.name, password: form.password)
         try userRepository.insert(userEntity)
         
         //  do login
@@ -258,7 +258,6 @@ class UserHandler: BaseRequestHandler {
     private func login(name: String, password: String) throws -> Bool {
         if let userEntity = try userRepository.findByName(name, password: password), let userId = userEntity.id {
             //  success login
-            let session = self.response.getSession(Config.sessionName)
             session["id"] = userId
             return true
         } else {
@@ -267,7 +266,6 @@ class UserHandler: BaseRequestHandler {
     }
     
     private func logout() {
-        let session = self.response.getSession(Config.sessionName)
         session["id"] = nil
     }
 }

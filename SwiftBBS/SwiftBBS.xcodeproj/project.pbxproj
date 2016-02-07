@@ -12,6 +12,7 @@
 		0A0141951C5CA1AF003783C3 /* Pager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0141941C5CA1AF003783C3 /* Pager.swift */; };
 		0A0141971C5CA5D6003783C3 /* SelectOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0141961C5CA5D6003783C3 /* SelectOption.swift */; };
 		0A01419A1C5FAAAB003783C3 /* Validator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0141991C5FAAAB003783C3 /* Validator.swift */; };
+		0A16F6F91C67B0A000725A41 /* AuthHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A16F6F81C67B0A000725A41 /* AuthHandler.swift */; };
 		0A337BE51C413F3C00CEA758 /* BbsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A337BE41C413F3C00CEA758 /* BbsRepository.swift */; };
 		0A337BE71C41405500CEA758 /* BbsCommentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A337BE61C41405500CEA758 /* BbsCommentRepository.swift */; };
 		0A337BE91C414B4700CEA758 /* Repository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A337BE81C414B4700CEA758 /* Repository.swift */; };
@@ -150,6 +151,7 @@
 		0A0141941C5CA1AF003783C3 /* Pager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pager.swift; sourceTree = "<group>"; };
 		0A0141961C5CA5D6003783C3 /* SelectOption.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectOption.swift; sourceTree = "<group>"; };
 		0A0141991C5FAAAB003783C3 /* Validator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Validator.swift; sourceTree = "<group>"; };
+		0A16F6F81C67B0A000725A41 /* AuthHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthHandler.swift; sourceTree = "<group>"; };
 		0A337BE41C413F3C00CEA758 /* BbsRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BbsRepository.swift; sourceTree = "<group>"; };
 		0A337BE61C41405500CEA758 /* BbsCommentRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BbsCommentRepository.swift; sourceTree = "<group>"; };
 		0A337BE81C414B4700CEA758 /* Repository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repository.swift; sourceTree = "<group>"; };
@@ -405,6 +407,7 @@
 				0AA9B78E1C495189004D3DE1 /* BaseRequestHandler.swift */,
 				0AA9B7891C49511F004D3DE1 /* BbsHandler.swift */,
 				0AA9B78C1C495145004D3DE1 /* UserHandler.swift */,
+				0A16F6F81C67B0A000725A41 /* AuthHandler.swift */,
 			);
 			name = Handlers;
 			sourceTree = "<group>";
@@ -743,6 +746,7 @@
 				0AA9B7881C49510C004D3DE1 /* extension.swift in Sources */,
 				0AC388A01C665D6D0085EC54 /* IntValidator.swift in Sources */,
 				0AA9B78F1C495189004D3DE1 /* BaseRequestHandler.swift in Sources */,
+				0A16F6F91C67B0A000725A41 /* AuthHandler.swift in Sources */,
 				0AC388A21C665D8A0085EC54 /* IdenticalValidator.swift in Sources */,
 				0AC3889C1C665D1B0085EC54 /* RequiredValidator.swift in Sources */,
 				0AC388981C665C200085EC54 /* ValidationError.swift in Sources */,
