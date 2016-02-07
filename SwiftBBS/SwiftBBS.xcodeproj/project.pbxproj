@@ -269,15 +269,15 @@
 		0A0141981C5FAA77003783C3 /* Validator */ = {
 			isa = PBXGroup;
 			children = (
-				0AC388971C665C200085EC54 /* ValidationError.swift */,
+				0AC388A51C665E090085EC54 /* ValidatorManager.swift */,
 				0AC388991C665C650085EC54 /* ValidationType.swift */,
+				0AC388971C665C200085EC54 /* ValidationError.swift */,
 				0A0141991C5FAAAB003783C3 /* Validator.swift */,
 				0AC3889B1C665D1B0085EC54 /* RequiredValidator.swift */,
 				0AC3889D1C665D420085EC54 /* LengthValidator.swift */,
 				0AC3889F1C665D6D0085EC54 /* IntValidator.swift */,
 				0AC388A11C665D8A0085EC54 /* IdenticalValidator.swift */,
 				0AC388A31C665DB30085EC54 /* UploadFileValidator.swift */,
-				0AC388A51C665E090085EC54 /* ValidatorManager.swift */,
 			);
 			name = Validator;
 			sourceTree = "<group>";

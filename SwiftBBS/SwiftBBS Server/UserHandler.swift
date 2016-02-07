@@ -118,7 +118,7 @@ class UserHandler: BaseRequestHandler {
         redirectUrlIfNotLogin = "/user/login"
         
         noNeedLoginActions = ["login", "add"]
-        redirectUrlIfLogin = "/bbs"
+        redirectUrlIfLogin = "/"
     }
     
     override func dispatchAction(action: String) throws -> ActionResponse {

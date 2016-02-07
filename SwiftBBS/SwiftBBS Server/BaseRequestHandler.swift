@@ -87,7 +87,7 @@ class BaseRequestHandler: RequestHandler {
                 response.setStatus(status, message: message)
                 break;
             }
-        } catch (let e) {
+        } catch let e {
             print(e)
         }
     }

@@ -69,8 +69,7 @@ class ImageService {
         defer { proc.close() }
         
         let fileOut = proc.stdout!
-        let data = try fileOut.readSomeBytes(4096)
-        let imageSize = UTF8Encoding.encode(data).componentsSeparatedByString("x")
+        let imageSize = try fileOut.readString().componentsSeparatedByString("x")
         return (width: Int(imageSize.first!) ?? 0, Int(imageSize.last!) ?? 0)
     }
     

@@ -27,13 +27,13 @@ enum ValidationType : ValidationTypeCompatible {
         switch self {
         case .Required:
             return "required"
-        case .Length(let min, let max):
+        case let .Length(min, max):
             return "length," + (String(min) ?? "n") + "," + (String(max) ?? "n")
-        case .Integer(let min, let max):
+        case let .Integer(min, max):
             return "int," + (String(min) ?? "n") + "," + (String(max) ?? "n")
-        case .Identical(let targetKey):
+        case let .Identical(targetKey):
             return "identical,\(targetKey)"
-        case .Image(let fileSize, let fileExtensions):
+        case let .Image(fileSize, fileExtensions):
             var stringRule = "image," + (String(fileSize) ?? "n")
             fileExtensions.forEach { ext in
                 stringRule += "," + ext

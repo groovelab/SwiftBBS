@@ -36,7 +36,7 @@ extension FormType {
                 } else {
                     self[key] = try validatorManager.validatedString(key, value: request.param(key))
                 }
-            } catch ValidationError.Invalid(let errorMessage) {
+            } catch let ValidationError.Invalid(errorMessage) {
                 errorMessages[key] = errorMessage
             }
         }
