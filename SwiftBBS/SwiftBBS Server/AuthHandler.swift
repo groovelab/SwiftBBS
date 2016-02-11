@@ -7,8 +7,8 @@
 //
 //
 
-import Foundation
 import PerfectLib
+import cURL
 
 class AuthHandler : BaseRequestHandler {
     //  MARK: life cycle
@@ -54,7 +54,6 @@ class AuthHandler : BaseRequestHandler {
             return .Error(status: 500, message:"can not get user")
         }
         
-        
         //  check if already stored provider user id in user table
         if let userEntity = try userRepository.findByProviderId(githubUser.id, provider: "github"), userId = userEntity.id {
             //  update user data
@@ -78,57 +77,58 @@ class AuthHandler : BaseRequestHandler {
     
     private func getGithubAccessToken(code code: String) throws -> String? {
         let url = "https://github.com/login/oauth/access_token"
-        let responseBody = curl(url, header: "Accept: application/json", postParams: [
-            "client_id": Config.gitHubClientId,
-            "client_secret": Config.gitHubClientSecret,
-            "code": code
-            ])
-        
-        let jsonDecoded = try JSONDecoder().decode(responseBody)
-        guard let jsonMap = jsonDecoded as? JSONDictionaryType else { return nil }
-        
         /*
         response example
         success : {"access_token":"hoge","token_type":"bearer","scope":""}
         error   : {"error":"bad_verification_code","error_description":"The code passed is incorrect or expired.","error_uri":"https://developer.github.com/v3/oauth/#bad-verification-code"}
         */
+        guard let jsonObject = try curl(url, header: "Accept: application/json", postParams: [
+            "client_id": Config.gitHubClientId,
+            "client_secret": Config.gitHubClientSecret,
+            "code": code
+        ]) else { return nil }
         
-        return jsonMap["access_token"] as? String
+        guard let jsonMap = jsonObject as? [String: Any], let accessToken = jsonMap["access_token"] as? String else { return nil }
+        return accessToken
+        
     }
     
     private func getGithubUser(accessToken: String) throws -> (id: String, name: String)? {
         let url = "https://api.github.com/user?access_token=\(accessToken)"
-        let responseBody = curl(url, header: "User-Agent: Awesome-Octocat-App")
-        
-        let jsonDecoded = try JSONDecoder().decode(responseBody)
-        guard let jsonMap = jsonDecoded as? JSONDictionaryType else { return nil }
-        guard let id = jsonMap["id"] as? Int else { return nil }
-        guard let name = jsonMap["login"] as? String else { return nil }
-        
+        /*
+        response example
+        {"login":"user name","id":7554889}
+        */
+        guard let jsonObject = try curl(url, header: "User-Agent: Awesome-Octocat-App") else { return nil }
+        guard let jsonMap = jsonObject as? [String: Any], let id = jsonMap["id"] as? Int, let name = jsonMap["login"] as? String else { return nil }
+
         return (id: String(id), name: name)
     }
     
-    private func curl(url: String, header: String?, postParams: [String: String]? = nil) -> String {
-        let task = NSTask()
-        task.launchPath = Config.curlDir + "curl"
-        var arguments = [url, "-s"]
+    private func curl(url: String, header: String?, postParams: [String: String]? = nil) throws -> JSONConvertible? {
+        let curl = CURL(url: url)
+//        curl.setOption(CURLOPT_VERBOSE, int: 1)
         if let header = header {
-            arguments.append("-H")
-            arguments.append(header)
+            curl.setOption(CURLOPT_HTTPHEADER, s: header)
         }
+
+        var byteArray = [UInt8]()
         if let postParams = postParams {
-            postParams.forEach({ key, value in
-                arguments.append("-d")
-                arguments.append("\(key)=\(value)")
-            })
+            curl.setOption(CURLOPT_POST, int: 1)
+            let postParamString = postParams.map({ key, value in
+                return "\(key)=\(value)"
+            }).joinWithSeparator("&")
+            byteArray = UTF8Encoding.decode(postParamString)
+            curl.setOption(CURLOPT_POSTFIELDS, v: UnsafeMutablePointer<UInt8>(byteArray))
+            curl.setOption(CURLOPT_POSTFIELDSIZE, int: byteArray.count)
         }
-        task.arguments  = arguments
+
+        let response = curl.performFully()
+        let responseBody = UTF8Encoding.encode(response.2)
+//        print(response.0)
+//        print(UTF8Encoding.encode(response.1))
+//        print(responseBody)
         
-        let pipe = NSPipe()
-        task.standardOutput = pipe
-        task.launch()
-        let output = pipe.fileHandleForReading.readDataToEndOfFile()
-        
-        return String(data: output, encoding: NSUTF8StringEncoding) ?? ""
+        return try responseBody.jsonDecode()
     }
 }
