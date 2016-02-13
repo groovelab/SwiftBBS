@@ -8,12 +8,17 @@
 
 import PerfectLib
 
+enum UserProvider : String {
+    case Github = "github"
+    case Facebook = "facebook"
+}
+
 //  MARK: entity
 struct UserEntity {
     var id: Int?
     var name: String
     var password: String?
-    var provider: String?
+    var provider: UserProvider?
     var providerUserId: String?
     var providerUserName: String?
     var createdAt: String?
@@ -25,16 +30,16 @@ struct UserEntity {
         self.password = password
     }
     
-    init(id: Int?, provider: String, providerUserId: String, providerUserName: String) {
+    init(id: Int?, provider: UserProvider, providerUserId: String, providerUserName: String) {
         self.id = id
-        self.name = provider + " : " + providerUserName
+        self.name = provider.rawValue + " : " + providerUserName
         self.password = ""
         self.provider = provider
         self.providerUserId = providerUserId
         self.providerUserName = providerUserName
     }
 
-    init(id: Int?, name: String, password: String?, provider: String?, providerUserId: String?, providerUserName: String?, createdAt: String?, updatedAt: String?) {
+    init(id: Int?, name: String, password: String?, provider: UserProvider?, providerUserId: String?, providerUserName: String?, createdAt: String?, updatedAt: String?) {
         self.id = id
         self.name = name
         self.password = password
@@ -50,7 +55,7 @@ struct UserEntity {
             "id": id ?? 0,
             "name": name,
             "password": "",//  exclude password
-            "provider": provider ?? "",
+            "provider": provider?.rawValue ?? "",
             "provider_user_id": providerUserId ?? "",
             "provider_user_name": providerUserName ?? "",
             "createdAt": createdAt ?? "",
@@ -73,7 +78,7 @@ class UserRepository : Repository {
                 try stmt.bind(":password", password.sha1)
             }
             if let provider = entity.provider {
-                try stmt.bind(":provider", provider)
+                try stmt.bind(":provider", provider.rawValue)
             }
             if let providerUserId = entity.providerUserId {
                 try stmt.bind(":providerUserId", providerUserId)
@@ -159,7 +164,7 @@ class UserRepository : Repository {
             id: columns[0] as? Int,
             name: columns[1] as! String,
             password: "",
-            provider: columns[2] as? String,
+            provider: (columns[2] as? String) != nil ? UserProvider(rawValue: (columns[2] as? String)!) : nil,
             providerUserId: columns[3] as? String,
             providerUserName: columns[4] as? String,
             createdAt: columns[5] as? String,
@@ -196,7 +201,7 @@ class UserRepository : Repository {
             id: columns[0] as? Int,
             name: columns[1] as! String,
             password: "",
-            provider: columns[2] as? String,
+            provider: (columns[2] as? String) != nil ? UserProvider(rawValue: (columns[2] as? String)!) : nil,
             providerUserId: columns[3] as? String,
             providerUserName: columns[4] as? String,
             createdAt: columns[5] as? String,
@@ -204,11 +209,11 @@ class UserRepository : Repository {
         )
     }
     
-    func findByProviderId(providerId: String, provider: String) throws -> UserEntity? {
+    func findByProviderId(providerId: String, provider: UserProvider) throws -> UserEntity? {
         let sql = "SELECT id, name, provider, provider_user_id, provider_user_name, created_at, updated_at FROM user WHERE provider = :1 AND provider_user_id = :2"
         var columns = [Any]()
         try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, provider)
+            try stmt.bind(1, provider.rawValue)
             try stmt.bind(2, providerId)
             }) { (stmt:SQLiteStmt, r:Int) -> () in
                 columns.append(stmt.columnInt(0))
@@ -233,7 +238,7 @@ class UserRepository : Repository {
             id: columns[0] as? Int,
             name: columns[1] as! String,
             password: "",
-            provider: columns[2] as? String,
+            provider: (columns[2] as? String) != nil ? UserProvider(rawValue: (columns[2] as? String)!) : nil,
             providerUserId: columns[3] as? String,
             providerUserName: columns[4] as? String,
             createdAt: columns[5] as? String,

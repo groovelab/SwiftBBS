@@ -24,8 +24,8 @@ public func PerfectServerModuleInit() {
     Routing.Routes["GET", ["/", "/bbs", "/bbs/{action}", "/bbs/{action}/{id}"]] = { _ in return BbsHandler() }
     Routing.Routes["POST", ["/bbs/{action}"]] = { _ in return BbsHandler() }
 
-    //  auth
-    Routing.Routes["GET", ["/auth", "/auth/{action}"]] = { _ in return AuthHandler() }
+    //  oauth
+    Routing.Routes["GET", ["/oauth/{action}"]] = { _ in return OAuthHandler() }
     
     print("\(Routing.Routes.description)")
     

@@ -5,26 +5,29 @@
         <h1>user login</h1>
     </div>
 
-    <form action="/user/login" method="post">
-        <div class="form-group">
-            <label for="name">name</label>
-            <input type="text" class="form-control" id="name" name="name" placeholder="your name">
+    <div class="row">
+        <div class="col-md-6">
+            <form action="/user/login" method="post">
+                <div class="form-group">
+                    <label for="name">name</label>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="your name">
+                </div>
+                <div class="form-group">
+                    <label for="password">password</label>
+                    <input type="password" class="form-control" id="password" name="password">
+                </div>
+                <button type="submit" class="btn btn-default">login</button>
+            </form>
+            <p class="text-danger">
+                if not user registration,
+                <a class="btn btn-default" href="/user/register" role="button">go to user registration</a>
+            </p>
         </div>
-        <div class="form-group">
-            <label for="password">password</label>
-            <input type="password" class="form-control" id="password" name="password">
+        <div class="col-md-6">
+            <a href="/oauth/github" class="btn btn-block btn-social btn-github"><span class="fa fa-github"></span> Sign in with Github</a>
+            <a href="/oauth/facebook" class="btn btn-block btn-social btn-facebook"><span class="fa fa-facebook"></span> Sign in with Facebook</a>
         </div>
-        <button type="submit" class="btn btn-default">login</button>
-    </form>
-
-    <p class="text-danger">
-        if not user registration,
-        <a class="btn btn-default" href="/user/register" role="button">go to user registration</a>
-    </p>
-
-
-<p><a href="/auth/github">github login</a></p>
-
+    </div>
 </div>
 
 {{> common_footer}}

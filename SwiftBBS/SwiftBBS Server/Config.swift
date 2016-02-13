@@ -21,7 +21,9 @@ class Config {
     //  FIXME: enter your github developer application credential
     static let gitHubClientId = ""
     static let gitHubClientSecret = ""
-
+    static let facebookClientId = ""
+    static let facebookClientSecret = ""
+    
 #if os(Linux)
     static let imageMagickDir = ""
 #else
