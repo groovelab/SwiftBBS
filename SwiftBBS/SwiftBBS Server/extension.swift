@@ -65,7 +65,7 @@ extension String {
     }
     
     var sha1: String {
-        return self.dynamicType.base64(utf8.sha1)
+        return UTF8Encoding.encode(utf8.sha1).base64encode()
     }
     
     var addedLastSlashString: String {
@@ -76,11 +76,13 @@ extension String {
         return lowercaseString.componentsSeparatedByString(".").last
     }
 
-    static func base64(a: [UInt8]) -> String {
+    func base64encode() -> String {
+        let bytes = UTF8Encoding.decode(self)
+        
         let bio = BIO_push(BIO_new(BIO_f_base64()), BIO_new(BIO_s_mem()))
         
         BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL)
-        BIO_write(bio, a, Int32(a.count))
+        BIO_write(bio, bytes, Int32(bytes.count))
         BIO_ctrl(bio, BIO_CTRL_FLUSH, 0, nil)
         
         var mem = UnsafeMutablePointer<BUF_MEM>()
@@ -92,6 +94,29 @@ extension String {
         let ret = UTF8Encoding.encode(GenerateFromPointer(from: txt, count: mem.memory.length))
         free(mem.memory.data)
         return ret
+    }
+
+    func base64decode() -> String {
+        var padding = 0
+        if hasSuffix("==") {
+            padding = 2
+        } else if hasSuffix("=") {
+            padding = 1
+        }
+        let decodedLength = characters.count * 3 / 4 - padding
+
+        let base64Bytes = UTF8Encoding.decode(self)
+        let bio = BIO_push(BIO_new(BIO_f_base64()), BIO_new_mem_buf(UnsafeMutablePointer<UInt8>(base64Bytes), -1));
+        defer { BIO_free_all(bio) }
+        
+        BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL)
+        let bytes = UnsafeMutablePointer<UInt8>.alloc(decodedLength + 1)
+        defer { bytes.destroy() ; bytes.dealloc(decodedLength + 1) }
+        
+        print(BIO_read(bio, bytes, Int32(characters.count)))
+        
+        guard Int32(decodedLength) == BIO_read(bio, bytes, Int32(characters.count)) else { return "" }
+        return UTF8Encoding.encode(GenerateFromPointer(from: bytes, count: decodedLength))
     }
 }
 

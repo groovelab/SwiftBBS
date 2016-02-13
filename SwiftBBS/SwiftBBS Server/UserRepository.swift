@@ -11,6 +11,7 @@ import PerfectLib
 enum UserProvider : String {
     case Github = "github"
     case Facebook = "facebook"
+    case Google = "google"
 }
 
 //  MARK: entity
