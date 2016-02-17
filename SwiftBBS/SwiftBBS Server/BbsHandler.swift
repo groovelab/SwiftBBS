@@ -209,14 +209,6 @@ class BbsHandler: BaseRequestHandler {
             })
         }
         
-        values["comments"] = bbsCommentEntities.map({ (entity) -> [String: Any] in
-            var dictionary = entity.toDictionary()
-            if !request.acceptJson {
-                dictionary["comment"] = (dictionary["comment"] as! String).stringByEncodingHTML.htmlBrString
-            }
-            return dictionary
-        })
-        
         return .Output(templatePath: "bbs_detail.mustache", values: values)
     }
     
