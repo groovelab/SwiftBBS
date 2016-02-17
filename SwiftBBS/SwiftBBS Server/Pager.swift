@@ -38,22 +38,29 @@ struct Pager {
         self.init(current: selectOption.page, countPerPage: selectOption.rows, totalCount: totalCount, pages: pages)
     }
     
-    func toDictionary() ->  [String: Any]? {
+    func toDictionary(acceptJson: Bool = false) ->  [String: Any]? {
         if totalCount == 0 {
             return nil
         }
         
-        let pages = self.pages.map { (page) -> [String: Any] in
-            return ["page": page, "current": page == current]
-        }
-        return [
+        var dict: [String: Any] = [
             "hasPrev": hasPrev,
             "hasNext": hasNext,
-            "pages": pages,
             "prevPage": current - 1,
             "nextPage": current + 1,
             "countPerPage": countPerPage,
             "totalCount": totalCount,
         ]
+        
+        if acceptJson {
+            dict["pages"] = self.pages.map { (page) -> [String: Any] in
+                return ["page": page, "current": page == current]
+            } as [Any]
+        } else {
+            dict["pages"] = self.pages.map { (page) -> [String: Any] in
+                return ["page": page, "current": page == current]
+            }
+        }
+        return dict
     }
 }
