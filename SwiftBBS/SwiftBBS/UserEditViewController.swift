@@ -17,6 +17,7 @@ class UserEditViewController: UIViewController {
     
     @IBOutlet weak private var nameTextField: UITextField!
     @IBOutlet weak private var passwordTextField: UITextField!
+    @IBOutlet weak private var password2TextField: UITextField!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,6 +38,9 @@ class UserEditViewController: UIViewController {
         guard let password = passwordTextField.text else {
             return
         }
+        guard let password2 = password2TextField.text else {
+            return
+        }
         if name.isEmpty {
             return
         }
@@ -46,7 +50,7 @@ class UserEditViewController: UIViewController {
         req.addValue("application/json", forHTTPHeaderField: "Accept")
         req.addTokenToCookie()
         
-        let postBody = "name=\(name)" + (password.isEmpty ? "" : "&password=\(password)")
+        let postBody = "name=\(name)" + (password.isEmpty ? "" : "&password=\(password)") + (password2.isEmpty ? "" : "&password2=\(password2)")
         req.HTTPBody = postBody.dataUsingEncoding(NSUTF8StringEncoding)
         
         let session = NSURLSession.sharedSession()

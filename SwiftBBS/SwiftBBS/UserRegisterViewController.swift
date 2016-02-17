@@ -16,6 +16,7 @@ class UserRegisterViewController: UIViewController {
     
     @IBOutlet weak private var nameTextField: UITextField!
     @IBOutlet weak private var passwordTextField: UITextField!
+    @IBOutlet weak private var password2TextField: UITextField!
     
     @IBAction private func registerAction(sender: UIButton) {
         doRegister()
@@ -28,7 +29,10 @@ class UserRegisterViewController: UIViewController {
         guard let passowrd = passwordTextField.text else {
             return
         }
-        if name.isEmpty || passowrd.isEmpty {
+        guard let passowrd2 = password2TextField.text else {
+            return
+        }
+        if name.isEmpty || passowrd.isEmpty || passowrd2.isEmpty {
             return
         }
         
@@ -37,7 +41,7 @@ class UserRegisterViewController: UIViewController {
         req.addValue("application/json", forHTTPHeaderField: "Accept")
         req.addTokenToCookie()
         
-        let postBody = "name=\(name)&password=\(passowrd)"
+        let postBody = "name=\(name)&password=\(passowrd)&password2=\(passowrd2)"
         req.HTTPBody = postBody.dataUsingEncoding(NSUTF8StringEncoding)
         
         let session = NSURLSession.sharedSession()
