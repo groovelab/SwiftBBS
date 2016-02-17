@@ -125,9 +125,9 @@ extension String {
         
         var chars = [Character]()
         for _ in 0..<length {
-            chars.append(sourceChars[Int(arc4random()) % sourceChars.count])
+            chars.append(sourceChars[random() % sourceChars.count])
         }
-        
+
         return String(chars)
     }
 }

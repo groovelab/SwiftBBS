@@ -254,7 +254,7 @@ class UserHandler: BaseRequestHandler {
         }
     }
     
-    //  TODO:create authenticator
+    //  TODO: create UserService with login method
     private func login(name: String, password: String) throws -> Bool {
         if let userEntity = try userRepository.findByName(name, password: password), let userId = userEntity.id {
             //  success login
@@ -265,6 +265,7 @@ class UserHandler: BaseRequestHandler {
         }
     }
     
+    //  TODO: create UserService with logout method
     private func logout() {
         session["id"] = nil
     }

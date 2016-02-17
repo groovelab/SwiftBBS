@@ -12,8 +12,6 @@ import cURL
 import Foundation
 
 class OAuthHandler : BaseRequestHandler {
-    typealias SocialUser = (id: String, name: String)
-    
     private let OAuthStateSessionKey = "oauth_state"
     
     private lazy var googleOAuthClient: GoogleOAuthClient = GoogleOAuthClient(clientId: Config.googleClientId, clientSecret: Config.googleClientSecret)
@@ -142,7 +140,8 @@ class OAuthHandler : BaseRequestHandler {
         }
     }
     
-    private func loign(socialUser socialUser: SocialUser, provider: UserProvider) throws {
+    //  TODO: create UserService with social login method
+    private func loign(socialUser socialUser: OAuthSocialUser, provider: UserProvider) throws {
         //  check if already stored provider user id in user table
         if let userEntity = try userRepository.findByProviderId(socialUser.id, provider: provider), userId = userEntity.id {
             //  update user data
