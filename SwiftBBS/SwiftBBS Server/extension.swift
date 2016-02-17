@@ -118,6 +118,18 @@ extension String {
         guard Int32(decodedLength) == BIO_read(bio, bytes, Int32(characters.count)) else { return "" }
         return UTF8Encoding.encode(GenerateFromPointer(from: bytes, count: decodedLength))
     }
+    
+    static func randomString(length: Int, includeSymbol: Bool = false) -> String {
+        let sourceString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" + (includeSymbol ? "!#$%&/" : "")
+        let sourceChars = [Character](sourceString.characters)
+        
+        var chars = [Character]()
+        for _ in 0..<length {
+            chars.append(sourceChars[Int(arc4random()) % sourceChars.count])
+        }
+        
+        return String(chars)
+    }
 }
 
 extension String.UTF8View {

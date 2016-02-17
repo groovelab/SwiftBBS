@@ -49,18 +49,30 @@ class OAuthHandler : BaseRequestHandler {
     }
     
     //  MARK: actions
+    
+    //  TODO: create SocialLoginClass
     func googleAction() throws -> ActionResponse {
-        //  TODO: add state
-        let authUrl = "https://accounts.google.com/o/oauth2/v2/auth?client_id=\(Config.googleClientId)&response_type=code&scope=profile&redirect_uri=\(googleRedirectUri)"
+        let state = String.randomString(10)
+        session["oauth_google_state"] = state
+        
+        let authUrl = "https://accounts.google.com/o/oauth2/v2/auth?client_id=\(Config.googleClientId)&response_type=code&scope=profile&redirect_uri=\(googleRedirectUri)&state=\(state)"
         return .Redirect(url: authUrl)
     }
     
     func googleCallbackAction() throws -> ActionResponse {
+        guard let state = request.param("state"), let stateInSession = session["oauth_google_state"] as? String else {
+            return .Error(status: 500, message:"can not get google state")
+        }
+        session["oauth_google_state"] = nil
+        if state != stateInSession {
+            return .Error(status: 500, message:"invalid google state")
+        }
+        
         guard let code = request.param("code") else {
-            return .Error(status: 500, message:"can not get facebook code")
+            return .Error(status: 500, message:"can not get google code")
         }
         guard let accessToken = try getGoogleAccessToken(code: code) else {
-            return .Error(status: 500, message:"can not get facebook access token")
+            return .Error(status: 500, message:"can not get google access token")
         }
         guard let googleUser = try getGoogleUser(accessToken) else {
             return .Error(status: 500, message:"can not get facebook user")
@@ -104,12 +116,22 @@ class OAuthHandler : BaseRequestHandler {
     }
     
     func facebookAction() throws -> ActionResponse {
-        //  TODO: add state
-        let authUrl = "https://www.facebook.com/dialog/oauth?client_id=\(Config.facebookAppId)&redirect_uri=\(facebookRedirectUri)"
+        let state = String.randomString(10)
+        session["oauth_facebook_state"] = state
+
+        let authUrl = "https://www.facebook.com/dialog/oauth?client_id=\(Config.facebookAppId)&redirect_uri=\(facebookRedirectUri)&state=\(state)"
         return .Redirect(url: authUrl)
     }
     
     func facebookCallbackAction() throws -> ActionResponse {
+        guard let state = request.param("state"), let stateInSession = session["oauth_facebook_state"] as? String else {
+            return .Error(status: 500, message:"can not get facebook state")
+        }
+        session["oauth_facebook_state"] = nil
+        if state != stateInSession {
+            return .Error(status: 500, message:"invalid facebook state")
+        }
+
         guard let code = request.param("code") else {
             return .Error(status: 500, message:"can not get facebook code")
         }
@@ -153,12 +175,22 @@ class OAuthHandler : BaseRequestHandler {
     }
     
     func githubAction() throws -> ActionResponse {
-        //  TODO: add state(ramdom string)
-        let authUrl = "https://github.com/login/oauth/authorize?client_id=\(Config.gitHubClientId)"
+        let state = String.randomString(10)
+        session["oauth_github_state"] = state
+
+        let authUrl = "https://github.com/login/oauth/authorize?client_id=\(Config.gitHubClientId)&state=\(state)"
         return .Redirect(url: authUrl)
     }
     
     func githubCallbackAction() throws -> ActionResponse {
+        guard let state = request.param("state"), let stateInSession = session["oauth_github_state"] as? String else {
+            return .Error(status: 500, message:"can not get github state")
+        }
+        session["oauth_github_state"] = nil
+        if state != stateInSession {
+            return .Error(status: 500, message:"invalid github state")
+        }
+
         guard let code = request.param("code") else {
             return .Error(status: 500, message:"can not get github code")
         }
@@ -224,6 +256,7 @@ class OAuthHandler : BaseRequestHandler {
         return (id: String(id), name: name)
     }
     
+    //  TODO: http client class
     private func curl(url: String, header: String? = nil, postParams: [String: String]? = nil) throws -> JSONConvertible? {
         let curl = CURL(url: url)
 //        curl.setOption(CURLOPT_VERBOSE, int: 1)
