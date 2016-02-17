@@ -3,7 +3,7 @@
 //  SwiftBBS
 //
 //  Created by Takeo Namba on 2016/02/07.
-//	Copyright GrooveLab
+//  Copyright GrooveLab
 //
 
 class RequiredValidator : Validator {

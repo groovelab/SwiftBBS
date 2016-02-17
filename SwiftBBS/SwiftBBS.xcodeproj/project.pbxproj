@@ -20,6 +20,11 @@
 		0A337BF21C425A4D00CEA758 /* user_edit.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A337BF11C425A4D00CEA758 /* user_edit.mustache */; };
 		0A337BF31C425AAB00CEA758 /* user_edit.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A337BF11C425A4D00CEA758 /* user_edit.mustache */; };
 		0A3F09331C63CA7200D3CC94 /* Form.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3F09321C63CA7200D3CC94 /* Form.swift */; };
+		0A8420C21C74C17400C490DC /* OAuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8420C11C74C17300C490DC /* OAuthClient.swift */; };
+		0A8420C41C74D92000C490DC /* GithubOAuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8420C31C74D92000C490DC /* GithubOAuthClient.swift */; };
+		0A8420C61C74D94C00C490DC /* GoogleOAuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8420C51C74D94C00C490DC /* GoogleOAuthClient.swift */; };
+		0A8420C81C74D96F00C490DC /* FacebookOAuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8420C71C74D96F00C490DC /* FacebookOAuthClient.swift */; };
+		0A8420CB1C74DE0B00C490DC /* HttpClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8420CA1C74DE0B00C490DC /* HttpClient.swift */; };
 		0A8490211C36FCB900149828 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8490201C36FCB900149828 /* Config.swift */; };
 		0A8490361C3BE05000149828 /* user_register.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A8490351C3BE05000149828 /* user_register.mustache */; };
 		0A8490371C3BE14A00149828 /* user_register.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A8490351C3BE05000149828 /* user_register.mustache */; };
@@ -158,6 +163,11 @@
 		0A337BEA1C414BCA00CEA758 /* UserRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserRepository.swift; sourceTree = "<group>"; };
 		0A337BF11C425A4D00CEA758 /* user_edit.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user_edit.mustache; sourceTree = "<group>"; };
 		0A3F09321C63CA7200D3CC94 /* Form.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Form.swift; sourceTree = "<group>"; };
+		0A8420C11C74C17300C490DC /* OAuthClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OAuthClient.swift; sourceTree = "<group>"; };
+		0A8420C31C74D92000C490DC /* GithubOAuthClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GithubOAuthClient.swift; sourceTree = "<group>"; };
+		0A8420C51C74D94C00C490DC /* GoogleOAuthClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoogleOAuthClient.swift; sourceTree = "<group>"; };
+		0A8420C71C74D96F00C490DC /* FacebookOAuthClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FacebookOAuthClient.swift; sourceTree = "<group>"; };
+		0A8420CA1C74DE0B00C490DC /* HttpClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HttpClient.swift; sourceTree = "<group>"; };
 		0A8490201C36FCB900149828 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		0A8490351C3BE05000149828 /* user_register.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user_register.mustache; sourceTree = "<group>"; };
 		0A8490381C3BF07100149828 /* user_login.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user_login.mustache; sourceTree = "<group>"; };
@@ -287,6 +297,8 @@
 		0A337BE31C413EF900CEA758 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				0A8420C91C74DDEA00C490DC /* HttpClient */,
+				0A8420C01C74C15600C490DC /* Oauth */,
 				0A3F09311C63CA6500D3CC94 /* Form */,
 				0A0141981C5FAA77003783C3 /* Validator */,
 				0AA9B8481C5A65A2004D3DE1 /* Service */,
@@ -316,6 +328,25 @@
 				0AC388951C665BF50085EC54 /* FormError.swift */,
 			);
 			name = Form;
+			sourceTree = "<group>";
+		};
+		0A8420C01C74C15600C490DC /* Oauth */ = {
+			isa = PBXGroup;
+			children = (
+				0A8420C11C74C17300C490DC /* OAuthClient.swift */,
+				0A8420C31C74D92000C490DC /* GithubOAuthClient.swift */,
+				0A8420C51C74D94C00C490DC /* GoogleOAuthClient.swift */,
+				0A8420C71C74D96F00C490DC /* FacebookOAuthClient.swift */,
+			);
+			name = Oauth;
+			sourceTree = "<group>";
+		};
+		0A8420C91C74DDEA00C490DC /* HttpClient */ = {
+			isa = PBXGroup;
+			children = (
+				0A8420CA1C74DE0B00C490DC /* HttpClient.swift */,
+			);
+			name = HttpClient;
 			sourceTree = "<group>";
 		};
 		0A84901F1C36CB3400149828 /* Linked */ = {
@@ -740,7 +771,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A8420C81C74D96F00C490DC /* FacebookOAuthClient.swift in Sources */,
 				0AA9B78A1C49511F004D3DE1 /* BbsHandler.swift in Sources */,
+				0A8420C41C74D92000C490DC /* GithubOAuthClient.swift in Sources */,
 				0AC388961C665BF50085EC54 /* FormError.swift in Sources */,
 				0A98F59F1C36B52700E94B9D /* PerfectServerModuleInit.swift in Sources */,
 				0AA9B7881C49510C004D3DE1 /* extension.swift in Sources */,
@@ -749,6 +782,9 @@
 				0A16F6F91C67B0A000725A41 /* OAuthHandler.swift in Sources */,
 				0AC388A21C665D8A0085EC54 /* IdenticalValidator.swift in Sources */,
 				0AC3889C1C665D1B0085EC54 /* RequiredValidator.swift in Sources */,
+				0A8420C21C74C17400C490DC /* OAuthClient.swift in Sources */,
+				0A8420C61C74D94C00C490DC /* GoogleOAuthClient.swift in Sources */,
+				0A8420CB1C74DE0B00C490DC /* HttpClient.swift in Sources */,
 				0AC388981C665C200085EC54 /* ValidationError.swift in Sources */,
 				0A337BE51C413F3C00CEA758 /* BbsRepository.swift in Sources */,
 				0AA9B84A1C5A65B6004D3DE1 /* ImageService.swift in Sources */,

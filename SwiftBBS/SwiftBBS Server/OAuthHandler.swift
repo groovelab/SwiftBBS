@@ -3,8 +3,7 @@
 //  SwiftBBS
 //
 //  Created by Takeo Namba on 2016/02/08.
-//	Copyright GrooveLab
-//
+//  Copyright GrooveLab
 //
 
 import PerfectLib
@@ -14,9 +13,18 @@ import Foundation
 
 class OAuthHandler : BaseRequestHandler {
     typealias SocialUser = (id: String, name: String)
-    private lazy var facebookRedirectUri: String = self.request.isHttps() ? "https" : "http" + "://\(self.request.httpHost())/oauth/facebook_callback"
+    
+    private let OAuthStateSessionKey = "oauth_state"
+    
+    private lazy var googleOAuthClient: GoogleOAuthClient = GoogleOAuthClient(clientId: Config.googleClientId, clientSecret: Config.googleClientSecret)
     private lazy var googleRedirectUri: String = self.request.isHttps() ? "https" : "http" + "://\(self.request.httpHost())/oauth/google_callback"
-
+    
+    private lazy var facebookOAuthClient: FacebookOAuthClient = FacebookOAuthClient(clientId: Config.facebookAppId, clientSecret: Config.facebookAppSecret)
+    private lazy var facebookRedirectUri: String = self.request.isHttps() ? "https" : "http" + "://\(self.request.httpHost())/oauth/facebook_callback"
+    
+    private lazy var githubOAuthClient: GithubOAuthClient = GithubOAuthClient(clientId: Config.gitHubClientId, clientSecret: Config.gitHubClientSecret)
+    
+    
     //  MARK: life cycle
     override init() {
         super.init()
@@ -49,160 +57,89 @@ class OAuthHandler : BaseRequestHandler {
     }
     
     //  MARK: actions
-    
-    //  TODO: create SocialLoginClass
     func googleAction() throws -> ActionResponse {
-        let state = String.randomString(10)
-        session["oauth_google_state"] = state
+        prepareForOauth(googleOAuthClient.state)
         
-        let authUrl = "https://accounts.google.com/o/oauth2/v2/auth?client_id=\(Config.googleClientId)&response_type=code&scope=profile&redirect_uri=\(googleRedirectUri)&state=\(state)"
+        let authUrl = googleOAuthClient.authUrl(googleRedirectUri)
         return .Redirect(url: authUrl)
     }
     
     func googleCallbackAction() throws -> ActionResponse {
-        guard let state = request.param("state"), let stateInSession = session["oauth_google_state"] as? String else {
+        guard let state = request.param("state") else {
             return .Error(status: 500, message:"can not get google state")
         }
-        session["oauth_google_state"] = nil
-        if state != stateInSession {
-            return .Error(status: 500, message:"invalid google state")
-        }
-        
         guard let code = request.param("code") else {
             return .Error(status: 500, message:"can not get google code")
         }
-        guard let accessToken = try getGoogleAccessToken(code: code) else {
-            return .Error(status: 500, message:"can not get google access token")
-        }
-        guard let googleUser = try getGoogleUser(accessToken) else {
-            return .Error(status: 500, message:"can not get facebook user")
+
+        if !validateState(state) {
+            return .Error(status: 500, message:"invalid google state")
         }
         
-        try loign(socialUser: googleUser, provider: .Google)
-        return .Redirect(url: "/")
-    }
-    
-    private func getGoogleAccessToken(code code: String) throws -> String? {
-        let url = "https://www.googleapis.com/oauth2/v4/token"
-        /*
-        response example
-        success : {"access_token": "hoge","token_type": "bearer", "expires_in":	1234, "id_token": "hoge"}
-        error   : {"error": "error_message", "error_description": "Bad Request"}
-        */
-        guard let jsonObject = try curl(url, header: nil, postParams: [
-            "code": code,
-            "client_id": Config.googleClientId,
-            "client_secret": Config.googleClientSecret,
-            "redirect_uri": googleRedirectUri,
-            "grant_type": "authorization_code"
-        ]) else { return nil }
-        guard let jsonMap = jsonObject as? [String: Any] else { return nil }
-        guard let accessToken = jsonMap["access_token"] as? String else { return nil }
-        return accessToken
-    }
-    
-    private func getGoogleUser(accessToken: String) throws -> SocialUser? {
-        let url = "https://www.googleapis.com/plus/v1/people/me?access_token=\(accessToken)"
-        
-        /*
-        response example
-        {"displayName":"user name", "id":"1"}
-        */
-        guard let jsonObject = try curl(url) else { return nil }
-        guard let jsonMap = jsonObject as? [String: Any] else { return nil }
-        guard let id = jsonMap["id"] as? String else { return nil}
-        guard let name = jsonMap["displayName"] as? String else { return nil }
-        return (id: id, name: name)
+        do {
+            let socialUser = try googleOAuthClient.getSocialUser(code: code, extraData: googleRedirectUri)
+            try loign(socialUser: socialUser, provider: .Google)
+            return .Redirect(url: "/user/mypage")
+        } catch OAuthClientError.Fail(let message) {
+            return .Error(status: 500, message: message)
+        }
     }
     
     func facebookAction() throws -> ActionResponse {
-        let state = String.randomString(10)
-        session["oauth_facebook_state"] = state
-
-        let authUrl = "https://www.facebook.com/dialog/oauth?client_id=\(Config.facebookAppId)&redirect_uri=\(facebookRedirectUri)&state=\(state)"
+        prepareForOauth(facebookOAuthClient.state)
+        
+        let authUrl = facebookOAuthClient.authUrl(facebookRedirectUri)
         return .Redirect(url: authUrl)
     }
     
     func facebookCallbackAction() throws -> ActionResponse {
-        guard let state = request.param("state"), let stateInSession = session["oauth_facebook_state"] as? String else {
-            return .Error(status: 500, message:"can not get facebook state")
+        guard let state = request.param("state") else {
+            return .Error(status: 500, message:"can not get google state")
         }
-        session["oauth_facebook_state"] = nil
-        if state != stateInSession {
-            return .Error(status: 500, message:"invalid facebook state")
-        }
-
         guard let code = request.param("code") else {
-            return .Error(status: 500, message:"can not get facebook code")
-        }
-        guard let accessToken = try getFacebookAccessToken(code: code) else {
-            return .Error(status: 500, message:"can not get facebook access token")
-        }
-        guard let facebookUser = try getFacebookUser(accessToken) else {
-            return .Error(status: 500, message:"can not get facebook user")
+            return .Error(status: 500, message:"can not get google code")
         }
 
-        try loign(socialUser: facebookUser, provider: .Facebook)
-        return .Redirect(url: "/")
+        if !validateState(state) {
+            return .Error(status: 500, message:"invalid google state")
+        }
+
+        do {
+            let socialUser = try facebookOAuthClient.getSocialUser(code: code, extraData: facebookRedirectUri)
+            try loign(socialUser: socialUser, provider: .Facebook)
+            return .Redirect(url: "/user/mypage")
+        } catch OAuthClientError.Fail(let message) {
+            return .Error(status: 500, message: message)
+        }
     }
-    
-    private func getFacebookAccessToken(code code: String) throws -> String? {
-        let url = "https://graph.facebook.com/v2.3/oauth/access_token?client_id=\(Config.facebookAppId)&redirect_uri=\(facebookRedirectUri)&client_secret=\(Config.facebookAppSecret)&code=\(code)"
-        /*
-        response example
-        success : {"access_token": "hoge","token_type": "bearer", "expires_in":	1234}
-        error   : {"error": {"code": "1", "message": "error message", "fbtrae_id": "", "type": "OAuthException"}}
-        */
-        guard let jsonObject = try curl(url) else { return nil }
-        guard let jsonMap = jsonObject as? [String: Any] else { return nil }
-        guard let accessToken = jsonMap["access_token"] as? String else { return nil }
-        
-        return accessToken
-    }
-    
-    private func getFacebookUser(accessToken: String) throws -> SocialUser? {
-        let url = "https://graph.facebook.com//v2.5/me?access_token=\(accessToken)"
-        
-        /*
-        response example
-        {"login":"user name","id":1}
-        */
-        guard let jsonObject = try curl(url) else { return nil }
-        guard let jsonMap = jsonObject as? [String: Any] else { return nil }
-        guard let id = jsonMap["id"] as? String else { return nil}
-        guard let name = jsonMap["name"] as? String else { return nil }
-        return (id: id, name: name)
-    }
+
     
     func githubAction() throws -> ActionResponse {
-        let state = String.randomString(10)
-        session["oauth_github_state"] = state
-
-        let authUrl = "https://github.com/login/oauth/authorize?client_id=\(Config.gitHubClientId)&state=\(state)"
+        prepareForOauth(githubOAuthClient.state)
+        
+        let authUrl = githubOAuthClient.authUrl()
         return .Redirect(url: authUrl)
     }
     
     func githubCallbackAction() throws -> ActionResponse {
-        guard let state = request.param("state"), let stateInSession = session["oauth_github_state"] as? String else {
-            return .Error(status: 500, message:"can not get github state")
+        guard let state = request.param("state") else {
+            return .Error(status: 500, message:"can not get google state")
         }
-        session["oauth_github_state"] = nil
-        if state != stateInSession {
-            return .Error(status: 500, message:"invalid github state")
-        }
-
         guard let code = request.param("code") else {
-            return .Error(status: 500, message:"can not get github code")
-        }
-        guard let accessToken = try getGithubAccessToken(code: code) else {
-            return .Error(status: 500, message:"can not get github access token")
-        }
-        guard let githubUser = try getGithubUser(accessToken) else {
-            return .Error(status: 500, message:"can not get github user")
+            return .Error(status: 500, message:"can not get google code")
         }
         
-        try loign(socialUser: githubUser, provider: .Github)
-        return .Redirect(url: "/user/mypage")
+        if !validateState(state) {
+            return .Error(status: 500, message:"invalid google state")
+        }
+        
+        do {
+            let socialUser = try githubOAuthClient.getSocialUser(code: code)
+            try loign(socialUser: socialUser, provider: .Github)
+            return .Redirect(url: "/user/mypage")
+        } catch OAuthClientError.Fail(let message) {
+            return .Error(status: 500, message: message)
+        }
     }
     
     private func loign(socialUser socialUser: SocialUser, provider: UserProvider) throws {
@@ -225,62 +162,14 @@ class OAuthHandler : BaseRequestHandler {
         }
     }
     
-    private func getGithubAccessToken(code code: String) throws -> String? {
-        let url = "https://github.com/login/oauth/access_token"
-        /*
-        response example
-        success : {"access_token":"hoge","token_type":"bearer","scope":""}
-        error   : {"error":"bad_verification_code","error_description":"The code passed is incorrect or expired.","error_uri":"https://developer.github.com/v3/oauth/#bad-verification-code"}
-        */
-        guard let jsonObject = try curl(url, header: "Accept: application/json", postParams: [
-            "client_id": Config.gitHubClientId,
-            "client_secret": Config.gitHubClientSecret,
-            "code": code
-        ]) else { return nil }
-        
-        guard let jsonMap = jsonObject as? [String: Any] else { return nil }
-        guard let accessToken = jsonMap["access_token"] as? String else { return nil }
-        return accessToken
+    private func prepareForOauth(state: String) {
+        session[OAuthStateSessionKey] = state
     }
     
-    private func getGithubUser(accessToken: String) throws -> SocialUser? {
-        let url = "https://api.github.com/user?access_token=\(accessToken)"
-        /*
-        response example
-        {"login":"user name","id":1}
-        */
-        guard let jsonObject = try curl(url, header: "User-Agent: Awesome-Octocat-App") else { return nil }
-        guard let jsonMap = jsonObject as? [String: Any] else { return nil }
-        guard let id = jsonMap["id"] as? Int else { return nil }
-        guard let name = jsonMap["login"] as? String else { return nil }
-        return (id: String(id), name: name)
-    }
-    
-    //  TODO: http client class
-    private func curl(url: String, header: String? = nil, postParams: [String: String]? = nil) throws -> JSONConvertible? {
-        let curl = CURL(url: url)
-//        curl.setOption(CURLOPT_VERBOSE, int: 1)
-        if let header = header {
-            curl.setOption(CURLOPT_HTTPHEADER, s: header)
-        }
-
-        var byteArray = [UInt8]()
-        if let postParams = postParams {
-            curl.setOption(CURLOPT_POST, int: 1)
-            let postParamString = postParams.map({ key, value in
-                return "\(key)=\(value)"
-            }).joinWithSeparator("&")
-            byteArray = UTF8Encoding.decode(postParamString)
-            curl.setOption(CURLOPT_POSTFIELDS, v: UnsafeMutablePointer<UInt8>(byteArray))
-            curl.setOption(CURLOPT_POSTFIELDSIZE, int: byteArray.count)
-        }
-
-        let response = curl.performFully()
-        let responseBody = UTF8Encoding.encode(response.2)
-//        print(response.0)
-//        print(UTF8Encoding.encode(response.1))
-//        print(responseBody)
+    private func validateState(state: String) -> Bool {
+        guard let stateInSession = session[OAuthStateSessionKey] as? String else { return false }
         
-        return try responseBody.jsonDecode()
+        session[OAuthStateSessionKey] = nil
+        return state == stateInSession
     }
 }

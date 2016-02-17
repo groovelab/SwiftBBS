@@ -3,7 +3,7 @@
 //  SwiftBBS
 //
 //  Created by Takeo Namba on 2016/01/30.
-//	Copyright GrooveLab
+//  Copyright GrooveLab
 //
 
 struct SelectOption {

@@ -3,8 +3,7 @@
 //  SwiftBBS Server
 //
 //  Created by Takeo Namba on 2016/01/01.
-//	Copyright GrooveLab
-//
+//  Copyright GrooveLab
 //
 
 #import <Cocoa/Cocoa.h>
