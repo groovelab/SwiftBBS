@@ -89,7 +89,8 @@ class BbsRepository : Repository {
         guard let row: Row = rows.first, let count = row.first else {
             return 0
         }
-        return Int(count as! Int64)
+        
+        return intFromMySQLCount(count)
     }
     
     //  row contains b.id, b.title, b.comment, b.user_id, u.name, b.created_at, b.updated_at

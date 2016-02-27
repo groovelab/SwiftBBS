@@ -82,6 +82,17 @@ class Repository {
         return UTF8Encoding.encode(text)
     }
 
+    func intFromMySQLCount(count: Any) -> Int {
+        if let count = count as? UInt64 {
+            //  for linux
+            return Int(count)
+        } else if let count = count as? Int64 {
+            //  for mac
+            return Int(count)
+        }
+        return count as! Int
+    }
+
     private func executeSql<T>(sql: String, params: Params?, @noescape completion: ((MySQLStmt) throws -> T)) throws -> T {
         let stmt = MySQLStmt(db)
         defer { stmt.close() }
