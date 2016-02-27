@@ -25,6 +25,7 @@
 		0A8420C61C74D94C00C490DC /* GoogleOAuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8420C51C74D94C00C490DC /* GoogleOAuthClient.swift */; };
 		0A8420C81C74D96F00C490DC /* FacebookOAuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8420C71C74D96F00C490DC /* FacebookOAuthClient.swift */; };
 		0A8420CB1C74DE0B00C490DC /* HttpClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8420CA1C74DE0B00C490DC /* HttpClient.swift */; };
+		0A8420D81C7631D900C490DC /* MySQL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A8420D71C7631D900C490DC /* MySQL.framework */; };
 		0A8490211C36FCB900149828 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8490201C36FCB900149828 /* Config.swift */; };
 		0A8490361C3BE05000149828 /* user_register.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A8490351C3BE05000149828 /* user_register.mustache */; };
 		0A8490371C3BE14A00149828 /* user_register.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A8490351C3BE05000149828 /* user_register.mustache */; };
@@ -168,6 +169,7 @@
 		0A8420C51C74D94C00C490DC /* GoogleOAuthClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoogleOAuthClient.swift; sourceTree = "<group>"; };
 		0A8420C71C74D96F00C490DC /* FacebookOAuthClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FacebookOAuthClient.swift; sourceTree = "<group>"; };
 		0A8420CA1C74DE0B00C490DC /* HttpClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HttpClient.swift; sourceTree = "<group>"; };
+		0A8420D71C7631D900C490DC /* MySQL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MySQL.framework; path = "../../../../Library/Developer/Xcode/DerivedData/SwiftBBS-axldwxsbjpcmdycjmqvmmejqhneg/Build/Products/Debug/MySQL.framework"; sourceTree = "<group>"; };
 		0A8490201C36FCB900149828 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		0A8490351C3BE05000149828 /* user_register.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user_register.mustache; sourceTree = "<group>"; };
 		0A8490381C3BF07100149828 /* user_login.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user_login.mustache; sourceTree = "<group>"; };
@@ -234,6 +236,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0AA9B8471C500187004D3DE1 /* PerfectLib.framework in Frameworks */,
+				0A8420D81C7631D900C490DC /* MySQL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -352,6 +355,7 @@
 		0A84901F1C36CB3400149828 /* Linked */ = {
 			isa = PBXGroup;
 			children = (
+				0A8420D71C7631D900C490DC /* MySQL.framework */,
 				0AA9B7C81C49896D004D3DE1 /* PerfectLib.framework */,
 			);
 			name = Linked;

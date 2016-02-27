@@ -31,3 +31,29 @@ class IntValidator : Validator {
         }
     }
 }
+
+class UIntValidator : Validator {
+    var min: UInt?
+    var max: UInt?
+    
+    var errorMessage = "not uint"
+    var errorMessageLess: String {
+        return "min is \(min!)"
+    }
+    var errorMessageGreater: String {
+        return "max is \(max!)"
+    }
+    
+    func validate(value: Any?) throws {
+        guard let value = value else { return }
+        guard let uintValue = UInt(value as? String ?? "") else {
+            throw ValidationError.Invalid(errorMessage)
+        }
+        
+        if let min = min where uintValue < min {
+            throw ValidationError.Invalid(errorMessageLess)
+        } else if let max = max where uintValue > max {
+            throw ValidationError.Invalid(errorMessageGreater)
+        }
+    }
+}

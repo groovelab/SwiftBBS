@@ -40,15 +40,15 @@ struct ImageEntity {
         }
     }
 
-    var id: Int?
+    var id: UInt?
     var parent: Parent
-    var parentId: Int
+    var parentId: UInt
     var path: String
     var ext: String
     var originalName: String
-    var width: Int
-    var height: Int
-    var userId: Int
+    var width: UInt
+    var height: UInt
+    var userId: UInt
     var createdAt: String?
     var updatedAt: String?
     
@@ -71,54 +71,45 @@ struct ImageEntity {
 
 //  MARK: - repository
 class ImageRepository : Repository {
-    func insert(entity: ImageEntity) throws -> Int {
+    func insert(entity: ImageEntity) throws -> UInt {
         let sql = "INSERT INTO image (parent, parent_id, path, ext, original_name, width, height, user_id, created_at, updated_at) "
-            + "VALUES (:1, :2, :3, :4, :5, :6, :7, :8, datetime('now'), datetime('now'))"
-        try db.execute(sql) { (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, entity.parent.toString())
-            try stmt.bind(2, entity.parentId)
-            try stmt.bind(3, entity.path)
-            try stmt.bind(4, entity.ext)
-            try stmt.bind(5, entity.width)
-            try stmt.bind(6, entity.height)
-            try stmt.bind(7, entity.originalName)
-            try stmt.bind(8, entity.userId)
-        }
-        
-        let errCode = db.errCode()
-        if errCode > 0 {
-            throw RepositoryError.Insert(errCode)
-        }
-        
-        return db.changes()
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, \(nowSql), \(nowSql))"
+        let params: Params = [
+            entity.parent.toString(),
+            entity.parentId,
+            entity.path,
+            entity.ext,
+            entity.originalName,
+            entity.width,
+            entity.height,
+            entity.userId
+        ]
+        return try executeInsertSql(sql, params: params)
     }
     
-    func selectBelongTo(parent parent: ImageEntity.Parent, parentId: Int) throws -> [ImageEntity] {
+    func selectBelongTo(parent parent: ImageEntity.Parent, parentId: UInt) throws -> [ImageEntity] {
         let sql = "SELECT id, parent, parent_id, path, ext, original_name, width, height, user_id, created_at, updated_at FROM image "
-            + "WHERE parent = :1 AND parent_id = :2 ORDER BY id";
-        
-        var entities = [ImageEntity]()
-        try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, parent.toString())
-            try stmt.bind(2, parentId)
-        }) { (stmt:SQLiteStmt, r:Int) -> () in
-            entities.append(
-                ImageEntity(
-                    id: stmt.columnInt(0),
-                    parent: ImageEntity.Parent(value: stmt.columnText(1)),
-                    parentId: stmt.columnInt(2),
-                    path: stmt.columnText(3),
-                    ext: stmt.columnText(4),
-                    originalName: stmt.columnText(5),
-                    width: stmt.columnInt(6),
-                    height: stmt.columnInt(7),
-                    userId: stmt.columnInt(8),
-                    createdAt: stmt.columnText(9),
-                    updatedAt: stmt.columnText(10)
-                )
-            )
+            + "WHERE parent = ? AND parent_id = ? ORDER BY id";
+        let rows = try executeSelectSql(sql, params: [ parent.toString(), parentId ])
+        return rows.map { row in
+            return createEntityFromRow(row)
         }
-        
-        return entities
+    }
+    
+    //  row contains id, parent, parent_id, path, ext, original_name, width, height, user_id, created_at, updated_at
+    private func createEntityFromRow(row: Row) -> ImageEntity {
+        return ImageEntity(
+            id: UInt(row[0] as! UInt64),
+            parent: ImageEntity.Parent(value: row[1] as! String),
+            parentId: UInt(row[2] as! UInt64),
+            path: stringFromMySQLText(row[3] as? [UInt8]) ?? "",
+            ext: row[4] as! String,
+            originalName: stringFromMySQLText(row[5] as? [UInt8]) ?? "",
+            width: UInt(row[6] as! UInt64),
+            height: UInt(row[7] as! UInt64),
+            userId: UInt(row[8] as! UInt64),
+            createdAt: row[9] as? String,
+            updatedAt: row[10] as? String
+        )
     }
 }

@@ -10,7 +10,7 @@ import Foundation
 import PerfectLib
 
 class ImageService {
-    typealias ImageSize = (width: Int, height: Int)
+    typealias ImageSize = (width: UInt, height: UInt)
     
     let uploadedImage: MimeReader.BodySpec
     let uploadDirPath: String
@@ -26,8 +26,8 @@ class ImageService {
     }
     var maxImageSize: ImageSize = (width: 100, height: 100)
     var parent = ImageEntity.Parent.Bbs
-    var parentId = 0
-    var userId = 0
+    var parentId: UInt = 0
+    var userId: UInt = 0
     
     init(uploadedImage: MimeReader.BodySpec, uploadDirPath: String, repository: ImageRepository) {
         self.uploadedImage = uploadedImage
@@ -70,7 +70,7 @@ class ImageService {
         
         let fileOut = proc.stdout!
         let imageSize = try fileOut.readString().componentsSeparatedByString("x")
-        return (width: Int(imageSize.first!) ?? 0, Int(imageSize.last!) ?? 0)
+        return (width: UInt(imageSize.first!) ?? 0, UInt(imageSize.last!) ?? 0)
     }
     
     private func copyToUploadDir() throws -> File? {

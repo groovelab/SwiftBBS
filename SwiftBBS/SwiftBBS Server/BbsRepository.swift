@@ -10,19 +10,19 @@ import PerfectLib
 
 //  MARK: entity
 struct BbsEntity {
-    var id: Int?
+    var id: UInt?
     var title: String
     var comment: String
-    var userId: Int
+    var userId: UInt
     var createdAt: String?
     var updatedAt: String?
 }
 
 struct BbsWithUserEntity {
-    var id: Int
+    var id: UInt
     var title: String
     var comment: String
-    var userId: Int
+    var userId: UInt
     var userName: String
     var createdAt: String
     var updatedAt: String
@@ -42,100 +42,66 @@ struct BbsWithUserEntity {
 
 //  MARK: - repository
 class BbsRepository : Repository {
-    func insert(entity: BbsEntity) throws -> Int {
-        let sql = "INSERT INTO bbs (title, comment, user_id, created_at, updated_at) VALUES (:1, :2, :3, datetime('now'), datetime('now'))"
-        try db.execute(sql) { (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, entity.title)
-            try stmt.bind(2, entity.comment)
-            try stmt.bind(3, entity.userId)
-        }
-        
-        let errCode = db.errCode()
-        if errCode > 0 {
-            throw RepositoryError.Insert(errCode)
-        }
-        
-        return db.changes()
+    func insert(entity: BbsEntity) throws -> UInt {
+        let sql = "INSERT INTO bbs (title, comment, user_id, created_at, updated_at) VALUES (?, ?, ?, \(nowSql), \(nowSql))"
+        let params: Params = [ entity.title, entity.comment, entity.userId ]
+        return try executeInsertSql(sql, params: params)
     }
     
-    func findById(id: Int) throws -> BbsWithUserEntity? {
-        let sql = "SELECT b.id, b.title, b.comment, b.user_id, u.name, b.created_at, b.updated_at FROM bbs as b INNER JOIN user AS u ON u.id = b.user_id WHERE b.id = :1"
-        var columns = [Any]()
-        try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, id)
-        }) { (stmt:SQLiteStmt, r:Int) -> () in
-            columns.append(stmt.columnInt(0))
-            columns.append(stmt.columnText(1))
-            columns.append(stmt.columnText(2))
-            columns.append(stmt.columnInt(3))
-            columns.append(stmt.columnText(4))
-            columns.append(stmt.columnText(5))
-            columns.append(stmt.columnText(6))
-        }
-        
-        let errCode = db.errCode()
-        if errCode > 0 {
-            throw RepositoryError.Select(errCode)
-        }
-        
-        guard columns.count > 0 else {
+    func findById(id: UInt) throws -> BbsWithUserEntity? {
+        let sql = "SELECT b.id, b.title, b.comment, b.user_id, u.name, b.created_at, b.updated_at FROM bbs as b INNER JOIN user AS u ON u.id = b.user_id WHERE b.id = ?"
+        let rows = try executeSelectSql(sql, params: [ id ])
+        guard let row = rows.first else {
             return nil
         }
         
-        return BbsWithUserEntity(
-            id: columns[0] as! Int,
-            title: columns[1] as! String,
-            comment: columns[2] as! String,
-            userId: columns[3] as! Int,
-            userName: columns[4] as! String,
-            createdAt: columns[5] as! String,
-            updatedAt: columns[6] as! String
-        )
+        return createEntityFromRow(row)
     }
     
     func selectByKeyword(keyword: String?, selectOption: SelectOption?) throws -> [BbsWithUserEntity] {
         let sql = "SELECT b.id, b.title, b.comment, b.user_id, u.name, b.created_at, b.updated_at FROM bbs AS b "
             + "INNER JOIN user as u ON u.id = b.user_id "
-            + "\(keyword != nil ? "WHERE b.title LIKE :1 OR b.comment LIKE :keyword" : "") "
+            + "\(keyword != nil ? "WHERE b.title LIKE ? OR b.comment LIKE ?" : "") "
             + "ORDER BY b.id "
             + "\(selectOption != nil ? selectOption!.limitOffsetSql() : "")"
-
-        var entities = [BbsWithUserEntity]()
-        try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
-            if let keyword = keyword {
-                try stmt.bind(":keyword", "%" + keyword + "%")
-            }
-        }) { (stmt:SQLiteStmt, r:Int) -> () in
-            entities.append(
-                BbsWithUserEntity(
-                    id: stmt.columnInt(0),
-                    title: stmt.columnText(1),
-                    comment: stmt.columnText(2),
-                    userId: stmt.columnInt(3),
-                    userName: stmt.columnText(4),
-                    createdAt: stmt.columnText(5),
-                    updatedAt: stmt.columnText(6)
-                )
-            )
-        }
         
-        return entities
+        var params = Params()
+        if let keyword = keyword {
+            params.append("%" + keyword + "%")
+        }
+        let rows = try executeSelectSql(sql, params: params)
+        return rows.map { row in
+            return createEntityFromRow(row)
+        }
     }
     
     func countByKeyword(keyword: String?) throws -> Int {
         let sql = "SELECT COUNT(*) FROM bbs AS b "
             + "INNER JOIN user as u ON u.id = b.user_id "
-            + "\(keyword != nil ? "WHERE b.title LIKE :1 OR b.comment LIKE :keyword" : "") "
+            + "\(keyword != nil ? "WHERE b.title LIKE ? OR b.comment LIKE ?" : "") "
         
-        var count = 0
-        try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
-            if let keyword = keyword {
-                try stmt.bind(":keyword", "%" + keyword + "%")
-            }
-        }) { (stmt:SQLiteStmt, r:Int) -> () in
-            count = stmt.columnInt(0)
+        var params = Params()
+        if let keyword = keyword {
+            params.append("%" + keyword + "%")
         }
         
-        return count
+        let rows = try executeSelectSql(sql, params: params)
+        guard let row: Row = rows.first, let count = row.first else {
+            return 0
+        }
+        return Int(count as! Int64)
+    }
+    
+    //  row contains b.id, b.title, b.comment, b.user_id, u.name, b.created_at, b.updated_at
+    private func createEntityFromRow(row: Row) -> BbsWithUserEntity {
+        return BbsWithUserEntity(
+            id: UInt(row[0] as! UInt64),
+            title: stringFromMySQLText(row[1] as? [UInt8]) ?? "",
+            comment: stringFromMySQLText(row[2] as? [UInt8]) ?? "",
+            userId: UInt(row[3] as! UInt64),
+            userName: row[4] as! String,
+            createdAt: row[5] as! String,
+            updatedAt: row[6] as! String
+        )
     }
 }

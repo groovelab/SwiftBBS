@@ -59,6 +59,15 @@ class ValidatorManager {
                     validator.max = max
                 }
                 validators.append(validator)
+            case "uint":
+                let validator = UIntValidator()
+                if args.count > 0, let min = UInt(args[0]) {
+                    validator.min = min
+                }
+                if args.count > 1, let max = UInt(args[1]) {
+                    validator.max = max
+                }
+                validators.append(validator)
             case "identical":
                 if args.count == 1 {
                     validators.append(IdenticalValidator(targetKey: args[0]))
@@ -110,6 +119,18 @@ class ValidatorManager {
             throw ValidationError.Fail
         }
         return validatedInt
+    }
+    
+    func validatedUInt(key: String, value: Any?) throws -> UInt? {
+        try validate(key, value: value)
+        
+        if value == nil {
+            return nil
+        }
+        guard let validatedUInt = UInt(value as? String ?? "") else {
+            throw ValidationError.Fail
+        }
+        return validatedUInt
     }
     
     func validatedFile(key: String, value: Any?) throws -> UploadFileValidator.UploadedFileType? {

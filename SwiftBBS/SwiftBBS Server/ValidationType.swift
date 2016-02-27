@@ -20,6 +20,7 @@ enum ValidationType : ValidationTypeCompatible {
     case Required
     case Length(min: Int?, max: Int?)
     case Integer(min: Int?, max: Int?)
+    case UInteger(min: Int?, max: Int?)
     case Identical(targetKey: String)
     case Image(fileSize: Int?, fileExtensions: [String])
     
@@ -31,6 +32,8 @@ enum ValidationType : ValidationTypeCompatible {
             return "length," + (String(min) ?? "n") + "," + (String(max) ?? "n")
         case let .Integer(min, max):
             return "int," + (String(min) ?? "n") + "," + (String(max) ?? "n")
+        case let .UInteger(min, max):
+            return "uint," + (String(min) ?? "n") + "," + (String(max) ?? "n")
         case let .Identical(targetKey):
             return "identical,\(targetKey)"
         case let .Image(fileSize, fileExtensions):
