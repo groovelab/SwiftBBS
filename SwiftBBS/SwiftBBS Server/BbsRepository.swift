@@ -89,7 +89,6 @@ class BbsRepository : Repository {
         guard let row: Row = rows.first, let count = row.first else {
             return 0
         }
-        
         return intFromMySQLCount(count)
     }
     
