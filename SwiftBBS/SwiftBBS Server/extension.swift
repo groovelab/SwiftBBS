@@ -78,7 +78,11 @@ extension String {
     }
     
     var fileExtension: String? {
-        return lowercaseString.componentsSeparatedByString(".").last
+        return lowercaseString.split(Character(".")).last
+    }
+    
+    func split(separator: Character) -> [String] {
+        return self.characters.split(separator).map { String($0) }
     }
     
     func base64encode() -> String {

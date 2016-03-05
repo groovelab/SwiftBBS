@@ -9,8 +9,6 @@
 import PerfectLib
 import cURL
 
-import Foundation
-
 class OAuthHandler : BaseRequestHandler {
     private let OAuthStateSessionKey = "oauth_state"
     

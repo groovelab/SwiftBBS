@@ -158,7 +158,7 @@ class ValidatorManager {
             return (rule: ruleAndArgsString, args: [String]())
         }
         
-        let separatedString = ruleAndArgsString.componentsSeparatedByString(",")
+        let separatedString = ruleAndArgsString.split(Character(","))
         let rule = separatedString.first!
         let args = Array(separatedString.dropFirst())
         

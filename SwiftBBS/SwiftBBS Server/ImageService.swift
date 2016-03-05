@@ -6,7 +6,6 @@
 //  Copyright GrooveLab
 //
 
-import Foundation
 import PerfectLib
 
 class ImageService {
@@ -16,7 +15,7 @@ class ImageService {
     let uploadDirPath: String
     let repository: ImageRepository
     var fileName: String? {
-        return uploadedImage.tmpFileName.componentsSeparatedByString("/").last
+        return uploadedImage.tmpFileName.split(Character("/")).last
     }
     var fileExtension: String? {
         return uploadedImage.fileName.fileExtension
@@ -67,10 +66,10 @@ class ImageService {
     static func imageSize(filePath: String) throws -> ImageSize {
         let proc = try SysProcess(Config.imageMagickDir + "identify", args:["-format", "%wx%h", filePath], env:nil)
         defer { proc.close() }
-        
+
         let fileOut = proc.stdout!
-        let imageSize = try fileOut.readString().componentsSeparatedByString("x")
-        return (width: UInt(imageSize.first!) ?? 0, UInt(imageSize.last!) ?? 0)
+        let imageSize = try fileOut.readString().split(Character("x"))
+        return (width: UInt(imageSize.first ?? "0") ?? 0, UInt(imageSize.last ?? "0") ?? 0)
     }
     
     private func copyToUploadDir() throws -> File? {
@@ -85,3 +84,4 @@ class ImageService {
         return try self.dynamicType.imageSize(file.path())
     }
 }
+
