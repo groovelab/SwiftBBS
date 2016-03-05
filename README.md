@@ -80,7 +80,7 @@ $ sudo make install
 $ cd ../
 ```
 
-if you need to configure database setting
+if need, configure database setting
 
 ```
 $ vi SwiftBBS\ Server/Config.swift
