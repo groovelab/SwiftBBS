@@ -66,9 +66,10 @@ class ImageService {
     static func imageSize(filePath: String) throws -> ImageSize {
         let proc = try SysProcess(Config.imageMagickDir + "identify", args:["-format", "%wx%h", filePath], env:nil)
         defer { proc.close() }
-
+        
         let fileOut = proc.stdout!
-        let imageSize = try fileOut.readString().split(Character("x"))
+        let retString = UTF8Encoding.encode(try fileOut.readSomeBytes(4096))
+        let imageSize = retString.split(Character("x"))
         return (width: UInt(imageSize.first ?? "0") ?? 0, UInt(imageSize.last ?? "0") ?? 0)
     }
     
