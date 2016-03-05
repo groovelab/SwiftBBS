@@ -78,22 +78,7 @@ extension String {
 
     func base64encode() -> String {
         let bytes = UTF8Encoding.decode(self)
-        
-        let bio = BIO_push(BIO_new(BIO_f_base64()), BIO_new(BIO_s_mem()))
-        
-        BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL)
-        BIO_write(bio, bytes, Int32(bytes.count))
-        BIO_ctrl(bio, BIO_CTRL_FLUSH, 0, nil)
-        
-        var mem = UnsafeMutablePointer<BUF_MEM>()
-        BIO_ctrl(bio, BIO_C_GET_BUF_MEM_PTR, 0, &mem)
-        BIO_ctrl(bio, BIO_CTRL_SET_CLOSE, Int(BIO_NOCLOSE), nil)
-        BIO_free_all(bio)
-        
-        let txt = UnsafeMutablePointer<UInt8>(mem.memory.data)
-        let ret = UTF8Encoding.encode(GenerateFromPointer(from: txt, count: mem.memory.length))
-        free(mem.memory.data)
-        return ret
+        return self.dynamicType.base64encode(bytes)
     }
 
     func base64decode() -> String {
@@ -129,6 +114,24 @@ extension String {
         }
 
         return String(chars)
+    }
+    
+    static func base64encode(bytes: [UInt8]) -> String {
+        let bio = BIO_push(BIO_new(BIO_f_base64()), BIO_new(BIO_s_mem()))
+        
+        BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL)
+        BIO_write(bio, bytes, Int32(bytes.count))
+        BIO_ctrl(bio, BIO_CTRL_FLUSH, 0, nil)
+        
+        var mem = UnsafeMutablePointer<BUF_MEM>()
+        BIO_ctrl(bio, BIO_C_GET_BUF_MEM_PTR, 0, &mem)
+        BIO_ctrl(bio, BIO_CTRL_SET_CLOSE, Int(BIO_NOCLOSE), nil)
+        BIO_free_all(bio)
+        
+        let txt = UnsafeMutablePointer<UInt8>(mem.memory.data)
+        let ret = UTF8Encoding.encode(GenerateFromPointer(from: txt, count: mem.memory.length))
+        free(mem.memory.data)
+        return ret
     }
 }
 
