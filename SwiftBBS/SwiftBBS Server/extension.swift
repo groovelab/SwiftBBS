@@ -147,6 +147,14 @@ extension String {
         free(mem.memory.data)
         return ret
     }
+
+#if os(Linux)
+    func hasSuffix(of: String) -> Bool {
+        let c1 = self.characters
+        let c2 = of.characters
+        return c1.count >= c2.count && String(c1.suffix(c2.count)) == of
+    }
+#endif
 }
 
 extension String.UTF8View {
