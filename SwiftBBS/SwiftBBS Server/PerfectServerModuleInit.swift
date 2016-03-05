@@ -7,7 +7,6 @@
 //
 
 import PerfectLib
-import MySQL
 
 //  MARK: - init
 public func PerfectServerModuleInit() {
@@ -32,6 +31,8 @@ public func PerfectServerModuleInit() {
 
     //  Create MySQL Tables
     do {
+        //  must create database
+        //  mysql> CREATE DATABASE SwiftBBS DEFAULT CHARACTER SET utf8mb4;
         let dbManager = try DatabaseManager()
         try dbManager.query("CREATE TABLE IF NOT EXISTS user (id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT, name VARCHAR(100), password VARCHAR(100), provider VARCHAR(100), provider_user_id VARCHAR(100), provider_user_name VARCHAR(100), created_at DATETIME, updated_at DATETIME, UNIQUE(name), UNIQUE(provider, provider_user_id))")
         try dbManager.query("CREATE TABLE IF NOT EXISTS bbs (id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT, title TEXT, comment TEXT, user_id INT UNSIGNED, created_at DATETIME, updated_at DATETIME)")
@@ -41,36 +42,3 @@ public func PerfectServerModuleInit() {
         print(error)
     }
 }
-
-enum DatabaseError : ErrorType {
-    case Connect(String)
-    case Query(String)
-    case StoreResults
-}
-
-class DatabaseManager {
-    let db: MySQL
-    
-    init() throws {
-        db = MySQL()
-        if db.connect(Config.mysqlHost, user: Config.mysqlUser, password: Config.mysqlPassword, db: Config.mysqlDb) == false {
-            throw DatabaseError.Connect(db.errorMessage())
-        }
-    }
-    
-    func query(sql: String) throws {
-        if db.query(sql) == false {
-            throw DatabaseError.Query(db.errorMessage())
-        }
-    }
-    
-    func storeResults() throws -> MySQL.Results {
-        guard let results = db.storeResults() else {
-            throw DatabaseError.StoreResults
-        }
-        return results
-    }
-}
-
-
-
