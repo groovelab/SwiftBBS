@@ -95,10 +95,10 @@ class BbsRepository : Repository {
     //  row contains b.id, b.title, b.comment, b.user_id, u.name, b.created_at, b.updated_at
     private func createEntityFromRow(row: Row) -> BbsWithUserEntity {
         return BbsWithUserEntity(
-            id: UInt(row[0] as! UInt64),
+            id: UInt(row[0] as! UInt32),
             title: stringFromMySQLText(row[1] as? [UInt8]) ?? "",
             comment: stringFromMySQLText(row[2] as? [UInt8]) ?? "",
-            userId: UInt(row[3] as! UInt64),
+            userId: UInt(row[3] as! UInt32),
             userName: row[4] as! String,
             createdAt: row[5] as! String,
             updatedAt: row[6] as! String

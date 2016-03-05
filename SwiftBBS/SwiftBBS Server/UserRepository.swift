@@ -150,7 +150,7 @@ class UserRepository : Repository {
     //  row contains id, name, provider, provider_user_id, provider_user_name, created_at, updated_at
     private func createEntityFromRow(row: Row) -> UserEntity {
         return UserEntity(
-            id: UInt(row[0] as! UInt64),
+            id: UInt(row[0] as! UInt32),
             name: row[1] as! String,
             password: "",
             provider: (row[2] as? String) != nil ? UserProvider(rawValue: (row[2] as? String)!) : nil,

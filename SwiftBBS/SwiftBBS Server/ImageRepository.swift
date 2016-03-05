@@ -99,15 +99,15 @@ class ImageRepository : Repository {
     //  row contains id, parent, parent_id, path, ext, original_name, width, height, user_id, created_at, updated_at
     private func createEntityFromRow(row: Row) -> ImageEntity {
         return ImageEntity(
-            id: UInt(row[0] as! UInt64),
+            id: UInt(row[0] as! UInt32),
             parent: ImageEntity.Parent(value: row[1] as! String),
-            parentId: UInt(row[2] as! UInt64),
+            parentId: UInt(row[2] as! UInt32),
             path: stringFromMySQLText(row[3] as? [UInt8]) ?? "",
             ext: row[4] as! String,
             originalName: stringFromMySQLText(row[5] as? [UInt8]) ?? "",
-            width: UInt(row[6] as! UInt64),
-            height: UInt(row[7] as! UInt64),
-            userId: UInt(row[8] as! UInt64),
+            width: UInt(row[6] as! UInt32),
+            height: UInt(row[7] as! UInt32),
+            userId: UInt(row[8] as! UInt32),
             createdAt: row[9] as? String,
             updatedAt: row[10] as? String
         )
