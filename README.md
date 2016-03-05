@@ -53,7 +53,8 @@ $ ll /usr/local/bin/perfect*
 $ cd ../../
 ```
 
-## Install MySQL Connect
+## Install MySQL Connector
+ref. [MySQL Connector README](https://github.com/PerfectlySoft/Perfect/tree/master/Connectors/MySQL) or [gist](https://gist.github.com/groovelab/d26e573273ebd2c3d3b7)
 
 ```
 $ sudo apt-get -y install mysql-server libmysqlclient-dev
