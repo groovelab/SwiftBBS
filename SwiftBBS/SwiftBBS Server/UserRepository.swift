@@ -7,6 +7,7 @@
 //
 
 import PerfectLib
+import MySQL
 
 enum UserProvider : String {
     case Github = "github"
@@ -16,7 +17,7 @@ enum UserProvider : String {
 
 //  MARK: entity
 struct UserEntity {
-    var id: Int?
+    var id: UInt?
     var name: String
     var password: String?
     var provider: UserProvider?
@@ -25,13 +26,13 @@ struct UserEntity {
     var createdAt: String?
     var updatedAt: String?
     
-    init(id: Int?, name: String, password: String?) {
+    init(id: UInt?, name: String, password: String?) {
         self.id = id
         self.name = name
         self.password = password
     }
     
-    init(id: Int?, provider: UserProvider, providerUserId: String, providerUserName: String) {
+    init(id: UInt?, provider: UserProvider, providerUserId: String, providerUserName: String) {
         self.id = id
         self.name = provider.rawValue + " : " + providerUserName
         self.password = ""
@@ -40,7 +41,7 @@ struct UserEntity {
         self.providerUserName = providerUserName
     }
 
-    init(id: Int?, name: String, password: String?, provider: UserProvider?, providerUserId: String?, providerUserName: String?, createdAt: String?, updatedAt: String?) {
+    init(id: UInt?, name: String, password: String?, provider: UserProvider?, providerUserId: String?, providerUserName: String?, createdAt: String?, updatedAt: String?) {
         self.id = id
         self.name = name
         self.password = password
@@ -67,183 +68,96 @@ struct UserEntity {
 
 //  MARK: - repository
 class UserRepository : Repository {
-    func insert(entity: UserEntity) throws -> Int {
+    func insert(entity: UserEntity) throws -> UInt {
         let sql = "INSERT INTO user (name, \(entity.password != nil ? "password," : "") "
             + "\(entity.provider != nil ? "provider," : "") \(entity.providerUserId != nil ? "provider_user_id," : "") \(entity.providerUserName != nil ? "provider_user_name," : "") "
             + "created_at, updated_at) VALUES "
-            + "(:name, \(entity.password != nil ? ":password," : "") "
-            + "\(entity.provider != nil ? ":provider," : "") \(entity.providerUserId != nil ? ":providerUserId," : "") \(entity.providerUserName != nil ? ":providerUserName," : "") datetime('now'), datetime('now'))"
-        try db.execute(sql) { (stmt:SQLiteStmt) -> () in
-            try stmt.bind(":name", entity.name)
-            if let password = entity.password {
-                try stmt.bind(":password", password.sha1)
-            }
-            if let provider = entity.provider {
-                try stmt.bind(":provider", provider.rawValue)
-            }
-            if let providerUserId = entity.providerUserId {
-                try stmt.bind(":providerUserId", providerUserId)
-            }
-            if let providerUserName = entity.providerUserName {
-                try stmt.bind(":providerUserName", providerUserName)
-            }
-        }
+            + "(?, \(entity.password != nil ? "?," : "") "
+            + "\(entity.provider != nil ? "?," : "") \(entity.providerUserId != nil ? "?," : "") \(entity.providerUserName != nil ? "?," : "") \(nowSql), \(nowSql))"
         
-        let errCode = db.errCode()
-        if errCode > 0 {
-            throw RepositoryError.Insert(errCode)
+        var params: Params = [ entity.name ]
+        if let password = entity.password {
+            params.append(password.sha1)
         }
-        
-        return db.changes()
+        if let provider = entity.provider {
+            params.append(provider.rawValue)
+        }
+        if let providerUserId = entity.providerUserId {
+            params.append(providerUserId)
+        }
+        if let providerUserName = entity.providerUserName {
+            params.append(providerUserName)
+        }
+
+        return try executeInsertSql(sql, params: params)
     }
     
-    func update(entity: UserEntity) throws -> Int {
+    func update(entity: UserEntity) throws -> UInt {
         guard let id = entity.id else {
             return 0
         }
         
-        let sql = "UPDATE user SET name = :name, \(entity.password != nil ? "password = :password," : "") updated_at = datetime('now') WHERE id = :id"
-        try db.execute(sql) { (stmt:SQLiteStmt) -> () in
-            try stmt.bind(":name", entity.name)
-            if let password = entity.password {
-                try stmt.bind(":password", password.sha1)
-            }
-            try stmt.bind(":id", id)
-        }
+        let sql = "UPDATE user SET name = ?, \(!String.isEmpty(entity.password) ? "password = ?," : "") updated_at = \(nowSql) WHERE id = ?"
         
-        let errCode = db.errCode()
-        if errCode > 0 {
-            throw RepositoryError.Update(errCode)
+        var params: Params = [ entity.name ]
+        if let password = entity.password where !String.isEmpty(entity.password) {
+            params.append(password.sha1)
         }
+        params.append(id)
         
-        return db.changes()
+        return try executeUpdateSql(sql, params: params)
     }
     
-    func delete(entity: UserEntity) throws -> Int {
+    func delete(entity: UserEntity) throws -> UInt {
         guard let id = entity.id else {
             return 0
         }
         
-        let sql = "DELETE FROM user WHERE id = :1"
-        try db.execute(sql) { (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, id)
-        }
-        
-        let errCode = db.errCode()
-        if errCode > 0 {
-            throw RepositoryError.Delete(errCode)
-        }
-        
-        return db.changes()
+        let sql = "DELETE FROM user WHERE id = ?"
+        return try executeDeleteSql(sql, params: [ id ])
     }
     
-    func findById(id: Int) throws -> UserEntity? {
-        let sql = "SELECT id, name, provider, provider_user_id, provider_user_name, created_at, updated_at FROM user WHERE id = :1"
-        var columns = [Any]()
-        try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, id)
-        }) { (stmt:SQLiteStmt, r:Int) -> () in
-            columns.append(stmt.columnInt(0))
-            columns.append(stmt.columnText(1))
-            columns.append(stmt.columnText(2))
-            columns.append(stmt.columnText(3))
-            columns.append(stmt.columnText(4))
-            columns.append(stmt.columnText(5))
-            columns.append(stmt.columnText(6))
-        }
-        
-        let errCode = db.errCode()
-        if errCode > 0 {
-            throw RepositoryError.Select(errCode)
-        }
-        
-        guard columns.count > 0 else {
+    func findById(id: UInt) throws -> UserEntity? {
+        let sql = "SELECT id, name, provider, provider_user_id, provider_user_name, created_at, updated_at FROM user WHERE id = ?"
+        let rows = try executeSelectSql(sql, params: [ id ])
+        guard let row = rows.first else {
             return nil
         }
-        
-        return UserEntity(
-            id: columns[0] as? Int,
-            name: columns[1] as! String,
-            password: "",
-            provider: (columns[2] as? String) != nil ? UserProvider(rawValue: (columns[2] as? String)!) : nil,
-            providerUserId: columns[3] as? String,
-            providerUserName: columns[4] as? String,
-            createdAt: columns[5] as? String,
-            updatedAt: columns[6] as? String
-        )
+
+        return createEntityFromRow(row)
     }
     
     func findByName(name: String, password: String) throws -> UserEntity? {
-        let sql = "SELECT id, name, provider, provider_user_id, provider_user_name, created_at, updated_at FROM user WHERE name = :1 AND password = :2"
-        var columns = [Any]()
-        try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, name)
-            try stmt.bind(2, password.sha1)
-        }) { (stmt:SQLiteStmt, r:Int) -> () in
-            columns.append(stmt.columnInt(0))
-            columns.append(stmt.columnText(1))
-            columns.append(stmt.columnText(2))
-            columns.append(stmt.columnText(3))
-            columns.append(stmt.columnText(4))
-            columns.append(stmt.columnText(5))
-            columns.append(stmt.columnText(6))
-        }
-
-        let errCode = db.errCode()
-        if errCode > 0 {
-            throw RepositoryError.Select(errCode)
-        }
-        
-        guard columns.count > 0 else {
+        let sql = "SELECT id, name, provider, provider_user_id, provider_user_name, created_at, updated_at FROM user WHERE name = ? AND password = ?"
+        let rows = try executeSelectSql(sql, params: [ name, password.sha1 ])
+        guard let row = rows.first else {
             return nil
         }
-        
-        return UserEntity(
-            id: columns[0] as? Int,
-            name: columns[1] as! String,
-            password: "",
-            provider: (columns[2] as? String) != nil ? UserProvider(rawValue: (columns[2] as? String)!) : nil,
-            providerUserId: columns[3] as? String,
-            providerUserName: columns[4] as? String,
-            createdAt: columns[5] as? String,
-            updatedAt: columns[6] as? String
-        )
+
+        return createEntityFromRow(row)
     }
     
     func findByProviderId(providerId: String, provider: UserProvider) throws -> UserEntity? {
-        let sql = "SELECT id, name, provider, provider_user_id, provider_user_name, created_at, updated_at FROM user WHERE provider = :1 AND provider_user_id = :2"
-        var columns = [Any]()
-        try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, provider.rawValue)
-            try stmt.bind(2, providerId)
-            }) { (stmt:SQLiteStmt, r:Int) -> () in
-                columns.append(stmt.columnInt(0))
-                columns.append(stmt.columnText(1))
-                columns.append(stmt.columnText(2))
-                columns.append(stmt.columnText(3))
-                columns.append(stmt.columnText(4))
-                columns.append(stmt.columnText(5))
-                columns.append(stmt.columnText(6))
-        }
-        
-        let errCode = db.errCode()
-        if errCode > 0 {
-            throw RepositoryError.Select(errCode)
-        }
-        
-        guard columns.count > 0 else {
+        let sql = "SELECT id, name, provider, provider_user_id, provider_user_name, created_at, updated_at FROM user WHERE provider = ? AND provider_user_id = ?"
+        let rows = try executeSelectSql(sql, params: [ provider.rawValue, providerId ])
+        guard let row: Row = rows.first else {
             return nil
         }
-        
+
+        return createEntityFromRow(row)
+    }
+    
+    //  row contains id, name, provider, provider_user_id, provider_user_name, created_at, updated_at
+    private func createEntityFromRow(row: Row) -> UserEntity {
         return UserEntity(
-            id: columns[0] as? Int,
-            name: columns[1] as! String,
+            id: UInt(row[0] as! UInt32),
+            name: row[1] as! String,
             password: "",
-            provider: (columns[2] as? String) != nil ? UserProvider(rawValue: (columns[2] as? String)!) : nil,
-            providerUserId: columns[3] as? String,
-            providerUserName: columns[4] as? String,
-            createdAt: columns[5] as? String,
-            updatedAt: columns[6] as? String
+            provider: (row[2] as? String) != nil ? UserProvider(rawValue: (row[2] as? String)!) : nil,
+            providerUserId: row[3] as? String,
+            providerUserName: row[4] as? String,
+            createdAt: row[5] as? String,
+            updatedAt: row[6] as? String
         )
     }
 }

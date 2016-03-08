@@ -31,6 +31,8 @@ extension FormType {
                 
                 if validators.filter( {$0 is IntValidator} ).count > 0 {
                     self[key] = try validatorManager.validatedInt(key, value: request.param(key))
+                } else if validators.filter( {$0 is UIntValidator} ).count > 0 {
+                    self[key] = try validatorManager.validatedUInt(key, value: request.param(key))
                 } else if validators.filter( {$0 is UploadImageValidator} ).count > 0 {
                     self[key] = try validatorManager.validatedFile(key, value: request.uploadedFile(key))
                 } else {

@@ -50,14 +50,14 @@ class BbsHandler: BaseRequestHandler {
     }
 
     class AddCommentForm : FormType {
-        var bbsId: Int!
+        var bbsId: UInt!
         var comment: String!
         
         var validationRules: ValidatorManager.ValidationKeyAndRules {
             return [
                 "bbs_id": [
                     ValidationType.Required,
-                    ValidationType.Integer(min: 1, max: nil)
+                    ValidationType.UInteger(min: 1, max: nil)
                 ],
                 "comment": [
                     ValidationType.Required,
@@ -70,7 +70,7 @@ class BbsHandler: BaseRequestHandler {
             get { return nil } //  not use
             set {
                 switch key {
-                case "bbs_id": bbsId = newValue! as! Int
+                case "bbs_id": bbsId = newValue! as! UInt
                 case "comment": comment = newValue! as! String
                 default: break
                 }
@@ -141,9 +141,7 @@ class BbsHandler: BaseRequestHandler {
         
         //  insert  TODO: begin transaction
         let entity = BbsEntity(id: nil, title: form.title, comment: form.comment, userId: try self.userIdInSession()!, createdAt: nil, updatedAt: nil)
-        try bbsRepository.insert(entity)
-        
-        let bbsId = bbsRepository.lastInsertId()
+        let bbsId = try bbsRepository.insert(entity)
         
         //  add image
         if let image = form.image {
@@ -168,7 +166,7 @@ class BbsHandler: BaseRequestHandler {
     }
     
     func detailAction() throws -> ActionResponse {
-        guard let bbsIdString = request.urlVariables["id"], let bbsId = Int(bbsIdString) else {
+        guard let bbsIdString = request.urlVariables["id"], let bbsId = UInt(bbsIdString) else {
             return .Error(status: 500, message: "invalidate request parameter")
         }
         
@@ -222,11 +220,12 @@ class BbsHandler: BaseRequestHandler {
         
         //  insert
         let entity = BbsCommentEntity(id: nil, bbsId: form.bbsId, comment: form.comment, userId: try userIdInSession()!, createdAt: nil, updatedAt: nil)
-        try bbsCommentRepository.insert(entity)
+        let commentId = try bbsCommentRepository.insert(entity)
         
         if request.acceptJson {
             var values = [String: Any]()
-            values["commentId"] = bbsCommentRepository.lastInsertId()
+            values["commentId"] = commentId
+//            values["commentId"] = bbsCommentRepository.lastInsertId()
             return .Output(templatePath: nil, values: values)
         } else {
             return .Redirect(url: "/bbs/detail/\(entity.bbsId)")

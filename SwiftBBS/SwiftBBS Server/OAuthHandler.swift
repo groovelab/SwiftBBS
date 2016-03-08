@@ -9,8 +9,6 @@
 import PerfectLib
 import cURL
 
-import Foundation
-
 class OAuthHandler : BaseRequestHandler {
     private let OAuthStateSessionKey = "oauth_state"
     
@@ -149,15 +147,14 @@ class OAuthHandler : BaseRequestHandler {
             try userRepository.update(userEntity)
             
             //  login
-            session["id"] = userId
+            session["id"] = String(userId)  //  TODO: create method
         } else {
             //  store provider user id into user table
             let userEntity = UserEntity(id: nil, provider: provider, providerUserId: socialUser.id, providerUserName: socialUser.name)
-            try userRepository.insert(userEntity)
+            let userId = try userRepository.insert(userEntity)
             
             //  login
-            let userId = userRepository.lastInsertId()
-            session["id"] = userId
+            session["id"] = String(userId)
         }
     }
     

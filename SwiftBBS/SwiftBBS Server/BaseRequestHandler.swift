@@ -7,6 +7,7 @@
 //
 
 import PerfectLib
+import MySQL
 
 class BaseRequestHandler: RequestHandler {
     enum ActionResponse {
@@ -29,7 +30,8 @@ class BaseRequestHandler: RequestHandler {
 
     var request: WebRequest!
     var response: WebResponse!
-    var db: SQLite!
+//    var db: SQLite!
+    var db: MySQL!
     var session: SessionManager!
     
     lazy var selectOption: SelectOption = SelectOption(page: self.request.param("page"), rows: self.request.param("rows"))
@@ -45,7 +47,10 @@ class BaseRequestHandler: RequestHandler {
         }
         
         do {
-            db = try SQLite(Config.dbPath)
+//            db = try SQLite(Config.sqliteDbPath)
+            let dbManager = try DatabaseManager()
+            db = dbManager.db
+
             session = try response.getSession(Config.sessionName, withConfiguration: SessionConfiguration(Config.sessionName, expires: Config.sessionExpires))
             
             switch try checkActionAcl() {
@@ -97,8 +102,8 @@ class BaseRequestHandler: RequestHandler {
         return .Error(status: 500, message: "need implement")
     }
     
-    func userIdInSession() throws -> Int? {
-        guard let userId = session["id"] as? Int else {
+    func userIdInSession() throws -> UInt? {
+        guard let userIdString = session["id"] as? String, let userId = UInt(userIdString) else {
             return nil
         }
         
@@ -110,7 +115,7 @@ class BaseRequestHandler: RequestHandler {
         return userId
     }
     
-    func getUser(userId: Int?) throws -> UserEntity? {
+    func getUser(userId: UInt?) throws -> UserEntity? {
         guard let userId = userId else {
             return nil
         }

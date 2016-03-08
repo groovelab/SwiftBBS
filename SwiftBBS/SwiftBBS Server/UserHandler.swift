@@ -48,7 +48,7 @@ class UserHandler: BaseRequestHandler {
     
     class EditForm : FormType {
         var name: String!
-        var password: String!
+        var password: String?
         var password2: String?
 
         var validationRules: ValidatorManager.ValidationKeyAndRules {
@@ -72,7 +72,7 @@ class UserHandler: BaseRequestHandler {
             set {
                 switch key {
                 case "name": name = newValue! as! String
-                case "password": password = newValue as? String ?? ""
+                case "password": password = newValue as? String
                 case "password2": password2 = newValue as? String
                 default: break
                 }
@@ -258,7 +258,7 @@ class UserHandler: BaseRequestHandler {
     private func login(name: String, password: String) throws -> Bool {
         if let userEntity = try userRepository.findByName(name, password: password), let userId = userEntity.id {
             //  success login
-            session["id"] = userId
+            session["id"] = String(userId)
             return true
         } else {
             return false

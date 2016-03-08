@@ -7,6 +7,7 @@
 //
 
 import OpenSSL
+import MySQL
 import PerfectLib
 
 extension WebRequest {
@@ -60,12 +61,16 @@ extension WebResponse {
 }
 
 extension String {
+    var isEmpty: Bool {
+        return characters.count == 0
+    }
+    
     var htmlBrString: String {
         return stringByReplacingString("\r\n", withString: "\n").stringByReplacingString("\n", withString: "<br>")
     }
     
     var sha1: String {
-        return UTF8Encoding.encode(utf8.sha1).base64encode()
+        return String.base64encode(utf8.sha1)
     }
     
     var addedLastSlashString: String {
@@ -73,9 +78,13 @@ extension String {
     }
     
     var fileExtension: String? {
-        return lowercaseString.componentsSeparatedByString(".").last
+        return lowercaseString.split(Character(".")).last
     }
-
+    
+    func split(separator: Character) -> [String] {
+        return self.characters.split(separator).map { String($0) }
+    }
+    
     func base64encode() -> String {
         let bytes = UTF8Encoding.decode(self)
         return self.dynamicType.base64encode(bytes)
@@ -102,6 +111,11 @@ extension String {
         
         guard Int32(decodedLength) == BIO_read(bio, bytes, Int32(characters.count)) else { return "" }
         return UTF8Encoding.encode(GenerateFromPointer(from: bytes, count: decodedLength))
+    }
+    
+    static func isEmpty(string: String?) -> Bool {
+        guard let string = string else { return false }
+        return string.isEmpty
     }
     
     static func randomString(length: Int, includeSymbol: Bool = false) -> String {
@@ -133,6 +147,14 @@ extension String {
         free(mem.memory.data)
         return ret
     }
+
+#if os(Linux)
+    func hasSuffix(of: String) -> Bool {
+        let c1 = self.characters
+        let c2 = of.characters
+        return c1.count >= c2.count && String(c1.suffix(c2.count)) == of
+    }
+#endif
 }
 
 extension String.UTF8View {
@@ -147,5 +169,30 @@ extension String.UTF8View {
             r.append(bytes[idx])
         }
         return r
+    }
+}
+
+extension MySQLStmt {
+    func bindParam(param: UInt) {
+        bindParam(UInt64(param))
+    }
+
+    func bindParams(params: [Any]?) {
+        guard let params = params else { return }
+        params.forEach({ param in
+            if let param = param as? Int {
+                bindParam(param)
+            } else if let param = param as? UInt {
+                bindParam(param)
+            } else if let param = param as? String {
+                bindParam(param)
+            }
+        })
+    }
+}
+
+extension MySQLStmt : CustomDebugStringConvertible {
+    public var debugDescription: String {
+        return "\(errorCode()): \(errorMessage())"
     }
 }

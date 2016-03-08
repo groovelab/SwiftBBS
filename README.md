@@ -1,6 +1,6 @@
 # SwiftBBS
 
-SwiftBBS is BBS with [Swift](https://github.com/apple/swift), SQLite and [PerfectLib](https://github.com/PerfectlySoft/Perfect) on Linux (Ubuntu 15.10)
+SwiftBBS is BBS with [Swift](https://github.com/apple/swift), MySQL and [PerfectLib](https://github.com/PerfectlySoft/Perfect) on Linux (Ubuntu 15.10)
 
 ## Install ImageMagick
 
@@ -53,6 +53,24 @@ $ ll /usr/local/bin/perfect*
 $ cd ../../
 ```
 
+## Install MySQL Connector
+ref. [MySQL Connector README](https://github.com/PerfectlySoft/Perfect/tree/master/Connectors/MySQL) or [gist](https://gist.github.com/groovelab/d26e573273ebd2c3d3b7)
+
+```
+$ sudo apt-get -y install mysql-server libmysqlclient-dev
+$ cd Perfect/Connectors/MySQL
+$ sudo make
+$ sudo ln -sf "$(pwd)/MySQL.so" /usr/local/lib/
+$ sudo ln -sf "$(pwd)/MySQL.swiftmodule" /usr/local/lib/
+```
+
+create database
+
+```
+$ mysql -u root
+mysql> CREATE DATABASE SwiftBBS DEFAULT CHARACTER SET utf8mb4;
+```
+
 ## Deploy SwiftBBS
 
 ```
@@ -60,6 +78,12 @@ $ cd SwiftBBS
 $ sudo make
 $ sudo make install
 $ cd ../
+```
+
+if need, configure database setting
+
+```
+$ vi SwiftBBS\ Server/Config.swift
 ```
 
 ## Run Perfect Server FastCGI

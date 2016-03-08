@@ -10,19 +10,19 @@ import PerfectLib
 
 //  MARK: entity
 struct BbsCommentEntity {
-    var id: Int?
-    var bbsId: Int
+    var id: UInt?
+    var bbsId: UInt
     var comment: String
-    var userId: Int
+    var userId: UInt
     var createdAt: String?
     var updatedAt: String?
 }
 
 struct BbsCommentWithUserEntity {
-    var id: Int
-    var bbsId: Int
+    var id: UInt
+    var bbsId: UInt
     var comment: String
-    var userId: Int
+    var userId: UInt
     var userName: String
     var createdAt: String
     var updatedAt: String
@@ -42,43 +42,32 @@ struct BbsCommentWithUserEntity {
 
 //  MARK: - repository
 class BbsCommentRepository : Repository {
-    func insert(entity: BbsCommentEntity) throws -> Int {
-        let sql = "INSERT INTO bbs_comment (bbs_id, comment, user_id, created_at, updated_at) VALUES (:1, :2, :3, datetime('now'), datetime('now'))"
-        try db.execute(sql) { (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, entity.bbsId)
-            try stmt.bind(2, entity.comment)
-            try stmt.bind(3, entity.userId)
-        }
-        
-        let errCode = db.errCode()
-        if errCode > 0 {
-            throw RepositoryError.Insert(errCode)
-        }
-        
-        return db.changes()
+    func insert(entity: BbsCommentEntity) throws -> UInt {
+        let sql = "INSERT INTO bbs_comment (bbs_id, comment, user_id, created_at, updated_at) VALUES (?, ?, ?, \(nowSql), \(nowSql))"
+        let params: Params = [ entity.bbsId, entity.comment, entity.userId ]
+        return try executeInsertSql(sql, params: params)
     }
     
-    func selectByBbsId(bbsId: Int) throws -> [BbsCommentWithUserEntity] {
+    func selectByBbsId(bbsId: UInt) throws -> [BbsCommentWithUserEntity] {
         let sql = "SELECT b.id, b.bbs_id, b.comment, b.user_id, u.name, b.created_at, b.updated_at FROM bbs_comment AS b "
-            + "INNER JOIN user AS u ON u.id = b.user_id WHERE b.bbs_id = :1 "
+            + "INNER JOIN user AS u ON u.id = b.user_id WHERE b.bbs_id = ? "
             + "ORDER BY b.id"
-        var entities = [BbsCommentWithUserEntity]()
-        try db.forEachRow(sql, doBindings: { (stmt:SQLiteStmt) -> () in
-            try stmt.bind(1, bbsId)
-        }) { (stmt:SQLiteStmt, r:Int) -> () in
-            entities.append(
-                BbsCommentWithUserEntity(
-                    id: stmt.columnInt(0),
-                    bbsId: stmt.columnInt(1),
-                    comment: stmt.columnText(2),
-                    userId: stmt.columnInt(3),
-                    userName: stmt.columnText(4),
-                    createdAt: stmt.columnText(5),
-                    updatedAt: stmt.columnText(6)
-                )
-            )
+        let rows = try executeSelectSql(sql, params: [ bbsId ])
+        return rows.map { row in
+            return createEntityFromRow(row)
         }
-        
-        return entities
+    }
+    
+    //  row contains b.id, b.bbs_id, b.comment, b.user_id, u.name, b.created_at, b.updated_at
+    private func createEntityFromRow(row: Row) -> BbsCommentWithUserEntity {
+        return BbsCommentWithUserEntity(
+            id: UInt(row[0] as! UInt32),
+            bbsId: UInt(row[1] as! UInt32),
+            comment: stringFromMySQLText(row[2] as? [UInt8]) ?? "",
+            userId: UInt(row[3] as! UInt32),
+            userName: row[4] as! String,
+            createdAt: row[5] as! String,
+            updatedAt: row[6] as! String
+        )
     }
 }
