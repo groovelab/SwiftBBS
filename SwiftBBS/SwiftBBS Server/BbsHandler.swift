@@ -225,7 +225,7 @@ class BbsHandler: BaseRequestHandler {
         let commentId = try bbsCommentRepository.insert(entity)
         
         //  notify
-        //try notifyBbsCommented(entity.bbsId, exceptUserId: entity.userId)
+        try notifyBbsCommented(entity.bbsId, exceptUserId: entity.userId)
         
         if request.acceptJson {
             var values = [String: Any]()
@@ -233,6 +233,37 @@ class BbsHandler: BaseRequestHandler {
             return .Output(templatePath: nil, values: values)
         } else {
             return .Redirect(url: "/bbs/detail/\(entity.bbsId)")
+        }
+    }
+    
+    private func notifyBbsCommented(bbsId: UInt, exceptUserId: UInt) throws {
+        guard let bbs = try bbsRepository.findById(bbsId) else {
+            return
+        }
+    
+        var userIds = [bbs.userId]
+        let comments = try bbsCommentRepository.selectByBbsId(bbsId)
+        comments.forEach { (entity) -> () in
+            userIds.append(entity.userId)
+        }
+        
+        let userEntities = try userRepository.selectByIds(userIds.filter { $0 != exceptUserId })
+        let deviceTokens = userEntities.map { $0.apnsDeviceToken }.flatMap { $0 }
+        
+        print("device tokens:", deviceTokens)
+        
+        let notificationItems = [
+            IOSNotificationItem.AlertBody("New Comment!!"),
+            IOSNotificationItem.Sound("default")
+        ]
+
+        let pusher = NotificationPusher()
+        pusher.apnsTopic = Config.apnsTopic
+        pusher.pushIOS(Config.apnsConfigurationName, deviceTokens: deviceTokens, expiration: 0, priority: 10, notificationItems: notificationItems) {
+            responses in
+            responses.forEach({ response in
+                print("NotificationResponse: \(response.code) \(response.stringBody)")
+            })
         }
     }
 }

@@ -31,6 +31,7 @@ class Config {
     static let googleClientSecret = ""
     
     static let apnsConfigurationName = "SwiftBBS"
+    static let apnsTopic = "asia.groovelab.SwiftBBS"
     
 #if os(Linux)
     static let imageMagickDir = ""
