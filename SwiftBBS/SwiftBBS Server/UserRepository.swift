@@ -99,7 +99,7 @@ class UserRepository : Repository {
             return 0
         }
         
-        let sql = "UPDATE user SET name = ?, \(!String.isEmpty(entity.password) ? "password = ?," : "") \(!String.isEmpty(entity.apnsDeviceToken) ? "apns_tevice_token = ?," : "") updated_at = \(nowSql) WHERE id = ?"
+        let sql = "UPDATE user SET name = ?, \(!String.isEmpty(entity.password) ? "password = ?," : "") \(!String.isEmpty(entity.apnsDeviceToken) ? "apns_device_token = ?," : "") updated_at = \(nowSql) WHERE id = ?"
 
         var params: Params = [ entity.name ]
         if let password = entity.password where !String.isEmpty(entity.password) {
