@@ -218,14 +218,18 @@ class BbsHandler: BaseRequestHandler {
             return .Error(status: 500, message: "invalidate request parameter. " + error.description)
         }
         
+        //  TODO: if bbs exists
+        
         //  insert
         let entity = BbsCommentEntity(id: nil, bbsId: form.bbsId, comment: form.comment, userId: try userIdInSession()!, createdAt: nil, updatedAt: nil)
         let commentId = try bbsCommentRepository.insert(entity)
         
+        //  notify
+        //try notifyBbsCommented(entity.bbsId, exceptUserId: entity.userId)
+        
         if request.acceptJson {
             var values = [String: Any]()
             values["commentId"] = commentId
-//            values["commentId"] = bbsCommentRepository.lastInsertId()
             return .Output(templatePath: nil, values: values)
         } else {
             return .Redirect(url: "/bbs/detail/\(entity.bbsId)")

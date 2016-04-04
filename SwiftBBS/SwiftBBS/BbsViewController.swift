@@ -24,7 +24,7 @@ class BbsViewController: UIViewController {
         super.viewDidLoad()
 
         cellForHeight = tableView.dequeueReusableCellWithIdentifier(BbsTableViewCell.identifierForReuse) as! BbsTableViewCell
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "addedBbs:", name: self.dynamicType.ADDED_BBS_NOTIFICATION, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(BbsViewController.addedBbs(_:)), name: self.dynamicType.ADDED_BBS_NOTIFICATION, object: nil)
     }
     
     override func viewWillAppear(animated: Bool) {

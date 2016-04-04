@@ -30,6 +30,8 @@ class Config {
     static let googleClientId = ""
     static let googleClientSecret = ""
     
+    static let apnsConfigurationName = "SwiftBBS"
+    
 #if os(Linux)
     static let imageMagickDir = ""
 #else

@@ -109,12 +109,35 @@ class UserHandler: BaseRequestHandler {
         }
     }
 
+    class ApnsDeviceTokenForm : FormType {
+        var devieToken: String!
+        
+        var validationRules: ValidatorManager.ValidationKeyAndRules {
+            return [
+                "device_token": [
+                    ValidationType.Required,
+                    ValidationType.Length(min: 1, max: 200),
+                ],
+            ]
+        }
+        
+        subscript (key: String) -> Any? {
+            get { return nil } //  not use
+            set {
+                switch key {
+                case "device_token": devieToken = newValue! as! String
+                default: break
+                }
+            }
+        }
+    }
+
     //  MARK: life cycle
     override init() {
         super.init()
         
         //  define action acl
-        needLoginActions = ["index", "mypage", "logout", "edit", "delete"]
+        needLoginActions = ["index", "mypage", "logout", "edit", "delete", "device_token"]
         redirectUrlIfNotLogin = "/user/login"
         
         noNeedLoginActions = ["login", "add"]
@@ -139,6 +162,8 @@ class UserHandler: BaseRequestHandler {
             return try editAction()
         case "delete" where request.requestMethod() == "POST":
             return try doDeleteAction()
+        case "apns_device_token" where request.requestMethod() == "POST":
+            return try doApnsDeviceTokenAction()
         default:
             return try mypageAction()
         }
@@ -251,6 +276,28 @@ class UserHandler: BaseRequestHandler {
             return .Output(templatePath: nil, values: values)
         } else {
             return .Redirect(url: "/user/login")
+        }
+    }
+    
+    func doApnsDeviceTokenAction() throws -> ActionResponse {
+        var form = ApnsDeviceTokenForm()
+        do {
+            try form.validate(request)
+        } catch let error as FormError {
+            return .Error(status: 500, message: "invalidate request parameter. " + error.description)
+        }
+        
+        //  update
+        var userEntity = try getUser(userIdInSession())!
+        userEntity.apnsDeviceToken = form.devieToken
+        try userRepository.update(userEntity)
+        
+        if request.acceptJson {
+            var values = [String: Any]()
+            values["status"] = "success"
+            return .Output(templatePath: nil, values: values)
+        } else {
+            return .Redirect(url: "/user/mypage")
         }
     }
     

@@ -25,6 +25,7 @@ PerfectLibraries/
 SQLiteDBs/
 *.sock
 *.pid
+*.pem
 
 # CocoaPods
 #

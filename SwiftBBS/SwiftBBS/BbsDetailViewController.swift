@@ -35,7 +35,7 @@ class BbsDetailViewController: UIViewController {
         let toolBar = UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 44.0))
         toolBar.items = [
             UIBarButtonItem(barButtonSystemItem: .FlexibleSpace, target: self, action: nil),
-            UIBarButtonItem(barButtonSystemItem: .Done, target: self, action: "closeKeyboard:")
+            UIBarButtonItem(barButtonSystemItem: .Done, target: self, action: #selector(BbsDetailViewController.closeKeyboard(_:)))
         ]
         commentTextView.inputAccessoryView = toolBar
         commentTextView.text = nil
@@ -47,8 +47,8 @@ class BbsDetailViewController: UIViewController {
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
 
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillHide:", name: UIKeyboardWillHideNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(BbsDetailViewController.keyboardWillShow(_:)), name: UIKeyboardWillShowNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(BbsDetailViewController.keyboardWillHide(_:)), name: UIKeyboardWillHideNotification, object: nil)
     }
     
     override func viewDidDisappear(animated: Bool) {

@@ -35,6 +35,14 @@
 		0A84903D1C3BFD7400149828 /* bbs_detail.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A84903B1C3BFC9D00149828 /* bbs_detail.mustache */; };
 		0A84903F1C3C059D00149828 /* bbs_list.mustache in Resources */ = {isa = PBXBuildFile; fileRef = 0A84903E1C3C059D00149828 /* bbs_list.mustache */; };
 		0A8490401C3C069500149828 /* bbs_list.mustache in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A84903E1C3C059D00149828 /* bbs_list.mustache */; };
+		0A91C63A1C948BBE003E2C3C /* PerfectLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A91C6391C948BBE003E2C3C /* PerfectLib.framework */; };
+		0A91C63B1C948BBE003E2C3C /* PerfectLib.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0A91C6391C948BBE003E2C3C /* PerfectLib.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		0A91C6421C9499ED003E2C3C /* aps_development.pem in Resources */ = {isa = PBXBuildFile; fileRef = 0A91C63F1C9499ED003E2C3C /* aps_development.pem */; };
+		0A91C6441C9499ED003E2C3C /* key.pem in Resources */ = {isa = PBXBuildFile; fileRef = 0A91C6411C9499ED003E2C3C /* key.pem */; };
+		0A91C6451C949A0F003E2C3C /* aps_development.pem in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A91C63F1C9499ED003E2C3C /* aps_development.pem */; };
+		0A91C6461C949A1D003E2C3C /* key.pem in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A91C6411C9499ED003E2C3C /* key.pem */; };
+		0A91C6491C949CCE003E2C3C /* entrust_2048_ca.pem in Resources */ = {isa = PBXBuildFile; fileRef = 0A91C6481C949CCE003E2C3C /* entrust_2048_ca.pem */; };
+		0A91C64A1C949CDA003E2C3C /* entrust_2048_ca.pem in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A91C6481C949CCE003E2C3C /* entrust_2048_ca.pem */; };
 		0A98F58A1C36B4D800E94B9D /* SwiftBBS Server.h in Headers */ = {isa = PBXBuildFile; fileRef = 0A98F5891C36B4D800E94B9D /* SwiftBBS Server.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0A98F5911C36B4D800E94B9D /* SwiftBBS Server.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A98F5861C36B4D800E94B9D /* SwiftBBS Server.framework */; };
 		0A98F5961C36B4D800E94B9D /* SwiftBBS_ServerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A98F5951C36B4D800E94B9D /* SwiftBBS_ServerTests.swift */; };
@@ -51,7 +59,6 @@
 		0AA9B7A31C49818F004D3DE1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0AA9B7A11C49818F004D3DE1 /* LaunchScreen.storyboard */; };
 		0AA9B7AE1C498190004D3DE1 /* SwiftBBSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA9B7AD1C498190004D3DE1 /* SwiftBBSTests.swift */; };
 		0AA9B7B91C498190004D3DE1 /* SwiftBBSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA9B7B81C498190004D3DE1 /* SwiftBBSUITests.swift */; };
-		0AA9B7C91C49896D004D3DE1 /* PerfectLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AA9B7C81C49896D004D3DE1 /* PerfectLib.framework */; };
 		0AA9B7CB1C4A40B8004D3DE1 /* BbsDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA9B7CA1C4A40B8004D3DE1 /* BbsDetailViewController.swift */; };
 		0AA9B7CE1C4A4335004D3DE1 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA9B7CD1C4A4335004D3DE1 /* Config.swift */; };
 		0AA9B7D21C4B6BAC004D3DE1 /* BbsDetailTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA9B7D11C4B6BAC004D3DE1 /* BbsDetailTableViewCell.swift */; };
@@ -141,6 +148,29 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0A91C63C1C948BBE003E2C3C /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				0A91C63B1C948BBE003E2C3C /* PerfectLib.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A91C63D1C9499AE003E2C3C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Cert;
+			dstSubfolderSpec = 16;
+			files = (
+				0A91C64A1C949CDA003E2C3C /* entrust_2048_ca.pem in CopyFiles */,
+				0A91C6461C949A1D003E2C3C /* key.pem in CopyFiles */,
+				0A91C6451C949A0F003E2C3C /* aps_development.pem in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0AA9B8431C4FFA53004D3DE1 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -176,6 +206,10 @@
 		0A8490381C3BF07100149828 /* user_login.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = user_login.mustache; sourceTree = "<group>"; };
 		0A84903B1C3BFC9D00149828 /* bbs_detail.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bbs_detail.mustache; sourceTree = "<group>"; };
 		0A84903E1C3C059D00149828 /* bbs_list.mustache */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bbs_list.mustache; sourceTree = "<group>"; };
+		0A91C6391C948BBE003E2C3C /* PerfectLib.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PerfectLib.framework; path = "../../../../Library/Developer/Xcode/DerivedData/SwiftBBS-axldwxsbjpcmdycjmqvmmejqhneg/Build/Products/Debug-iphoneos/PerfectLib.framework"; sourceTree = "<group>"; };
+		0A91C63F1C9499ED003E2C3C /* aps_development.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = aps_development.pem; sourceTree = "<group>"; };
+		0A91C6411C9499ED003E2C3C /* key.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = key.pem; sourceTree = "<group>"; };
+		0A91C6481C949CCE003E2C3C /* entrust_2048_ca.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = entrust_2048_ca.pem; sourceTree = "<group>"; };
 		0A98F5861C36B4D800E94B9D /* SwiftBBS Server.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "SwiftBBS Server.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A98F5891C36B4D800E94B9D /* SwiftBBS Server.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SwiftBBS Server.h"; sourceTree = "<group>"; };
 		0A98F58B1C36B4D800E94B9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -254,7 +288,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0AA9B7C91C49896D004D3DE1 /* PerfectLib.framework in Frameworks */,
+				0A91C63A1C948BBE003E2C3C /* PerfectLib.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -358,6 +392,7 @@
 		0A84901F1C36CB3400149828 /* Linked */ = {
 			isa = PBXGroup;
 			children = (
+				0A91C6391C948BBE003E2C3C /* PerfectLib.framework */,
 				0A8420D71C7631D900C490DC /* MySQL.framework */,
 				0AA9B7C81C49896D004D3DE1 /* PerfectLib.framework */,
 			);
@@ -387,6 +422,16 @@
 				0AE911ED1C3ED29400F6BA79 /* assets */,
 			);
 			path = webroot;
+			sourceTree = "<group>";
+		};
+		0A91C63E1C9499ED003E2C3C /* Cert */ = {
+			isa = PBXGroup;
+			children = (
+				0A91C6481C949CCE003E2C3C /* entrust_2048_ca.pem */,
+				0A91C63F1C9499ED003E2C3C /* aps_development.pem */,
+				0A91C6411C9499ED003E2C3C /* key.pem */,
+			);
+			path = Cert;
 			sourceTree = "<group>";
 		};
 		0A98F55E1C36A9FB00E94B9D = {
@@ -424,6 +469,7 @@
 				0A337BE31C413EF900CEA758 /* Models */,
 				0A84902A1C370AEF00149828 /* Templates */,
 				0A8490431C3D53A700149828 /* webroot */,
+				0A91C63E1C9499ED003E2C3C /* Cert */,
 				0A98F5891C36B4D800E94B9D /* SwiftBBS Server.h */,
 				0A98F58B1C36B4D800E94B9D /* Info.plist */,
 			);
@@ -598,6 +644,7 @@
 				0A84902D1C370B5E00149828 /* CopyFiles */,
 				0A8490461C3D547D00149828 /* CopyFiles */,
 				0AA9B8431C4FFA53004D3DE1 /* CopyFiles */,
+				0A91C63D1C9499AE003E2C3C /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -633,6 +680,7 @@
 				0AA9B7901C49818F004D3DE1 /* Sources */,
 				0AA9B7911C49818F004D3DE1 /* Frameworks */,
 				0AA9B7921C49818F004D3DE1 /* Resources */,
+				0A91C63C1C948BBE003E2C3C /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -696,6 +744,12 @@
 					};
 					0AA9B7931C49818F004D3DE1 = {
 						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = 6B9DDK2847;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 1;
+							};
+						};
 					};
 					0AA9B7A81C498190004D3DE1 = {
 						CreatedOnToolsVersion = 7.2;
@@ -739,9 +793,12 @@
 				0A84903C1C3BFC9D00149828 /* bbs_detail.mustache in Resources */,
 				0AE911F01C3ED29400F6BA79 /* perfect_icon.png in Resources */,
 				0AE911EA1C3EA59900F6BA79 /* common_footer.mustache in Resources */,
+				0A91C6421C9499ED003E2C3C /* aps_development.pem in Resources */,
+				0A91C6441C9499ED003E2C3C /* key.pem in Resources */,
 				0A84903F1C3C059D00149828 /* bbs_list.mustache in Resources */,
 				0A0141911C5C9F43003783C3 /* bbs_pager.mustache in Resources */,
 				0AE911E71C3E9DF300F6BA79 /* common_header.mustache in Resources */,
+				0A91C6491C949CCE003E2C3C /* entrust_2048_ca.pem in Resources */,
 				0AA9B8451C4FFAF5004D3DE1 /* dummy.txt in Resources */,
 				0A337BF21C425A4D00CEA758 /* user_edit.mustache in Resources */,
 				0AE911F31C40EEB700F6BA79 /* user_mypage.mustache in Resources */,
@@ -910,6 +967,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				ONLY_ACTIVE_ARCH = YES;
 			};
 			name = Debug;
 		};
@@ -975,7 +1034,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "asia.groovebab.SwiftBBS-Server";
+				PRODUCT_BUNDLE_IDENTIFIER = "asia.groovelab.SwiftBBS-Server";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = NO;
@@ -1033,7 +1092,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "asia.groovebab.SwiftBBS-Server";
+				PRODUCT_BUNDLE_IDENTIFIER = "asia.groovelab.SwiftBBS-Server";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = NO;
@@ -1150,8 +1209,10 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -1173,8 +1234,9 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = asia.groovebab.SwiftBBS;
+				PRODUCT_BUNDLE_IDENTIFIER = asia.groovelab.SwiftBBS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1199,8 +1261,10 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -1215,8 +1279,9 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = asia.groovebab.SwiftBBS;
+				PRODUCT_BUNDLE_IDENTIFIER = asia.groovelab.SwiftBBS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;

@@ -30,7 +30,6 @@ class BaseRequestHandler: RequestHandler {
 
     var request: WebRequest!
     var response: WebResponse!
-//    var db: SQLite!
     var db: MySQL!
     var session: SessionManager!
     
@@ -47,7 +46,6 @@ class BaseRequestHandler: RequestHandler {
         }
         
         do {
-//            db = try SQLite(Config.sqliteDbPath)
             let dbManager = try DatabaseManager()
             db = dbManager.db
 
