@@ -241,13 +241,14 @@ class BbsHandler: BaseRequestHandler {
             return
         }
     
-        var userIds = [bbs.userId]
+        var userIds = Set([bbs.userId])
         let comments = try bbsCommentRepository.selectByBbsId(bbsId)
         comments.forEach { (entity) -> () in
-            userIds.append(entity.userId)
+            userIds.insert(entity.userId)
         }
+        userIds.remove(exceptUserId)
         
-        let userEntities = try userRepository.selectByIds(userIds.filter { $0 != exceptUserId })
+        let userEntities = try userRepository.selectByIds(userIds)
         let deviceTokens = userEntities.map { $0.apnsDeviceToken }.flatMap { $0 }
         
         print("device tokens:", deviceTokens)

@@ -153,11 +153,10 @@ class UserRepository : Repository {
         return createEntityFromRow(row)
     }
     
-    func selectByIds(ids: [UInt]) throws -> [UserEntity] {
-        let sql = "SELECT id, name, provider, provider_user_id, provider_user_name, apns_device_token, created_at, updated_at FROM user WHERE id IN (?)"
-        var params = Params()
-        params.append(ids.map { String($0) }.joinWithSeparator(","))
-        let rows = try executeSelectSql(sql, params: params)
+    func selectByIds(ids: Set<UInt>) throws -> [UserEntity] {
+        let formatedIdsString = ids.map { String($0) }.joinWithSeparator(",")
+        let sql = "SELECT id, name, provider, provider_user_id, provider_user_name, apns_device_token, created_at, updated_at FROM user WHERE id IN (\(formatedIdsString))"
+        let rows = try executeSelectSql(sql)
         return rows.map { row in
             return createEntityFromRow(row)
         }

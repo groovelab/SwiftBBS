@@ -30,7 +30,7 @@ class Repository {
         self.db = db
     }
 
-    func executeInsertSql(sql: String, params: Params?) throws -> UInt {
+    func executeInsertSql(sql: String, params: Params? = nil) throws -> UInt {
         do {
             return try executeSql(sql, params: params) {
                 UInt($0.insertId())
@@ -40,7 +40,7 @@ class Repository {
         }
     }
     
-    func executeUpdateSql(sql: String, params: Params?) throws -> UInt {
+    func executeUpdateSql(sql: String, params: Params? = nil) throws -> UInt {
         do {
             return try executeSql(sql, params: params) {
                 UInt($0.affectedRows())
@@ -50,7 +50,7 @@ class Repository {
         }
     }
     
-    func executeDeleteSql(sql: String, params: Params?) throws -> UInt {
+    func executeDeleteSql(sql: String, params: Params? = nil) throws -> UInt {
         do {
             return try executeSql(sql, params: params) {
                 UInt($0.affectedRows())
@@ -60,7 +60,7 @@ class Repository {
         }
     }
     
-    func executeSelectSql(sql: String, params: Params?) throws -> Rows {
+    func executeSelectSql(sql: String, params: Params? = nil) throws -> Rows {
         do {
             return try executeSql(sql, params: params) { stmt -> Rows in
                 let results = stmt.results()
