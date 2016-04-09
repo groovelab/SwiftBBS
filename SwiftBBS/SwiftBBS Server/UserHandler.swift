@@ -245,8 +245,13 @@ class UserHandler: BaseRequestHandler {
     }
     
     func loginAction() throws -> ActionResponse {
-        //  TODO:check if enable each OAuth provider
-        return .Output(templatePath: "user_login.mustache", values: [String: Any]())
+        var values = [String: Any]()
+        values["lineLoginEnabled"] = !Config.lineChannelId.isEmpty
+        values["githubLoginEnabled"] = !Config.gitHubClientId.isEmpty
+        values["facebookLoginEnabled"] = !Config.facebookAppId.isEmpty
+        values["googleLoginEnabled"] = !Config.googleClientId.isEmpty
+        
+        return .Output(templatePath: "user_login.mustache", values: values)
     }
     
     func doLoginAction() throws -> ActionResponse {
