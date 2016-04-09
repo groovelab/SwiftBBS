@@ -8,6 +8,7 @@
 
 import PerfectLib
 
+//  TODO: read from config.plist
 class Config {
     static let sessionName = "session"
     static let sessionExpires = 60
@@ -29,6 +30,8 @@ class Config {
     static let facebookAppSecret = ""
     static let googleClientId = ""
     static let googleClientSecret = ""
+    static let lineChannelId = ""
+    static let lineChannelSecret = ""
     
     static let apnsConfigurationName = "SwiftBBS"
     static let apnsTopic = "asia.groovelab.SwiftBBS"

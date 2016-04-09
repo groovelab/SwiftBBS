@@ -49,8 +49,9 @@ public func PerfectServerModuleInit() {
         // This code will be called whenever a new connection to the APNS service is required.
         // Configure the SSL related settings.
         
-        net.keyFilePassword = ""
+        net.keyFilePassword = ""    //  TODO: set in Config
         
+        //  TODO: update README.md
         guard net.useCertificateChainFile("Cert/entrust_2048_ca.pem") &&
             net.useCertificateFile("Cert/aps_development.pem") &&
             net.usePrivateKeyFile("Cert/key.pem") &&
@@ -62,5 +63,6 @@ public func PerfectServerModuleInit() {
         }
     }
     
+    //  TODO: set in Config
     NotificationPusher.development = true // set to toggle to the APNS sandbox server
 }

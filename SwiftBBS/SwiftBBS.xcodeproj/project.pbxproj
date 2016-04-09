@@ -12,6 +12,13 @@
 		0A0141951C5CA1AF003783C3 /* Pager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0141941C5CA1AF003783C3 /* Pager.swift */; };
 		0A0141971C5CA5D6003783C3 /* SelectOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0141961C5CA5D6003783C3 /* SelectOption.swift */; };
 		0A01419A1C5FAAAB003783C3 /* Validator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0141991C5FAAAB003783C3 /* Validator.swift */; };
+		0A0949341CB8BFAA0086F05C /* LineOAuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0949331CB8BFA90086F05C /* LineOAuthClient.swift */; };
+		0A0949381CB8C5FE0086F05C /* btn_login_base.png in Resources */ = {isa = PBXBuildFile; fileRef = 0A0949351CB8C5FE0086F05C /* btn_login_base.png */; };
+		0A0949391CB8C5FE0086F05C /* btn_login_hover.png in Resources */ = {isa = PBXBuildFile; fileRef = 0A0949361CB8C5FE0086F05C /* btn_login_hover.png */; };
+		0A09493A1CB8C5FE0086F05C /* btn_login_press.png in Resources */ = {isa = PBXBuildFile; fileRef = 0A0949371CB8C5FE0086F05C /* btn_login_press.png */; };
+		0A09493B1CB8C62A0086F05C /* btn_login_base.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A0949351CB8C5FE0086F05C /* btn_login_base.png */; };
+		0A09493C1CB8C62A0086F05C /* btn_login_hover.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A0949361CB8C5FE0086F05C /* btn_login_hover.png */; };
+		0A09493D1CB8C62A0086F05C /* btn_login_press.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A0949371CB8C5FE0086F05C /* btn_login_press.png */; };
 		0A16F6F91C67B0A000725A41 /* OAuthHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A16F6F81C67B0A000725A41 /* OAuthHandler.swift */; };
 		0A337BE51C413F3C00CEA758 /* BbsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A337BE41C413F3C00CEA758 /* BbsRepository.swift */; };
 		0A337BE71C41405500CEA758 /* BbsCommentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A337BE61C41405500CEA758 /* BbsCommentRepository.swift */; };
@@ -144,6 +151,9 @@
 			dstPath = webroot/assets/img;
 			dstSubfolderSpec = 16;
 			files = (
+				0A09493B1CB8C62A0086F05C /* btn_login_base.png in CopyFiles */,
+				0A09493C1CB8C62A0086F05C /* btn_login_hover.png in CopyFiles */,
+				0A09493D1CB8C62A0086F05C /* btn_login_press.png in CopyFiles */,
 				0AE911F11C3ED2AF00F6BA79 /* perfect_icon.png in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -188,6 +198,10 @@
 		0A0141941C5CA1AF003783C3 /* Pager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pager.swift; sourceTree = "<group>"; };
 		0A0141961C5CA5D6003783C3 /* SelectOption.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectOption.swift; sourceTree = "<group>"; };
 		0A0141991C5FAAAB003783C3 /* Validator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Validator.swift; sourceTree = "<group>"; };
+		0A0949331CB8BFA90086F05C /* LineOAuthClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineOAuthClient.swift; sourceTree = "<group>"; };
+		0A0949351CB8C5FE0086F05C /* btn_login_base.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btn_login_base.png; sourceTree = "<group>"; };
+		0A0949361CB8C5FE0086F05C /* btn_login_hover.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btn_login_hover.png; sourceTree = "<group>"; };
+		0A0949371CB8C5FE0086F05C /* btn_login_press.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btn_login_press.png; sourceTree = "<group>"; };
 		0A16F6F81C67B0A000725A41 /* OAuthHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OAuthHandler.swift; sourceTree = "<group>"; };
 		0A337BE41C413F3C00CEA758 /* BbsRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BbsRepository.swift; sourceTree = "<group>"; };
 		0A337BE61C41405500CEA758 /* BbsCommentRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BbsCommentRepository.swift; sourceTree = "<group>"; };
@@ -377,6 +391,7 @@
 				0A8420C31C74D92000C490DC /* GithubOAuthClient.swift */,
 				0A8420C51C74D94C00C490DC /* GoogleOAuthClient.swift */,
 				0A8420C71C74D96F00C490DC /* FacebookOAuthClient.swift */,
+				0A0949331CB8BFA90086F05C /* LineOAuthClient.swift */,
 			);
 			name = Oauth;
 			sourceTree = "<group>";
@@ -614,6 +629,9 @@
 		0AE911EE1C3ED29400F6BA79 /* img */ = {
 			isa = PBXGroup;
 			children = (
+				0A0949351CB8C5FE0086F05C /* btn_login_base.png */,
+				0A0949361CB8C5FE0086F05C /* btn_login_hover.png */,
+				0A0949371CB8C5FE0086F05C /* btn_login_press.png */,
 				0AE911EF1C3ED29400F6BA79 /* perfect_icon.png */,
 			);
 			path = img;
@@ -791,9 +809,12 @@
 				0A8490361C3BE05000149828 /* user_register.mustache in Resources */,
 				0A8490391C3BF07100149828 /* user_login.mustache in Resources */,
 				0A84903C1C3BFC9D00149828 /* bbs_detail.mustache in Resources */,
+				0A09493A1CB8C5FE0086F05C /* btn_login_press.png in Resources */,
 				0AE911F01C3ED29400F6BA79 /* perfect_icon.png in Resources */,
 				0AE911EA1C3EA59900F6BA79 /* common_footer.mustache in Resources */,
+				0A0949391CB8C5FE0086F05C /* btn_login_hover.png in Resources */,
 				0A91C6421C9499ED003E2C3C /* aps_development.pem in Resources */,
+				0A0949381CB8C5FE0086F05C /* btn_login_base.png in Resources */,
 				0A91C6441C9499ED003E2C3C /* key.pem in Resources */,
 				0A84903F1C3C059D00149828 /* bbs_list.mustache in Resources */,
 				0A0141911C5C9F43003783C3 /* bbs_pager.mustache in Resources */,
@@ -848,6 +869,7 @@
 				0AA9B78A1C49511F004D3DE1 /* BbsHandler.swift in Sources */,
 				0A8420C41C74D92000C490DC /* GithubOAuthClient.swift in Sources */,
 				0AC388961C665BF50085EC54 /* FormError.swift in Sources */,
+				0A0949341CB8BFAA0086F05C /* LineOAuthClient.swift in Sources */,
 				0A98F59F1C36B52700E94B9D /* PerfectServerModuleInit.swift in Sources */,
 				0AA9B7881C49510C004D3DE1 /* extension.swift in Sources */,
 				0AC388A01C665D6D0085EC54 /* IntValidator.swift in Sources */,

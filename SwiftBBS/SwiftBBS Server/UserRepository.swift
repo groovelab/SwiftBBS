@@ -13,6 +13,7 @@ enum UserProvider : String {
     case Github = "github"
     case Facebook = "facebook"
     case Google = "google"
+    case Line = "line"
 }
 
 //  MARK: entity
@@ -35,7 +36,7 @@ struct UserEntity {
     
     init(id: UInt?, provider: UserProvider, providerUserId: String, providerUserName: String) {
         self.id = id
-        self.name = provider.rawValue + " : " + providerUserName
+        self.name = provider.rawValue + "@" + providerUserName
         self.password = ""
         self.provider = provider
         self.providerUserId = providerUserId

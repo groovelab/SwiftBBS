@@ -20,6 +20,9 @@ class OAuthHandler : BaseRequestHandler {
     
     private lazy var githubOAuthClient: GithubOAuthClient = GithubOAuthClient(clientId: Config.gitHubClientId, clientSecret: Config.gitHubClientSecret)
     
+    private lazy var lineOAuthClient: LineOAuthClient = LineOAuthClient(clientId: Config.lineChannelId, clientSecret: Config.lineChannelSecret)
+    private lazy var lineRedirectUri: String = self.request.isHttps() ? "https" : "http" + "://\(self.request.httpHost())/oauth/line_callback"
+    
     
     //  MARK: life cycle
     override init() {
@@ -29,7 +32,7 @@ class OAuthHandler : BaseRequestHandler {
         //        needLoginActions = []
         //        redirectUrlIfNotLogin = "/"
         
-        noNeedLoginActions = ["github", "githubCallback", "facebook", "facebookCallback"]
+        noNeedLoginActions = ["github", "githubCallback", "facebook", "facebookCallback", "google", "googleCallback", "line", "lineCallback"]
         redirectUrlIfLogin = "/bbs"
     }
     
@@ -47,6 +50,10 @@ class OAuthHandler : BaseRequestHandler {
             return try googleAction()
         case "google_callback":
             return try googleCallbackAction()
+        case "line":
+            return try lineAction()
+        case "line_callback":
+            return try lineCallbackAction()
         default:
             return .Redirect(url: "/")
         }
@@ -109,7 +116,6 @@ class OAuthHandler : BaseRequestHandler {
         }
     }
 
-    
     func githubAction() throws -> ActionResponse {
         prepareForOauth(githubOAuthClient.state)
         
@@ -132,6 +138,34 @@ class OAuthHandler : BaseRequestHandler {
         do {
             let socialUser = try githubOAuthClient.getSocialUser(code: code)
             try loign(socialUser: socialUser, provider: .Github)
+            return .Redirect(url: "/user/mypage")
+        } catch OAuthClientError.Fail(let message) {
+            return .Error(status: 500, message: message)
+        }
+    }
+    
+    func lineAction() throws -> ActionResponse {
+        prepareForOauth(lineOAuthClient.state)
+        
+        let authUrl = lineOAuthClient.authUrl(lineRedirectUri)
+        return .Redirect(url: authUrl)
+    }
+    
+    func lineCallbackAction() throws -> ActionResponse {
+        guard let state = request.param("state") else {
+            return .Error(status: 500, message:"can not get google state")
+        }
+        guard let code = request.param("code") else {
+            return .Error(status: 500, message:"can not get google code")
+        }
+        
+        if !validateState(state) {
+            return .Error(status: 500, message:"invalid google state")
+        }
+        
+        do {
+            let socialUser = try lineOAuthClient.getSocialUser(code: code)
+            try loign(socialUser: socialUser, provider: .Line)
             return .Redirect(url: "/user/mypage")
         } catch OAuthClientError.Fail(let message) {
             return .Error(status: 500, message: message)
