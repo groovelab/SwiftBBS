@@ -166,6 +166,7 @@ class UserRepository : Repository {
     //  row contains 
     //  id, name, provider, provider_user_id, provider_user_name, apns_device_token, created_at, updated_at
     private func createEntityFromRow(row: Row) -> UserEntity {
+        let createdAt = row[6] as? String
         return UserEntity(
             id: UInt(row[0] as! UInt32),
             name: row[1] as! String,
@@ -174,7 +175,8 @@ class UserRepository : Repository {
             providerUserId: row[3] as? String,
             providerUserName: row[4] as? String,
             apnsDeviceToken: row[5] as? String,
-            createdAt: row[6] as? String,
+//            createdAt: row[6] as? String,
+            createdAt: createdAt,   //  work around for linux
             updatedAt: row[7] as? String
         )
     }
