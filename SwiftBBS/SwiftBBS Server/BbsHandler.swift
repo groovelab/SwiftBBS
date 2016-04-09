@@ -237,10 +237,7 @@ class BbsHandler: BaseRequestHandler {
     }
     
     private func notifyBbsCommented(bbsId: UInt, exceptUserId: UInt) throws {
-        
-        //  TODO: set enable flag in Config
-        
-        guard let bbs = try bbsRepository.findById(bbsId) else {
+        guard let bbs = try bbsRepository.findById(bbsId) where Config.apnsEnabled else {
             return
         }
     

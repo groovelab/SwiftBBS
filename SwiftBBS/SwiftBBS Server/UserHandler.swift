@@ -245,6 +245,7 @@ class UserHandler: BaseRequestHandler {
     }
     
     func loginAction() throws -> ActionResponse {
+        //  TODO:check if enable each OAuth provider
         return .Output(templatePath: "user_login.mustache", values: [String: Any]())
     }
     

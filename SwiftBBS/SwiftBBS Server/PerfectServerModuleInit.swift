@@ -45,24 +45,17 @@ public func PerfectServerModuleInit() {
     //  APNS setting
     NotificationPusher.addConfigurationIOS(Config.apnsConfigurationName) {
         (net:NetTCPSSL) in
-        
-        // This code will be called whenever a new connection to the APNS service is required.
-        // Configure the SSL related settings.
-        
-        net.keyFilePassword = ""    //  TODO: set in Config
+        net.keyFilePassword = Config.apnsKeyFilePassword
         
         //  TODO: update README.md
-        guard net.useCertificateChainFile("Cert/entrust_2048_ca.pem") &&
-            net.useCertificateFile("Cert/aps_development.pem") &&
-            net.usePrivateKeyFile("Cert/key.pem") &&
+        guard net.useCertificateChainFile(Config.apnsCertificateChainFilePath) &&
+            net.useCertificateFile(Config.apnsCertificateFilePath) &&
+            net.usePrivateKeyFile(Config.apnsPrivateKeyFilePath) &&
             net.checkPrivateKey() else {
-                
                 let code = Int32(net.errorCode())
                 print("Error validating private key file: \(net.errorStr(code))")
                 return
         }
     }
-    
-    //  TODO: set in Config
-    NotificationPusher.development = true // set to toggle to the APNS sandbox server
+    NotificationPusher.development = Config.apnsIsDevelopment
 }

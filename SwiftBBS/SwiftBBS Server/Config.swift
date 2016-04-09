@@ -23,7 +23,7 @@ class Config {
     static let uploadImageFileExtensions = ["jpg","png"]
     static let curlDir = "/usr/bin/"
     
-    //  FIXME: enter your github developer application credential
+    //  FIXME: enter your id and secret
     static let gitHubClientId = ""
     static let gitHubClientSecret = ""
     static let facebookAppId = ""
@@ -33,9 +33,16 @@ class Config {
     static let lineChannelId = ""
     static let lineChannelSecret = ""
     
+    static let apnsEnabled = true
     static let apnsConfigurationName = "SwiftBBS"
     static let apnsTopic = "asia.groovelab.SwiftBBS"
-    
+    //  FIXME: enter your apns setting
+    static let apnsKeyFilePassword = ""
+    static let apnsCertificateChainFilePath = "Cert/entrust_2048_ca.pem"
+    static let apnsCertificateFilePath = "Cert/aps_development.pem"
+    static let apnsPrivateKeyFilePath = "Cert/key.pem"
+    static let apnsIsDevelopment = true
+
 #if os(Linux)
     static let imageMagickDir = ""
 #else
