@@ -13,15 +13,15 @@ class OAuthHandler : BaseRequestHandler {
     private let OAuthStateSessionKey = "oauth_state"
     
     private lazy var googleOAuthClient: GoogleOAuthClient = GoogleOAuthClient(clientId: Config.googleClientId, clientSecret: Config.googleClientSecret)
-    private lazy var googleRedirectUri: String = self.request.isHttps() ? "https" : "http" + "://\(self.request.httpHost())/oauth/google_callback"
+    private lazy var googleRedirectUri: String = (self.request.isHttps() ? "https" : "http") + "://\(self.request.httpHost())/oauth/google_callback"
     
     private lazy var facebookOAuthClient: FacebookOAuthClient = FacebookOAuthClient(clientId: Config.facebookAppId, clientSecret: Config.facebookAppSecret)
-    private lazy var facebookRedirectUri: String = self.request.isHttps() ? "https" : "http" + "://\(self.request.httpHost())/oauth/facebook_callback"
+    private lazy var facebookRedirectUri: String = (self.request.isHttps() ? "https" : "http") + "://\(self.request.httpHost())/oauth/facebook_callback"
     
     private lazy var githubOAuthClient: GithubOAuthClient = GithubOAuthClient(clientId: Config.gitHubClientId, clientSecret: Config.gitHubClientSecret)
     
     private lazy var lineOAuthClient: LineOAuthClient = LineOAuthClient(clientId: Config.lineChannelId, clientSecret: Config.lineChannelSecret)
-    private lazy var lineRedirectUri: String = self.request.isHttps() ? "https" : "http" + "://\(self.request.httpHost())/oauth/line_callback"
+    private lazy var lineRedirectUri: String = (self.request.isHttps() ? "https" : "http") + "://\(self.request.httpHost())/oauth/line_callback"
     
     
     //  MARK: life cycle
